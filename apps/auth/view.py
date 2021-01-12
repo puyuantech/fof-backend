@@ -4,7 +4,7 @@ from bases.exceptions import VerifyError
 from models import Token
 from utils.decorators import params_required, login_required
 from apps.captchas.libs import check_img_captcha, check_sms_captcha
-from .libs import check_login, get_all_user_info, register_user, get_user_by_mobile
+from .libs import check_login, get_all_user_info, register_user, get_user_by_mobile, get_user_login_by_id
 
 
 class LoginAPI(ApiViewHandler):
@@ -39,6 +39,10 @@ class MobileLoginAPI(ApiViewHandler):
         if not user:
             raise VerifyError('用户不存在')
         user_dict = user.to_dict()
+        user_login = get_user_login_by_id(user.id)
+        user_dict.update({
+            'username': user_login.username
+        })
         token_dict = Token.generate_token(user.id)
 
         data = {

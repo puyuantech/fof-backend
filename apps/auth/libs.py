@@ -35,6 +35,10 @@ def get_user_by_mobile(mobile):
     return User.filter_by_query(mobile=mobile).first()
 
 
+def get_user_login_by_id(user_id):
+    return UserLogin.filter_by_query(user_id=user_id).first()
+
+
 def register_user(username, password):
     if get_user_by_username(username):
         raise VerifyError('用户名已存在！')
