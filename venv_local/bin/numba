@@ -1,0 +1,8 @@
+#!/Users/puyuantech/Desktop/work_my/fof-backend/venv_local/bin/python3
+# -*- coding: UTF-8 -*-
+from __future__ import print_function, division, absolute_import
+
+from numba.numba_entry import main
+
+if __name__ == "__main__":
+    main()
