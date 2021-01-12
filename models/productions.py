@@ -1,5 +1,6 @@
 from bases.dbwrapper import db, BaseModel
 from sqlalchemy.dialects.mysql import DOUBLE
+from sqlalchemy import Index
 
 
 class FOFInfo(BaseModel):
@@ -89,3 +90,35 @@ class FOFNav(BaseModel):
     fof_id = db.Column(db.CHAR(16), primary_key=True)                                   # 产品ID
     datetime = db.Column(db.DATE, primary_key=True)                                     # 日期
     nav = db.Column(DOUBLE(asdecimal=False), nullable=False)                            # 单位净值
+
+
+class HedgeFundNAV(BaseModel):
+    '''私募基金净值'''
+
+    __tablename__ = 'hedge_fund_nav'
+
+    fund_id = db.Column(db.CHAR(16), primary_key=True)                                  # 基金ID
+    datetime = db.Column(db.DATE, primary_key=True)                                     # 日期
+    insert_time = db.Column(db.DATETIME, primary_key=True)                              # 插入时间
+    calc_date = db.Column(db.DATE)                                                      # 计算日期
+    net_asset_value = db.Column(DOUBLE(asdecimal=False), nullable=False)                # 单位净值
+    acc_unit_value = db.Column(DOUBLE(asdecimal=False))                                 # 累计净值
+    v_net_value = db.Column(DOUBLE(asdecimal=False))                                    # 虚拟净值
+
+    __table_args__ = (
+        Index('idx_hedge_fund_nav_datetime', 'datetime'),
+    )
+
+
+class HedgeFundInfo(BaseModel):
+    '''私募基金信息'''
+
+    __tablename__ = 'hedge_fund_info'
+
+    fund_id = db.Column(db.CHAR(16), primary_key=True)                                  # 基金ID
+    fund_name = db.Column(db.TEXT, nullable=False)                                      # 基金名称
+    manager_id = db.Column(db.CHAR(16), nullable=False)                                 # 私募基金公司ID
+    water_line = db.Column(DOUBLE(asdecimal=False), nullable=False)                     # 水位线
+    incentive_fee_mode = db.Column(db.TEXT, nullable=False)                             # 业绩报酬计提方法
+    incentive_fee_ratio = db.Column(DOUBLE(asdecimal=False), nullable=False)            # 业绩计提比例
+    v_nav_decimals = db.Column(db.SMALLINT, nullable=False)                             # 虚拟净值精度
