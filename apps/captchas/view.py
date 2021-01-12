@@ -49,7 +49,6 @@ class CaptchaCheckAPI(ApiViewHandler):
 class GetMobileCaptcha(ApiViewHandler):
     @params_required(*['mobile', 'action'])
     def post(self):
-        print('hhhhhhhhh')
         if not self.is_valid_mobile(self.input.mobile):
             raise VerifyError('手机号输入错误！')
 
