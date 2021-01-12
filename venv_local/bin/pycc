@@ -1,3 +1,0 @@
-#!/Users/puyuantech/Desktop/work_my/fof-backend/venv_local/bin/python3
-from numba.pycc import main
-main()
