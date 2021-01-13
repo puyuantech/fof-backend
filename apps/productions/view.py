@@ -1,12 +1,14 @@
 import pandas as pd
+import json
 
 from flask import request
 
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
-from models import FOFInfo, FOFNav, FOFAssetAllocation
+from models import FOFInfo, FOFNav, FOFAssetAllocation, FOFPosition
 from utils.decorators import params_required
 from utils.helper import generate_sql_pagination, replace_nan
+from utils.caches import get_fund_collection_caches, get_hedge_fund_cache
 from surfing.util.calculator import Calculator as SurfingCalculator
 
 from .libs import update_production_info
@@ -81,21 +83,53 @@ class ProductionDetail(ApiViewHandler):
 class ProductionTrades(ApiViewHandler):
 
     def get(self, _id):
+        def helper(x):
+            if x['asset_type'] == '1':
+                x['fund_name'] = mutual_fund.loc[x['fund_id'], 'fund_name']
+                x['order_book_id'] = mutual_fund.loc[x['fund_id'], 'order_book_id']
+            if x['asset_type'] == '2':
+                x['fund_name'] = hedge_fund.loc[x['fund_id'], 'fund_name']
+                x['order_book_id'] = hedge_fund.loc[x['fund_id'], 'order_book_id']
+            return x
+
+        mutual_fund = get_fund_collection_caches()
+        hedge_fund = get_hedge_fund_cache()
+
         query = db.session.query(FOFAssetAllocation).filter(
             FOFAssetAllocation.fof_id == _id,
         )
         df = pd.read_sql(query.statement, query.session.bind)
+        df = df.apply(helper, axis=1)
         return replace_nan(df.to_dict(orient='records'))
 
 
 class ProductionPosition(ApiViewHandler):
 
     def get(self, _id):
-        query = db.session.query(FOFAssetAllocation).filter(
-            FOFAssetAllocation.fof_id == _id,
-        )
-        df = pd.read_sql(query.statement, query.session.bind)
+        def helper(x):
+            if x['asset_type'] == '1':
+                x['fund_name'] = mutual_fund.loc[x['fund_id'], 'fund_name']
+                x['order_book_id'] = mutual_fund.loc[x['fund_id'], 'order_book_id']
+            if x['asset_type'] == '2':
+                x['fund_name'] = hedge_fund.loc[x['fund_id'], 'fund_name']
+                x['order_book_id'] = hedge_fund.loc[x['fund_id'], 'order_book_id']
+            return x
+
+        mutual_fund = get_fund_collection_caches()
+        hedge_fund = get_hedge_fund_cache()
+
+        position = db.session.query(FOFPosition).filter(
+            FOFPosition.fof_id == _id,
+        ).order_by(FOFPosition.datetime.desc()).limit(1).first()
+        if not position:
+            return []
+        df = pd.DataFrame(json.loads(position.position))
         if len(df) < 1:
-            return {}
-        data = SurfingCalculator.get_stat_result(df['datetime'], df['nav'])
-        return data
+            return []
+        df['datetime'] = position.datetime
+        df['asset_type'] = df['asset_type'].astype(str)
+        df['amount'] = df['share'] * df['nav']
+        df['sum_amount'] = df['amount'].sum()
+        df['weight'] = df['amount'] / df['sum_amount']
+        df = df.apply(helper, axis=1)
+        return replace_nan(df.to_dict(orient='records'))
