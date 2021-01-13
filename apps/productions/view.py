@@ -6,7 +6,7 @@ from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from models import FOFInfo, FOFNav, FOFAssetAllocation
 from utils.decorators import params_required
-from utils.helper import generate_sql_pagination
+from utils.helper import generate_sql_pagination, replace_nan
 from surfing.util.calculator import Calculator as SurfingCalculator
 
 from .libs import update_production_info
@@ -85,7 +85,7 @@ class ProductionTrades(ApiViewHandler):
             FOFAssetAllocation.fof_id == _id,
         )
         df = pd.read_sql(query.statement, query.session.bind)
-        return df.to_dict(orient='records')
+        return replace_nan(df.to_dict(orient='records'))
 
 
 class ProductionPosition(ApiViewHandler):
