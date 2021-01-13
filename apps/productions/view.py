@@ -75,7 +75,7 @@ class ProductionDetail(ApiViewHandler):
             'values': df['nav'].to_list(),
             'ratios': SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'nav').__dict__,
         }
-        return data
+        return replace_nan(data)
 
 
 class ProductionTrades(ApiViewHandler):
