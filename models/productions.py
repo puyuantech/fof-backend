@@ -93,6 +93,18 @@ class FOFNav(BaseModel):
     nav = db.Column(DOUBLE(asdecimal=False), nullable=False)                            # 单位净值
 
 
+class FOFPosition(BaseModel):
+    """
+    fof净值数据
+    """
+
+    __tablename__ = 'fof_position'
+
+    fof_id = db.Column(db.CHAR(16), primary_key=True)                                   # 产品ID
+    datetime = db.Column(db.DATE, primary_key=True)                                     # 日期
+    position = db.Column(db.TEXT)                                                       # 持仓
+
+
 class HedgeFundNAV(BaseModel):
     """
     私募基金净值
