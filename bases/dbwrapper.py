@@ -155,6 +155,9 @@ class DBMixin(BaseHandler):
             if isinstance(v, datetime.datetime):
                 data[k] = v.strftime('%Y-%m-%d %H:%M:%S')
 
+            if isinstance(v, datetime.date):
+                data[k] = v.strftime('%Y-%m-%d')
+
         return data
 
     @classmethod

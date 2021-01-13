@@ -9,4 +9,16 @@ class SMS(EnumBase):
     LOGIN = 'SMS_203780299'
 
 
+class StuffEnum(EnumBase):
+    ADMIN = 1
+    FUND_MANAGER = 2
+    OPE_MANAGER = 3
+    INVESTOR = 4
+
+
+class ProductionStatus(EnumBase):
+    RAISE = 'raise'
+    OPEN = 'open'
+    CLOSE = 'close'
+    LIQUIDATE = 'liquidate'
 

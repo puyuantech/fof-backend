@@ -5,7 +5,7 @@ import random
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from utils.decorators import params_required
-from models import CaptchaCode, MobileCode
+from models import CaptchaCode, MobileCode, User
 from bases.constants import SMS
 
 from .captcha import captcha
@@ -52,6 +52,7 @@ class GetMobileCaptcha(ApiViewHandler):
         if not self.is_valid_mobile(self.input.mobile):
             raise VerifyError('手机号输入错误！')
 
+        User.get_by_query(mobile=self.input.mobile)
         mobile = self.input.mobile
         code = '%(code)06d' % {
             'code': random.randint(1, 999999),

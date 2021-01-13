@@ -36,7 +36,6 @@ class User(BaseModel):
             'site': self.site,
             'role_id': self.role_id,
             'is_staff': self.is_staff,
-            'privacy_level': self.privacy_level,
             'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
 

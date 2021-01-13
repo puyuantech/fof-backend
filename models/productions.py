@@ -24,8 +24,8 @@ class FOFInfo(BaseModel):
     incentive_fee_mode = db.Column(db.TEXT, nullable=False)                             # 业绩报酬计提方法
     incentive_fee = db.Column(db.TEXT, nullable=False)                                  # 业绩报酬提取比例
     current_deposit_rate = db.Column(DOUBLE(asdecimal=False), nullable=False)           # 银行活期存款利率
-    initial_raised_fv = db.Column(DOUBLE(asdecimal=False), nullable=False)              # 初始募集面值
-    initial_net_value = db.Column(DOUBLE(asdecimal=False), nullable=False)              # 期初总净值
+    initial_raised_fv = db.Column(DOUBLE(asdecimal=False), nullable=False)              # 净值
+    initial_net_value = db.Column(DOUBLE(asdecimal=False), nullable=False)              # 总资产
 
 
 class FOFScaleAlteration(BaseModel):
@@ -61,11 +61,12 @@ class FOFAssetAllocation(BaseModel):
     status = db.Column(db.String(31), nullable=False)                                   # 状态：在途/完成
     confirmed_date = db.Column(db.DATE)                                                 # 确认日期
     unit_total = db.Column(DOUBLE(asdecimal=False))                                     # 确认份额
+    trade_type = db.Column(db.BOOLEAN)                                                  # 交易类型 buy/sell
 
 
 class FOFManually(BaseModel):
     """
-        fof手工校正数据
+    fof手工校正数据
     """
 
     __tablename__ = 'fof_manually'
@@ -93,7 +94,9 @@ class FOFNav(BaseModel):
 
 
 class HedgeFundNAV(BaseModel):
-    '''私募基金净值'''
+    """
+    私募基金净值
+    """
 
     __tablename__ = 'hedge_fund_nav'
 
@@ -111,14 +114,33 @@ class HedgeFundNAV(BaseModel):
 
 
 class HedgeFundInfo(BaseModel):
-    '''私募基金信息'''
+    """
+    私募基金信息
+    """
 
     __tablename__ = 'hedge_fund_info'
 
     fund_id = db.Column(db.CHAR(16), primary_key=True)                                  # 基金ID
     fund_name = db.Column(db.TEXT, nullable=False)                                      # 基金名称
     manager_id = db.Column(db.CHAR(16), nullable=False)                                 # 私募基金公司ID
+    manager = db.Column(db.String(31))                                                  # 基金经理
+    size = db.Column(DOUBLE(asdecimal=False))                                           # 基金规模
     water_line = db.Column(DOUBLE(asdecimal=False), nullable=False)                     # 水位线
     incentive_fee_mode = db.Column(db.TEXT, nullable=False)                             # 业绩报酬计提方法
     incentive_fee_ratio = db.Column(DOUBLE(asdecimal=False), nullable=False)            # 业绩计提比例
     v_nav_decimals = db.Column(db.SMALLINT, nullable=False)                             # 虚拟净值精度
+    stars = db.Column(db.Integer, default=1)                                            # 星级
+
+
+class HedgeComment(BaseModel):
+    """
+    私募评论
+    """
+    __tablename__ = 'hedge_comments'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    fund_id = db.Column(db.CHAR(16), db.ForeignKey('hedge_fund_info.fund_id'))
+    fund = db.relationship('HedgeFundInfo', backref='comments')
+    comment = db.Column(db.String(255))                                                 # 评论
+
+

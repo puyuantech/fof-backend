@@ -39,7 +39,7 @@ def super_admin_login_required(func):
     return _func_wrapper
 
 
-def admin_login_required(permissions=False):
+def admin_login_required(permissions=None):
     def func_wrapper(func):
         @functools.wraps(func)
         def _func_wrapper(cls, *args, **kwargs):
@@ -49,7 +49,12 @@ def admin_login_required(permissions=False):
                 raise AuthError('请先登录')
             if not permissions:
                 permission_list = [1]
-            if user.role_id not in permission_list:
+            else:
+                permission_list = None
+
+            if not permission_list:
+                pass
+            elif user.role_id not in permission_list:
                 raise AuthPermissionError('权限不足')
             user_login = UserLogin.filter_by_query(user_id=user.id).first()
             g.user = user
