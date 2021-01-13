@@ -8,7 +8,9 @@ from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from models import HedgeFundInfo, HedgeFundNAV, HedgeComment
 from utils.decorators import params_required
-from utils.helper import generate_sql_pagination
+from utils.helper import generate_sql_pagination, replace_nan
+
+from surfing.util.calculator import Calculator as SurfingCalculator
 
 from .libs import update_hedge_fund_info, make_hedge_fund_info
 
@@ -46,6 +48,25 @@ class HedgeCommentAPI(ApiViewHandler):
          comment=self.input.comment,
         )
         return
+
+
+class HedgeDetail(ApiViewHandler):
+
+    def get(self, _id):
+        query = db.session.query(HedgeFundNAV).filter(
+            HedgeFundNAV.fund_id == _id,
+        )
+        df = pd.read_sql(query.statement, query.session.bind)
+        df = df.reset_index()
+        if len(df) < 1:
+            return {}
+
+        data = {
+            'dates': df['datetime'].to_list(),
+            'values': df['v_net_value'].to_list(),
+            'ratios': SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'v_net_value').__dict__,
+        }
+        return replace_nan(data)
 
 
 class HedgeAPI(ApiViewHandler):

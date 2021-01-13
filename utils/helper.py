@@ -1,5 +1,9 @@
-import jwt
+import pandas as pd
+import numpy as np
 import datetime
+import jwt
+from decimal import Decimal
+from collections import Iterable, OrderedDict
 
 
 class Singleton(type):
@@ -89,6 +93,43 @@ def ACCEPTED_RSP(data="success", msg=None):
 
 def ERROR_RSP(data=None, msg=None, code=None, status_code=400):
     return _RESPONSE(data, msg, code, status_code)
+
+
+def replace_nan(obj):
+
+    if type(obj) == str:
+        return obj
+
+    if type(obj) == Decimal:
+        return float(obj)
+
+    if isinstance(obj, OrderedDict):
+        r = OrderedDict()
+        for key in obj:
+            r[key] = replace_nan(obj[key])
+        return r
+
+    if isinstance(obj, dict):
+        r = {}
+        for key in obj:
+            r[key] = replace_nan(obj[key])
+        return r
+
+    if isinstance(obj, Iterable):
+        return list(map(lambda x: replace_nan(x), obj))
+
+    if isinstance(obj, datetime.date):
+        return obj.strftime('%Y-%m-%d')
+
+    if pd.isna(obj) or np.isinf(obj):
+        return None
+
+    if isinstance(obj, np.bool_):
+        return bool(obj)
+
+    if isinstance(obj, np.int64):
+        return str(obj)
+    return obj
 
 
 def generate_sql_pagination():

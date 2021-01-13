@@ -4,6 +4,8 @@ flask_sqlalchemy==2.4.4
 flask_migrate==2.5.3
 flask_restful==0.3.8
 flask_celery==2.4.3
+Flask-Cache==0.13.1
+flask_cache
 ujson
 pymysql
 pillow

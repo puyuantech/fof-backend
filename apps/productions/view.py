@@ -69,7 +69,12 @@ class ProductionDetail(ApiViewHandler):
         df = pd.read_sql(query.statement, query.session.bind)
         if len(df) < 1:
             return {}
-        data = SurfingCalculator.get_stat_result(df['datetime'], df['nav'])
+
+        data = {
+            'dates': df['datetime'].to_list(),
+            'values': df['nav'].to_list(),
+            'ratios': SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'nav').__dict__,
+        }
         return data
 
 
@@ -80,10 +85,7 @@ class ProductionTrades(ApiViewHandler):
             FOFAssetAllocation.fof_id == _id,
         )
         df = pd.read_sql(query.statement, query.session.bind)
-        if len(df) < 1:
-            return {}
-        data = SurfingCalculator.get_stat_result(df['datetime'], df['nav'])
-        return data
+        return df.to_dict(orient='records')
 
 
 class ProductionPosition(ApiViewHandler):
