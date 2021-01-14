@@ -24,6 +24,7 @@ class HedgesAPI(ApiViewHandler):
 
         return data
 
+    @params_required(*['fund_id'])
     def post(self):
         data = {
             'fund_id': request.json.get('fund_id'),
@@ -34,6 +35,8 @@ class HedgesAPI(ApiViewHandler):
             'incentive_fee_ratio': request.json.get('incentive_fee_ratio'),
             'v_nav_decimals': request.json.get('v_nav_decimals'),
         }
+        if HedgeFundInfo.filter_by_query(fund_id=self.input.fund_id).one_or_none():
+            raise VerifyError('ID 重复')
         obj = HedgeFundInfo.create(**data)
         update_hedge_fund_info(obj)
         return

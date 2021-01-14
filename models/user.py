@@ -25,10 +25,10 @@ class User(BaseModel):
     mobile = db.Column(db.String(20))
     role_id = db.Column(db.Integer, default=0)  # role_id 是否是管理员或者其他权限  1 管理员用户
     is_staff = db.Column(db.BOOLEAN, default=False)  # 是否是员工
-    name = db.Column(db.String(20))
-    amount = db.Column(db.Float)
-    sign_date = db.Column(db.String(20))
-    sponsor = db.Column(db.String(20))
+    name = db.Column(db.String(20))                 # 姓名
+    amount = db.Column(db.Float)                    # 投资总额
+    sign_date = db.Column(db.String(20))            # 签约日期
+    sponsor = db.Column(db.String(20))              # 介绍人
 
     def to_normal_dict(self):
         return {
@@ -38,6 +38,7 @@ class User(BaseModel):
             'email': self.email,
             'avatar_url': self.avatar_url,
             'site': self.site,
+            'mobile': self.mobile,
             'role_id': self.role_id,
             'is_staff': self.is_staff,
             'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
@@ -54,6 +55,7 @@ class User(BaseModel):
             'role_id': self.role_id,
             'is_staff': self.is_staff,
             'name': self.name,
+            'mobile': self.mobile,
             'amount': self.amount,
             'sign_date': self.sign_date,
             'sponsor': self.sponsor,

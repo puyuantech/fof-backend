@@ -5,6 +5,7 @@ from flask import request
 
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
+from bases.exceptions import VerifyError
 from models import FOFInfo, FOFNav, FOFAssetAllocation, FOFPosition
 from utils.decorators import params_required
 from utils.helper import generate_sql_pagination, replace_nan
@@ -42,6 +43,8 @@ class ProductionsAPI(ApiViewHandler):
             'initial_raised_fv': request.json.get('initial_raised_fv', 1),
             'initial_net_value': request.json.get('initial_net_value'),
         }
+        if FOFInfo.filter_by_query(fof_id=self.input.fof_id).one_or_none():
+            raise VerifyError('ID 重复')
         FOFInfo.create(**data)
         return
 
