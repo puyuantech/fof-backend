@@ -154,8 +154,7 @@ class DBMixin(BaseHandler):
         for k, v in data.items():
             if isinstance(v, datetime.datetime):
                 data[k] = v.strftime('%Y-%m-%d %H:%M:%S')
-
-            if isinstance(v, datetime.date):
+            elif isinstance(v, datetime.date):
                 data[k] = v.strftime('%Y-%m-%d')
 
         return data
