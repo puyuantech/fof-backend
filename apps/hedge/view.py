@@ -121,7 +121,7 @@ class HedgeAPI(ApiViewHandler):
 
         # 完全覆盖
         if self.input.method == 'all':
-            HedgeFundNAV.filter_by_query(fof_id=_id).delete()
+            HedgeFundNAV.filter_by_query(fund_id=_id).delete()
             db.session.execute(
                 HedgeFundNAV.__table__.insert(),
                 df.to_dict(orient='r'),
