@@ -26,11 +26,11 @@ def get_all_user_info_by_user(user):
 
 
 def register_investor_user(mobile):
-    if get_user_by_username(mobile):
-        raise VerifyError('用户名已存在！')
-
     if get_user_by_mobile(mobile):
         raise VerifyError('电话号码已存在！')
+
+    if get_user_by_username(mobile):
+        raise VerifyError('用户名已存在！')
 
     user = User.create(
         nick_name=mobile,
