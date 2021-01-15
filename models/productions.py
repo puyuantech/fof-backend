@@ -159,3 +159,15 @@ class HedgeComment(BaseModel):
     comment = db.Column(db.String(255))                                                 # 评论
 
 
+class InvestorPosition(BaseModel):
+    """
+    产品
+    """
+    __tablename__ = 'user_positions'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    investor_id = db.Column(db.Integer)
+    fof_id = db.Column(db.String(16))
+    amount = db.Column(DOUBLE(asdecimal=False))
+    shares = db.Column(DOUBLE(asdecimal=False))
+
