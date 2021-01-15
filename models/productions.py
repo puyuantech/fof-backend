@@ -166,8 +166,9 @@ class InvestorPosition(BaseModel):
     __tablename__ = 'user_positions'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    investor_id = db.Column(db.Integer)
+    investor_id = db.Column(db.String(16))
     fof_id = db.Column(db.String(16))
     amount = db.Column(DOUBLE(asdecimal=False))
     shares = db.Column(DOUBLE(asdecimal=False))
+    datetime = db.Column(db.DATE)
 
