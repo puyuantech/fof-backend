@@ -66,6 +66,3 @@ def update_user_info(user):
     user.save()
     return user
 
-
-
-

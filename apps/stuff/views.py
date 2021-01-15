@@ -40,6 +40,9 @@ class StaffAPI(ApiViewHandler):
     def put(self, _id):
         user = User.get_by_id(_id)
         user = update_user_info(user)
+        if self.input.role_id:
+            for i in user.token:
+                i.delete()
         return get_all_user_info_by_user(user)
 
     @super_admin_login_required

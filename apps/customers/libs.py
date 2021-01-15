@@ -57,7 +57,6 @@ def update_user_info(user):
         'email',
         'avatar_url',
         'site',
-        'role_id',
         'name',
         'amount',
         'sign_date',
