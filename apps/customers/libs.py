@@ -61,6 +61,7 @@ def update_user_info(user):
         'amount',
         'sign_date',
         'sponsor',
+        'investor_id',
     ]
     if request.json.get('role_id') and request.json.get('role_id') == 1:
         raise VerifyError('不能添加管理员权限!')

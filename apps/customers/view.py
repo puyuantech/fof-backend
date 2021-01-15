@@ -87,7 +87,6 @@ class CustomerPosition(ApiViewHandler):
         df = pd.read_sql(query.statement, query.bind)
         if len(df) < 1:
             return []
-        df['datetime'] = position.datetime
         df['asset_type'] = df['asset_type'].astype(str)
         df['amount'] = df['share'] * df['nav']
         df['sum_amount'] = df['amount'].sum()

@@ -29,6 +29,7 @@ class User(BaseModel):
     amount = db.Column(db.Float)                    # 投资总额
     sign_date = db.Column(db.String(20))            # 签约日期
     sponsor = db.Column(db.String(20))              # 介绍人
+    investor_id = db.Column(db.String(20))              # 客户编号
 
     def to_normal_dict(self):
         return {
@@ -59,6 +60,7 @@ class User(BaseModel):
             'amount': self.amount,
             'sign_date': self.sign_date,
             'sponsor': self.sponsor,
+            'investor_id': self.investor_id,
             'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
 

@@ -171,4 +171,5 @@ class InvestorPosition(BaseModel):
     amount = db.Column(DOUBLE(asdecimal=False))
     shares = db.Column(DOUBLE(asdecimal=False))
     datetime = db.Column(db.DATE)
+    asset_type = db.Column(db.String(10))
 
