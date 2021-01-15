@@ -3,7 +3,7 @@ import base64
 import random
 
 from bases.viewhandler import ApiViewHandler
-from bases.exceptions import VerifyError
+from bases.exceptions import VerifyError, LogicError
 from utils.decorators import params_required
 from models import CaptchaCode, MobileCode, User
 from bases.constants import SMS
@@ -57,10 +57,12 @@ class GetMobileCaptcha(ApiViewHandler):
         code = '%(code)06d' % {
             'code': random.randint(1, 999999),
         }
-        print(mobile, code)
         if self.input.action == 'login':
+            print(mobile, code)
             action = SMS.LOGIN
-            send_sms(code, mobile, action)
+            status, msg = send_sms(mobile, code, action)
+            if not status:
+                raise LogicError(msg)
         else:
             raise VerifyError('非正确途径')
 

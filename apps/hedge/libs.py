@@ -1,4 +1,6 @@
 from flask import request
+from bases.globals import db
+from models import HedgeFundInfo, HedgeFundNAV
 
 
 def update_hedge_fund_info(obj):
@@ -27,4 +29,23 @@ def make_hedge_fund_info(obj):
         'comments': comments
     })
     return data
+
+
+def update_hedge_value(fund_id):
+    """
+    保存最新的值到info里
+    :param fund_id:
+    :return:
+    """
+    info = HedgeFundInfo.get_by_query(fund_id=fund_id)
+    nav = db.session.query(HedgeFundNAV).filter(
+        HedgeFundNAV.fund_id == fund_id,
+    ).order_by(HedgeFundNAV.datetime.desc()).first()
+    if not nav:
+        return
+
+    info.net_asset_value = nav.net_asset_value
+    info.acc_unit_value = nav.acc_unit_value
+    info.v_net_value = nav.v_net_value
+    db.session.commit()
 

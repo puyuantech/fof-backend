@@ -126,3 +126,32 @@ class IndexDetailAPI(ApiViewHandler):
         }
         return replace_nan(data)
 
+
+class IndexSingleChangeAPI(ApiViewHandler):
+
+    @params_required(*['index_id', 'datetime', 'new_data'])
+    def post(self):
+        date = datetime.datetime.strptime(
+            self.input.datetime,
+            '%Y-%m-%d'
+        )
+        obj = CustomIndexNav.filter_by_query(
+            index_id=self.input.index_id,
+            datetime=date,
+        ).one_or_none()
+        if not obj:
+            raise VerifyError('修改目标不存在！')
+        obj.nav = self.input.new_data
+        obj.save()
+
+        # 跟新指标
+        query = db.session.query(CustomIndexNav).filter(
+            CustomIndexNav.index_id == self.input.index_id,
+        )
+        df = pd.read_sql(query.statement, query.session.bind)
+        print(df)
+        ratios = SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'nav')
+        update_custom_index_ratios(obj, ratios)
+        db.session.commit()
+        return
+

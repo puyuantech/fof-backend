@@ -12,7 +12,7 @@ from utils.helper import generate_sql_pagination, replace_nan
 
 from surfing.util.calculator import Calculator as SurfingCalculator
 
-from .libs import update_hedge_fund_info, make_hedge_fund_info
+from .libs import update_hedge_fund_info, make_hedge_fund_info, update_hedge_value
 
 
 class HedgesAPI(ApiViewHandler):
@@ -66,7 +66,9 @@ class HedgeDetail(ApiViewHandler):
 
         data = {
             'dates': df['datetime'].to_list(),
-            'values': df['v_net_value'].to_list(),
+            'v_net_value': df['v_net_value'].to_list(),
+            'net_asset_value': df['v_net_value'].to_list(),
+            'acc_unit_value': df['v_net_value'].to_list(),
             'ratios': SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'v_net_value').__dict__,
         }
         return replace_nan(data)
@@ -90,7 +92,7 @@ class HedgeAPI(ApiViewHandler):
 
     @params_required(*['method'])
     def post(self, _id):
-        # obj = HedgeFundInfo.get_by_query(fof_id=_id)
+        obj = HedgeFundInfo.get_by_query(fund_id=_id)
 
         req_file = request.files.get('file')
         if not req_file:
@@ -125,6 +127,7 @@ class HedgeAPI(ApiViewHandler):
                 df.to_dict(orient='r'),
             )
             db.session.commit()
+            update_hedge_value(_id)
             return 'success'
 
         # 部分覆盖
@@ -138,5 +141,30 @@ class HedgeAPI(ApiViewHandler):
                 df.to_dict(orient='records'),
             )
             db.session.commit()
+            update_hedge_value(_id)
             return 'success'
         raise VerifyError('参数错误')
+
+
+class HedgeSingleChangeAPI(ApiViewHandler):
+
+    @params_required(*['fund_id', 'datetime', 'net_asset_value', 'acc_unit_value', 'v_net_value'])
+    def post(self):
+        date = datetime.datetime.strptime(
+            self.input.datetime,
+            '%Y-%m-%d'
+        )
+        obj = HedgeFundNAV.filter_by_query(
+            fund_id=self.input.fund_id,
+            datetime=date,
+        ).one_or_none()
+        if not obj:
+            raise VerifyError('修改目标不存在！')
+
+        obj.net_asset_value = self.input.net_asset_value
+        obj.acc_unit_value = self.input.acc_unit_value
+        obj.v_net_value = self.input.v_net_value
+        obj.save()
+        update_hedge_value(self.input.fund_id)
+        return
+

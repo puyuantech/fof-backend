@@ -142,6 +142,9 @@ class HedgeFundInfo(BaseModel):
     incentive_fee_ratio = db.Column(DOUBLE(asdecimal=False), nullable=False)            # 业绩计提比例
     v_nav_decimals = db.Column(db.SMALLINT, nullable=False)                             # 虚拟净值精度
     stars = db.Column(db.Integer, default=1)                                            # 星级
+    net_asset_value = db.Column(DOUBLE(asdecimal=False))                                # 单位净值
+    acc_unit_value = db.Column(DOUBLE(asdecimal=False))                                 # 累计净值
+    v_net_value = db.Column(DOUBLE(asdecimal=False))                                    # 虚拟净值
 
 
 class HedgeComment(BaseModel):
