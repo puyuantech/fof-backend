@@ -6,7 +6,7 @@ from flask import request
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
-from models import FOFInfo, FOFNav, FOFAssetAllocation, FOFPosition
+from models import FOFInfo, FOFNav, FOFAssetAllocation, FOFPosition, InvestorPosition, User
 from utils.decorators import params_required
 from utils.helper import generate_sql_pagination, replace_nan
 from utils.caches import get_fund_collection_caches, get_hedge_fund_cache
@@ -104,6 +104,18 @@ class ProductionTrades(ApiViewHandler):
         df = pd.read_sql(query.statement, query.session.bind)
         df = df.apply(helper, axis=1)
         return replace_nan(df.to_dict(orient='records'))
+
+
+class ProductionInvestor(ApiViewHandler):
+
+    def get(self, fof_id):
+
+        users = db.session.query(User).filter(
+            InvestorPosition.fof_id == fof_id,
+            InvestorPosition.investor_id == User.investor_id,
+        ).all()
+        data = [i.to_cus_dict for i in users]
+        return replace_nan(data)
 
 
 class ProductionPosition(ApiViewHandler):

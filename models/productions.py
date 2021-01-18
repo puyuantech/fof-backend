@@ -53,6 +53,7 @@ class FOFAssetAllocation(BaseModel):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     fof_id = db.Column(db.CHAR(16), primary_key=True)                                   # 产品ID
+    investor_id = db.Column(db.CHAR(20))                                                # 投资者ID
     datetime = db.Column(db.DATE, primary_key=True)                                     # 日期
     fund_id = db.Column(db.CHAR(16), primary_key=True, nullable=False)                  # 申购/赎回基金ID
     asset_type = db.Column(db.String(31), nullable=False)                               # 资产类型

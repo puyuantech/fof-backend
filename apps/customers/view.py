@@ -1,10 +1,12 @@
 import pandas as pd
 from flask import request, g
-from models import User, UserLogin, InvestorPosition, FOFAssetAllocation
+
+from models import User, UserLogin, InvestorPosition, FOFAssetAllocation, FOFInfo
+from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from bases.constants import StuffEnum
-from utils.helper import generate_sql_pagination
+from utils.helper import generate_sql_pagination, replace_nan
 from utils.decorators import params_required, super_admin_login_required, admin_login_required, login_required
 from utils.caches import get_fund_collection_caches, get_hedge_fund_cache
 from .libs import get_all_user_info_by_user, register_investor_user, update_user_info
@@ -66,9 +68,24 @@ class CustomerAPI(ApiViewHandler):
 class CustomerPosition(ApiViewHandler):
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
-    @params_required(*['user_id'])
-    def get(self):
+    def get(self, investor_id):
 
+        query = db.session.query(InvestorPosition, FOFInfo.fof_name).filter(
+            InvestorPosition.investor_id == investor_id,
+            FOFInfo.fof_id == InvestorPosition.fof_id,
+        )
+        df = pd.read_sql(query.statement, query.session.bind)
+        if len(df) < 1:
+            return []
+        df['asset_type'] = df['asset_type'].astype(str)
+        df['sum_amount'] = df['amount'].sum()
+        df['weight'] = df['amount'] / df['sum_amount']
+        return replace_nan(df.to_dict(orient='records'))
+
+
+class CustomerTrades(ApiViewHandler):
+    @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
+    def get(self, investor_id):
         def helper(x):
             if x['asset_type'] == '1':
                 x['fund_name'] = mutual_fund.loc[x['fund_id'], 'fund_name']
@@ -81,21 +98,12 @@ class CustomerPosition(ApiViewHandler):
         mutual_fund = get_fund_collection_caches()
         hedge_fund = get_hedge_fund_cache()
 
-        query = InvestorPosition.filter_by_query(
-            investor_id=self.input.user_id,
+        query = db.session.query(FOFAssetAllocation).filter(
+            FOFAssetAllocation.investor_id == investor_id,
         )
-        df = pd.read_sql(query.statement, query.bind)
-        if len(df) < 1:
-            return []
-        df['asset_type'] = df['asset_type'].astype(str)
-        df['amount'] = df['share'] * df['nav']
-        df['sum_amount'] = df['amount'].sum()
-        df['weight'] = df['amount'] / df['sum_amount']
+        df = pd.read_sql(query.statement, query.session.bind)
         df = df.apply(helper, axis=1)
         return replace_nan(df.to_dict(orient='records'))
-
-
-
 
 
 class ResetStaffPassword(ApiViewHandler):
