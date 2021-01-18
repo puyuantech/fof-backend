@@ -114,7 +114,7 @@ class ProductionInvestor(ApiViewHandler):
             InvestorPosition.fof_id == fof_id,
             InvestorPosition.investor_id == User.investor_id,
         ).all()
-        data = [i.to_cus_dict for i in users]
+        data = [i.to_cus_dict() for i in users]
         return replace_nan(data)
 
 
