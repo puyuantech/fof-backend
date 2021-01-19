@@ -7,7 +7,7 @@ from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from models import HedgeFundInfo, HedgeFundNAV, HedgeComment
-from utils.decorators import params_required
+from utils.decorators import params_required, login_required
 from utils.helper import generate_sql_pagination, replace_nan
 
 from surfing.util.calculator import Calculator as SurfingCalculator
@@ -17,6 +17,7 @@ from .libs import update_hedge_fund_info, make_hedge_fund_info, update_hedge_val
 
 class HedgesAPI(ApiViewHandler):
 
+    @login_required
     def get(self):
         p = generate_sql_pagination()
         query = HedgeFundInfo.filter_by_query()
@@ -24,6 +25,7 @@ class HedgesAPI(ApiViewHandler):
 
         return data
 
+    @login_required
     @params_required(*['fund_id'])
     def post(self):
         data = {
@@ -43,7 +45,7 @@ class HedgesAPI(ApiViewHandler):
 
 
 class HedgeCommentAPI(ApiViewHandler):
-
+    @login_required
     @params_required(*['comment'])
     def post(self, _id):
         HedgeComment.create(
@@ -54,7 +56,7 @@ class HedgeCommentAPI(ApiViewHandler):
 
 
 class HedgeDetail(ApiViewHandler):
-
+    @login_required
     def get(self, _id):
         query = db.session.query(HedgeFundNAV).filter(
             HedgeFundNAV.fund_id == _id,
@@ -75,21 +77,24 @@ class HedgeDetail(ApiViewHandler):
 
 
 class HedgeAPI(ApiViewHandler):
-
+    @login_required
     def get(self, _id):
         obj = HedgeFundInfo.get_by_query(fund_id=_id)
         data = make_hedge_fund_info(obj)
         return data
 
+    @login_required
     def put(self, _id):
         obj = HedgeFundInfo.get_by_query(fund_id=_id)
         update_hedge_fund_info(obj)
         return
 
+    @login_required
     def delete(self, _id):
         obj = HedgeFundInfo.get_by_query(fund_id=_id)
         obj.logic_delete()
 
+    @login_required
     @params_required(*['method'])
     def post(self, _id):
         obj = HedgeFundInfo.get_by_query(fund_id=_id)
@@ -147,7 +152,7 @@ class HedgeAPI(ApiViewHandler):
 
 
 class HedgeSingleChangeAPI(ApiViewHandler):
-
+    @login_required
     @params_required(*['fund_id', 'datetime', 'net_asset_value', 'acc_unit_value', 'v_net_value'])
     def post(self):
         date = datetime.datetime.strptime(

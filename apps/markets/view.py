@@ -7,7 +7,7 @@ from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from models import CustomIndex, CustomIndexNav
-from utils.decorators import params_required
+from utils.decorators import params_required, login_required
 from utils.helper import generate_sql_pagination, replace_nan
 from .libs import update_custom_index_info, update_custom_index_ratios
 
@@ -16,12 +16,14 @@ from surfing.util.calculator import Calculator as SurfingCalculator
 
 class IndexListAPI(ApiViewHandler):
 
+    @login_required
     def get(self):
         p = generate_sql_pagination()
         query = CustomIndex.filter_by_query()
         data = p.paginate(query)
         return data
 
+    @login_required
     @params_required(*['name', 'desc'])
     def post(self):
         CustomIndex.create(
@@ -32,19 +34,23 @@ class IndexListAPI(ApiViewHandler):
 
 
 class IndexAPI(ApiViewHandler):
+    @login_required
     def get(self, _id):
         obj = CustomIndex.get_by_query(id=_id)
         return obj.to_dict()
 
+    @login_required
     def put(self, _id):
         obj = CustomIndex.get_by_query(id=_id)
         update_custom_index_info(obj)
         return
 
+    @login_required
     def delete(self, _id):
         obj = CustomIndex.get_by_query(id=_id)
         obj.logic_delete()
 
+    @login_required
     @params_required(*['method'])
     def post(self, _id):
         obj = CustomIndex.get_by_query(id=_id)
@@ -110,6 +116,7 @@ class IndexAPI(ApiViewHandler):
 
 
 class IndexDetailAPI(ApiViewHandler):
+    @login_required
     def get(self, _id):
         query = db.session.query(CustomIndexNav).filter(
             CustomIndexNav.index_id == _id,
@@ -128,7 +135,7 @@ class IndexDetailAPI(ApiViewHandler):
 
 
 class IndexSingleChangeAPI(ApiViewHandler):
-
+    @login_required
     @params_required(*['index_id', 'datetime', 'new_data'])
     def post(self):
         date = datetime.datetime.strptime(

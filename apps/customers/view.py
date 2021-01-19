@@ -1,7 +1,7 @@
 import pandas as pd
 from flask import request, g
 
-from models import User, UserLogin, InvestorPosition, FOFAssetAllocation, FOFInfo
+from models import User, UserLogin, FOFInvestorPosition, FOFAssetAllocation, FOFInfo
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
@@ -70,9 +70,9 @@ class CustomerPosition(ApiViewHandler):
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
     def get(self, investor_id):
 
-        query = db.session.query(InvestorPosition, FOFInfo.fof_name).filter(
-            InvestorPosition.investor_id == investor_id,
-            FOFInfo.fof_id == InvestorPosition.fof_id,
+        query = db.session.query(FOFInvestorPosition, FOFInfo.fof_name).filter(
+            FOFInvestorPosition.investor_id == investor_id,
+            FOFInfo.fof_id == FOFInvestorPosition.fof_id,
         )
         df = pd.read_sql(query.statement, query.session.bind)
         if len(df) < 1:

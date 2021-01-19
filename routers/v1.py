@@ -6,6 +6,7 @@ from apps.productions import blu as production_blu
 from apps.hedge import blu as hedge_blu
 from apps.customers import blu as customer_blu
 from apps.markets import blu as market_blu
+from apps.logic import blu as logic_blu
 
 routers = [
     auth_blu,
@@ -16,5 +17,6 @@ routers = [
     hedge_blu,
     customer_blu,
     market_blu,
+    logic_blu,
 ]
 

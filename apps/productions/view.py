@@ -6,22 +6,26 @@ from flask import request
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
-from models import FOFInfo, FOFNav, FOFAssetAllocation, FOFPosition, InvestorPosition, User
-from utils.decorators import params_required
+from models import FOFInfo, FOFNav, FOFAssetAllocation, FOFPosition, FOFInvestorPosition, User
+from utils.decorators import params_required, login_required, admin_login_required
 from utils.helper import generate_sql_pagination, replace_nan
 from utils.caches import get_fund_collection_caches, get_hedge_fund_cache
 from surfing.util.calculator import Calculator as SurfingCalculator
 
+from bases.constants import StuffEnum
 from .libs import update_production_info
 
 
 class ProductionsAPI(ApiViewHandler):
+
+    @login_required
     def get(self):
         p = generate_sql_pagination()
         query = FOFInfo.filter_by_query()
         data = p.paginate(query)
         return data
 
+    @login_required
     @params_required(*['fof_id'])
     def post(self):
         data = {
@@ -51,15 +55,18 @@ class ProductionsAPI(ApiViewHandler):
 
 class ProductionAPI(ApiViewHandler):
 
+    @login_required
     def get(self, _id):
         obj = FOFInfo.get_by_query(fof_id=_id)
         return obj.to_dict()
 
+    @admin_login_required([StuffEnum.ADMIN, StuffEnum.OPE_MANAGER])
     def put(self, _id):
         obj = FOFInfo.get_by_query(fof_id=_id)
         update_production_info(obj)
         return
 
+    @login_required
     def delete(self, _id):
         obj = FOFInfo.get_by_query(fof_id=_id)
         obj.logic_delete()
@@ -67,6 +74,7 @@ class ProductionAPI(ApiViewHandler):
 
 class ProductionDetail(ApiViewHandler):
 
+    @login_required
     def get(self, _id):
         query = db.session.query(FOFNav).filter(
             FOFNav.fof_id == _id,
@@ -85,6 +93,7 @@ class ProductionDetail(ApiViewHandler):
 
 class ProductionTrades(ApiViewHandler):
 
+    @login_required
     def get(self, _id):
         def helper(x):
             if x['asset_type'] == '1':
@@ -108,11 +117,12 @@ class ProductionTrades(ApiViewHandler):
 
 class ProductionInvestor(ApiViewHandler):
 
+    @login_required
     def get(self, fof_id):
 
         users = db.session.query(User).filter(
-            InvestorPosition.fof_id == fof_id,
-            InvestorPosition.investor_id == User.investor_id,
+            FOFInvestorPosition.fof_id == fof_id,
+            FOFInvestorPosition.investor_id == User.investor_id,
         ).all()
         data = [i.to_cus_dict() for i in users]
         return replace_nan(data)
@@ -120,6 +130,7 @@ class ProductionInvestor(ApiViewHandler):
 
 class ProductionPosition(ApiViewHandler):
 
+    @login_required
     def get(self, _id):
         def helper(x):
             if x['asset_type'] == '1':

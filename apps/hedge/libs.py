@@ -1,6 +1,6 @@
 from flask import request
 from bases.globals import db
-from models import HedgeFundInfo, HedgeFundNAV
+from models import HedgeFundInfo, HedgeFundNAV, HedgeComment
 
 
 def update_hedge_fund_info(obj):
@@ -24,7 +24,8 @@ def update_hedge_fund_info(obj):
 
 def make_hedge_fund_info(obj):
     data = obj.to_dict()
-    comments = [i.to_dict() for i in obj.comments]
+    comments = HedgeComment.filter_by_query(fund_id=obj.fund_id).all()
+    comments = [i.to_dict() for i in comments]
     data.update({
         'comments': comments
     })

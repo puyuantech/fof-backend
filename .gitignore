@@ -137,3 +137,4 @@ local.py
 .vscode/*
 .DS_Store
 venv_local
+test
