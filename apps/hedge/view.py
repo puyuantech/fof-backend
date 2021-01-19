@@ -33,6 +33,7 @@ class HedgesAPI(ApiViewHandler):
             'fund_name': request.json.get('fund_name'),
             'manager_id': request.json.get('manager_id'),
             'water_line': request.json.get('water_line'),
+            'brief_name': request.json.get('brief_name'),
             'incentive_fee_mode': request.json.get('incentive_fee_mode'),
             'incentive_fee_ratio': request.json.get('incentive_fee_ratio'),
             'v_nav_decimals': request.json.get('v_nav_decimals'),
@@ -58,10 +59,10 @@ class HedgeCommentAPI(ApiViewHandler):
 class HedgeDetail(ApiViewHandler):
     @login_required
     def get(self, _id):
-        query = db.session.query(HedgeFundNAV).filter(
-            HedgeFundNAV.fund_id == _id,
-        )
-        df = pd.read_sql(query.statement, query.session.bind)
+        results = HedgeFundNAV.filter_by_query(
+            fund_id=_id,
+        ).all()
+        df = pd.DataFrame([i.to_dict() for i in results])
         df = df.reset_index()
         if len(df) < 1:
             return {}

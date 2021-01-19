@@ -19,17 +19,16 @@ def get_fund_collection_caches():
     return df.set_index('fund_id')
 
 
-@cache.memoize(timeout=1800, make_name='get_hedge_fund_cache')
+@cache.memoize(timeout=30, make_name='get_hedge_fund_cache')
 def get_hedge_fund_cache():
     import pandas as pd
     from bases.globals import db
     from models import HedgeFundInfo
 
-    query = db.session.query(
-        HedgeFundInfo.fund_id,
-        HedgeFundInfo.fund_name,
-    )
-    df = pd.read_sql(query.statement, query.session.bind)
+    results = db.session.query(
+        HedgeFundInfo,
+    ).all()
+    df = pd.DataFrame([i.to_dict() for i in results])
     df['order_book_id'] = df['fund_id']
     return df.set_index('fund_id')
 

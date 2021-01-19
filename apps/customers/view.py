@@ -1,7 +1,7 @@
 import pandas as pd
 from flask import request, g
 
-from models import User, UserLogin, FOFInvestorPosition, FOFAssetAllocation, FOFInfo
+from models import User, UserLogin, FOFInvestorPosition, FOFScaleAlteration, FOFInfo
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
@@ -70,14 +70,22 @@ class CustomerPosition(ApiViewHandler):
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
     def get(self, investor_id):
 
-        query = db.session.query(FOFInvestorPosition, FOFInfo.fof_name).filter(
+        results = db.session.query(FOFInvestorPosition, FOFInfo.fof_name).filter(
             FOFInvestorPosition.investor_id == investor_id,
             FOFInfo.fof_id == FOFInvestorPosition.fof_id,
-        )
-        df = pd.read_sql(query.statement, query.session.bind)
+        ).all()
+
+        df_data = []
+        for i in results:
+            d = i[0].to_dict()
+            d['fof_name'] = i[1]
+            df_data.append(d)
+
+        df = pd.DataFrame(df_data)
+
         if len(df) < 1:
             return []
-        df['asset_type'] = df['asset_type'].astype(str)
+
         df['sum_amount'] = df['amount'].sum()
         df['weight'] = df['amount'] / df['sum_amount']
         return replace_nan(df.to_dict(orient='records'))
@@ -98,10 +106,10 @@ class CustomerTrades(ApiViewHandler):
         mutual_fund = get_fund_collection_caches()
         hedge_fund = get_hedge_fund_cache()
 
-        query = db.session.query(FOFAssetAllocation).filter(
-            FOFAssetAllocation.investor_id == investor_id,
+        results = db.session.query(FOFScaleAlteration).filter(
+            FOFScaleAlteration.investor_id == investor_id,
         )
-        df = pd.read_sql(query.statement, query.session.bind)
+        df = pd.DataFrame([i.to_dict() for i in results])
         df = df.apply(helper, axis=1)
         return replace_nan(df.to_dict(orient='records'))
 

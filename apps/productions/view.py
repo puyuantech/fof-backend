@@ -76,10 +76,10 @@ class ProductionDetail(ApiViewHandler):
 
     @login_required
     def get(self, _id):
-        query = db.session.query(FOFNav).filter(
-            FOFNav.fof_id == _id,
-        )
-        df = pd.read_sql(query.statement, query.session.bind)
+        results = FOFNav.filter_by_query(
+            fof_id=_id,
+        ).all()
+        df = pd.DataFrame([i.to_dict() for i in results])
         if len(df) < 1:
             return {}
 
@@ -107,10 +107,10 @@ class ProductionTrades(ApiViewHandler):
         mutual_fund = get_fund_collection_caches()
         hedge_fund = get_hedge_fund_cache()
 
-        query = db.session.query(FOFAssetAllocation).filter(
+        results = db.session.query(FOFAssetAllocation).filter(
             FOFAssetAllocation.fof_id == _id,
-        )
-        df = pd.read_sql(query.statement, query.session.bind)
+        ).all()
+        df = pd.DataFrame([i.to_dict() for i in results])
         df = df.apply(helper, axis=1)
         return replace_nan(df.to_dict(orient='records'))
 
@@ -119,10 +119,15 @@ class ProductionInvestor(ApiViewHandler):
 
     @login_required
     def get(self, fof_id):
+        investor_ids = db.session.query(
+            FOFInvestorPosition.investor_id
+        ).filter(
+            FOFInvestorPosition.fof_id == fof_id,
+        ).all()
+        investor_ids = [i[0] for i in investor_ids]
 
         users = db.session.query(User).filter(
-            FOFInvestorPosition.fof_id == fof_id,
-            FOFInvestorPosition.investor_id == User.investor_id,
+            User.investor_id.in_(investor_ids),
         ).all()
         data = [i.to_cus_dict() for i in users]
         return replace_nan(data)

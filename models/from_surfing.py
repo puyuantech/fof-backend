@@ -9,53 +9,50 @@ from surfing.data.view.basic_models import HedgeFundNAV as SurfingHedgeFundNAV
 from surfing.data.view.derived_models import FOFPosition as SurfingFOFPosition
 from surfing.data.view.derived_models import FOFNav as SurfingFOFNav
 
-from bases.dbwrapper import db, DBMixin
+from bases.dbwrapper import BaseModel
 
 
-class StockTag(SurfingStockTag, DBMixin, db.Model):
+class FOFInfo(SurfingFOFInfo, BaseModel):
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
 
 
-class FOFInfo(SurfingFOFInfo, DBMixin, db.Model):
+class FOFScaleAlteration(SurfingFOFScaleAlteration, BaseModel):
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
 
 
-class FOFScaleAlteration(SurfingFOFScaleAlteration, DBMixin, db.Model):
+class FOFAssetAllocation(SurfingFOFAssetAllocation, BaseModel):
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
 
 
-class FOFAssetAllocation(SurfingFOFAssetAllocation, DBMixin, db.Model):
+class FOFManually(SurfingFOFManually, BaseModel):
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
 
 
-class FOFManually(SurfingFOFManually, DBMixin, db.Model):
+class FOFInvestorPosition(SurfingFOFInvestorPosition, BaseModel):
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
 
 
-class FOFInvestorPosition(SurfingFOFInvestorPosition, DBMixin, db.Model):
+class HedgeFundInfo(SurfingHedgeFundInfo, BaseModel):
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
 
 
-class HedgeFundInfo(SurfingHedgeFundInfo, DBMixin, db.Model):
+class HedgeFundNAV(SurfingHedgeFundNAV, BaseModel):
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
 
 
-class HedgeFundNAV(SurfingHedgeFundNAV, DBMixin, db.Model):
-    __bind_key__ = 'basic'
-
-
-class FOFPosition(SurfingFOFPosition, DBMixin, db.Model):
+class FOFPosition(SurfingFOFPosition, BaseModel):
     __bind_key__ = 'derived'
     __table_args__ = {'extend_existing': True}
 
 
-class FOFNav(SurfingFOFNav, DBMixin, db.Model):
+class FOFNav(SurfingFOFNav, BaseModel):
     __bind_key__ = 'derived'
     __table_args__ = {'extend_existing': True}
+
