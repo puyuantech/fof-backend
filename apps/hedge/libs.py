@@ -12,6 +12,7 @@ def update_hedge_fund_info(obj):
         'incentive_fee_mode',
         'incentive_fee_ratio',
         'v_nav_decimals',
+        'brief_name',
         'stars',
         'comment',
     ]
