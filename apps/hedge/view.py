@@ -67,6 +67,9 @@ class HedgeDetail(ApiViewHandler):
         # ).all()
         df = pd.DataFrame([i.to_dict() for i in results])
         df = df.reset_index()
+        if len(df) < 1:
+            return {}
+
         df = df.dropna(subset=['v_net_value'])
         if len(df) < 1:
             return {}
