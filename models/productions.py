@@ -108,24 +108,7 @@ from sqlalchemy import Index
 #     position = Column(TEXT)                                                       # 持仓
 
 
-# class HedgeFundNAV(BaseModel):
-#     """
-#     私募基金净值
-#     """
-#
-#     __tablename__ = 'hedge_fund_nav'
-#
-#     fund_id = Column(CHAR(16), primary_key=True)                                  # 基金ID
-#     datetime = Column(DATE, primary_key=True)                                     # 日期
-#     insert_time = Column(DATETIME, primary_key=True)                              # 插入时间
-#     calc_date = Column(DATE)                                                      # 计算日期
-#     net_asset_value = Column(DOUBLE(asdecimal=False), nullable=False)                # 单位净值
-#     acc_unit_value = Column(DOUBLE(asdecimal=False))                                 # 累计净值
-#     v_net_value = Column(DOUBLE(asdecimal=False))                                    # 虚拟净值
-#
-#     __table_args__ = (
-#         Index('idx_hedge_fund_nav_datetime', 'datetime'),
-#     )
+
 
 
 # class HedgeFundInfo(BaseModel):

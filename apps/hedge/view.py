@@ -59,9 +59,12 @@ class HedgeCommentAPI(ApiViewHandler):
 class HedgeDetail(ApiViewHandler):
     @login_required
     def get(self, _id):
-        results = HedgeFundNAV.filter_by_query(
-            fund_id=_id,
+        results = db.session.query(HedgeFundNAV).filter(
+            HedgeFundNAV.fund_id == _id,
         ).all()
+        # results = HedgeFundNAV.filter_by_query(
+        #     fund_id=_id,
+        # ).all()
         df = pd.DataFrame([i.to_dict() for i in results])
         df = df.reset_index()
         if len(df) < 1:

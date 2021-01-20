@@ -5,13 +5,18 @@ from surfing.data.view.basic_models import FOFAssetAllocation as SurfingFOFAsset
 from surfing.data.view.basic_models import FOFManually as SurfingFOFManually
 from surfing.data.view.basic_models import FOFInvestorPosition as SurfingFOFInvestorPosition
 from surfing.data.view.basic_models import HedgeFundInfo as SurfingHedgeFundInfo
+from surfing.data.view.basic_models import MngInfo as SurfingMngInfo
 from surfing.data.view.derived_models import FOFPosition as SurfingFOFPosition
 from surfing.data.view.derived_models import FOFNav as SurfingFOFNav
 
-from bases.dbwrapper import BaseModel
+from bases.dbwrapper import BaseModel, db
 
 
-class HedgeFundNAV(SurfingHedgeFundNAV, BaseModel):
+class MngInfo(SurfingMngInfo, db.Model):
+    __bind_key__ = 'basic'
+
+
+class HedgeFundNAV(SurfingHedgeFundNAV, db.Model):
     __bind_key__ = 'basic'
     # __table_args__ = {'extend_existing': True}
 
