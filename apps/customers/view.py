@@ -60,9 +60,9 @@ class CustomerAPI(ApiViewHandler):
         if not user:
             raise VerifyError('不存在！')
         user_login = UserLogin.filter_by_query(user_id=user.id).first()
-        user.logic_delete()
         if user_login:
-            user_login.logic_delete()
+            user_login.delete()
+        user.logic_delete()
 
 
 class CustomerPosition(ApiViewHandler):

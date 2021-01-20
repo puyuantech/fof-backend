@@ -6,7 +6,7 @@ from bases.constants import StuffEnum
 
 
 def get_user_by_username(username):
-    return UserLogin.filter_by_query(show_deleted=True, username=username).first()
+    return UserLogin.filter_by_query(username=username).first()
 
 
 def get_user_by_mobile(mobile):
