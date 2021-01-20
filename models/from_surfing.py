@@ -16,9 +16,12 @@ class MngInfo(SurfingMngInfo, db.Model):
     __bind_key__ = 'basic'
 
 
-class HedgeFundNAV(SurfingHedgeFundNAV, db.Model):
+class HedgeFundNAV(SurfingHedgeFundNAV, BaseModel):
+    __tablename__ = 'hedge_fund_nav'
     __bind_key__ = 'basic'
-    # __table_args__ = {'extend_existing': True}
+    __table_args__ = {
+        'extend_existing': True,
+    }
 
 
 class FOFInfo(SurfingFOFInfo, BaseModel):
