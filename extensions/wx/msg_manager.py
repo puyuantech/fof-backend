@@ -37,7 +37,10 @@ class WXMsgManager:
         )
 
     def get_access_token(self):
-        return TokenManager().get_wechat_token_from_db()
+        token = TokenManager().get_wechat_token_from_db()
+        if token:
+            return token[0]
+        raise Exception('No right token')
 
 
 if __name__ == '__main__':

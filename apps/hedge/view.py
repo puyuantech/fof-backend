@@ -69,10 +69,7 @@ class HedgeDetail(ApiViewHandler):
         # ).all()
         df = pd.DataFrame([i.to_dict() for i in results])
         df = df.reset_index()
-        if len(df) < 1:
-            return {}
 
-        df = df.dropna(subset=['v_net_value'])
         if len(df) < 1:
             return {}
 
@@ -81,8 +78,14 @@ class HedgeDetail(ApiViewHandler):
             'v_net_value': df['v_net_value'].to_list(),
             'net_asset_value': df['net_asset_value'].to_list(),
             'acc_unit_value': df['acc_unit_value'].to_list(),
-            'ratios': SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'v_net_value').__dict__,
+            'ratios': {}
         }
+
+        df = df.dropna(subset=['v_net_value'])
+        if len(df) < 1:
+            return data
+
+        data['ratios'] = SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'v_net_value').__dict__,
         return replace_nan(data)
 
     @login_required
@@ -92,6 +95,7 @@ class HedgeDetail(ApiViewHandler):
         req_file = request.files.get('file')
         if not req_file:
             raise VerifyError('Couldn\'t find any uploaded file')
+
         status = FOFDataManager.upload_hedge_nav_data(
             req_file.read(),
             req_file.name,
