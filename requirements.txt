@@ -13,3 +13,4 @@ requests
 gevent
 pyjwt
 surfing
+xlrd

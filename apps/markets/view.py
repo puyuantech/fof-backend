@@ -1,6 +1,7 @@
 import pandas as pd
 import traceback
 import datetime
+import io
 from flask import request, current_app
 
 from bases.globals import db
@@ -61,8 +62,8 @@ class IndexAPI(ApiViewHandler):
 
         # 解析文件
         try:
-            df = pd.read_csv(
-                req_file,
+            df = pd.read_excel(
+                io.BytesIO(req_file.read()),
                 index_col=None,
                 dtype={'日期': str, '点数': float},
             )

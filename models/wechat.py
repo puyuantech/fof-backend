@@ -14,7 +14,8 @@ class WeChatUnionID(BaseModel):
 
 class WeChatToken(BaseModel):
     """微信 access token 和 jsapi_ticket"""
-    __tablename__ = "we_chat_token"
+    __tablename__ = "wechat_token"
+    __bind_key__ = 'robo'
 
     id = db.Column(db.Integer, primary_key=True)                                # 编号
     key = db.Column(db.CHAR(255))                                               # token 值

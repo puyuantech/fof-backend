@@ -8,7 +8,7 @@ from models import WeChatToken
 class TokenManager:
 
     def __init__(self):
-        wx_config = settings['WX']['office_account']
+        wx_config = settings['WX']['apps']['fof']
         self._access_token_url = 'https://api.weixin.qq.com/cgi-bin/token?' \
             'grant_type=client_credential&appid={}&secret={}'.format(wx_config['app_id'], wx_config['app_secret'])
 
