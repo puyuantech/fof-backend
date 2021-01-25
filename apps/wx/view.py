@@ -1,4 +1,5 @@
 from flask import g
+import hashlib
 from bases.viewhandler import ApiViewHandler
 from bases.globals import settings
 from bases.exceptions import VerifyError
@@ -6,6 +7,26 @@ from utils.decorators import params_required, login_required
 from extensions.wx.union_manager import WXUnionManager
 
 from .libs import check_we_chat_user_exist, bind_we_chat_user
+
+
+class WX(ApiViewHandler):
+
+    @params_required(*['signature', 'timestamp', 'nonce', 'echostr'])
+    def get(self):
+        token = settings['WX']['apps']['fof']['token']
+
+        access_list = [token, self.input.timestamp, self.input.nonce]
+        access_list.sort()
+        sha1 = hashlib.sha1()
+        sha1.update(access_list[0].encode("utf-8"))
+        sha1.update(access_list[1].encode("utf-8"))
+        sha1.update(access_list[2].encode("utf-8"))
+        hashcode = sha1.hexdigest()
+
+        if hashcode == self.input.signature:
+            return str(self.input.echostr)
+        else:
+            return ""
 
 
 class WXBindUser(ApiViewHandler):

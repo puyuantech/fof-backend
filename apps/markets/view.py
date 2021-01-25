@@ -64,7 +64,6 @@ class IndexAPI(ApiViewHandler):
         try:
             df = pd.read_excel(
                 io.BytesIO(req_file.read()),
-                index_col=None,
                 dtype={'日期': str, '点数': float},
             )
             df = df[['日期', '点数']]

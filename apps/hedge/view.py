@@ -78,14 +78,14 @@ class HedgeDetail(ApiViewHandler):
             'v_net_value': df['v_net_value'].to_list(),
             'net_asset_value': df['net_asset_value'].to_list(),
             'acc_unit_value': df['acc_unit_value'].to_list(),
-            'ratios': {}
+            'ratios': {},
         }
 
         df = df.dropna(subset=['v_net_value'])
         if len(df) < 1:
             return data
 
-        data['ratios'] = SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'v_net_value').__dict__,
+        data['ratios'] = SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'v_net_value').__dict__
         return replace_nan(data)
 
     @login_required

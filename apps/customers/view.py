@@ -1,5 +1,7 @@
 import pandas as pd
-from flask import request, g
+import io
+import datetime
+from flask import request, g, views, make_response
 
 from models import User, UserLogin, FOFInvestorPosition, FOFScaleAlteration, FOFInfo
 from bases.globals import db
@@ -9,7 +11,8 @@ from bases.constants import StuffEnum
 from utils.helper import generate_sql_pagination, replace_nan
 from utils.decorators import params_required, super_admin_login_required, admin_login_required, login_required
 from utils.caches import get_fund_collection_caches, get_hedge_fund_cache
-from .libs import get_all_user_info_by_user, register_investor_user, update_user_info
+from .libs import get_all_user_info_by_user, register_investor_user, update_user_info, update_trade, parse_trade_file, \
+    create_single_trade
 
 
 class CusAPI(ApiViewHandler):
@@ -22,10 +25,13 @@ class CusAPI(ApiViewHandler):
         return data
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
-    @params_required(*['mobile'])
+    @params_required(*['mobile', 'investor_id'])
     def post(self):
         if not self.is_valid_mobile(self.input.mobile):
             raise VerifyError('电话号码有误！')
+
+        if User.filter_by_query(investor_id=self.input.investor_id).first():
+            raise VerifyError('投资者ID已存在')
 
         # 创建投资者
         user, user_login = register_investor_user(
@@ -92,26 +98,70 @@ class CustomerPosition(ApiViewHandler):
 
 
 class CustomerTrades(ApiViewHandler):
+
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
     def get(self, investor_id):
-        def helper(x):
-            if x['asset_type'] == '1':
-                x['fund_name'] = mutual_fund.loc[x['fund_id'], 'fund_name']
-                x['order_book_id'] = mutual_fund.loc[x['fund_id'], 'order_book_id']
-            if x['asset_type'] == '2':
-                x['fund_name'] = hedge_fund.loc[x['fund_id'], 'fund_name']
-                x['order_book_id'] = hedge_fund.loc[x['fund_id'], 'order_book_id']
-            return x
-
-        mutual_fund = get_fund_collection_caches()
-        hedge_fund = get_hedge_fund_cache()
-
-        results = db.session.query(FOFScaleAlteration).filter(
+        results = db.session.query(FOFScaleAlteration, FOFInfo.fof_name).filter(
             FOFScaleAlteration.investor_id == investor_id,
+            FOFInfo.fof_id == FOFScaleAlteration.fof_id,
         )
-        df = pd.DataFrame([i.to_dict() for i in results])
-        df = df.apply(helper, axis=1)
+        df_list = []
+        for i in results:
+            d = i[0].to_dict()
+            d['fof_name'] = i[1]
+            df_list.append(d)
+
+        df = pd.DataFrame(df_list)
         return replace_nan(df.to_dict(orient='records'))
+
+    @login_required
+    def put(self, investor_id):
+        df = parse_trade_file(investor_id)
+
+        for d in df.to_dict(orient='records'):
+            new = FOFScaleAlteration(**replace_nan(d))
+            db.session.add(new)
+        db.session.commit()
+
+    @login_required
+    def post(self, investor_id):
+        create_single_trade(investor_id)
+
+    @login_required
+    def delete(self, investor_id):
+        FOFScaleAlteration.filter_by_query(investor_id=investor_id).delete()
+
+
+class CustomerTradesSingle(ApiViewHandler):
+
+    @login_required
+    def put(self, trade_id):
+        obj = FOFScaleAlteration.get_by_id(trade_id)
+        update_trade(obj)
+
+    @login_required
+    def delete(self, trade_id):
+        obj = FOFScaleAlteration.get_by_id(trade_id)
+        obj.delete()
+
+
+class CustomerFile(ApiViewHandler):
+
+    @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
+    def get(self):
+        query = User.filter_by_query(role_id=StuffEnum.INVESTOR)
+        df = pd.read_sql(query.statement, query.session.bind)
+
+        out = io.BytesIO()
+        writer = pd.ExcelWriter(out, engine='xlsxwriter')
+        df.to_excel(excel_writer=writer, index=False, sheet_name='sheet0')
+        writer.save()
+        writer.close()
+        file_name = datetime.datetime.now().strftime('%Y-%m-%d') + '.xlsx'
+        response = make_response(out.getvalue())
+        response.headers["Content-Disposition"] = "attachment; filename=%s" % file_name
+        response.headers["Content-type"] = "application/x-xls"
+        return response
 
 
 class ResetStaffPassword(ApiViewHandler):

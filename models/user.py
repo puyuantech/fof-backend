@@ -30,6 +30,8 @@ class User(BaseModel):
     sign_date = db.Column(db.String(20))            # 签约日期
     sponsor = db.Column(db.String(20))              # 介绍人
     investor_id = db.Column(db.String(20))              # 客户编号
+    cred_type = db.Column(db.String(20))              # 证件类型
+    cred = db.Column(db.String(64))              # 证件编号
 
     def to_normal_dict(self):
         return {
@@ -61,6 +63,8 @@ class User(BaseModel):
             'sign_date': self.sign_date,
             'sponsor': self.sponsor,
             'investor_id': self.investor_id,
+            'cred_type': self.cred_type,
+            'cred': self.cred,
             'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
 

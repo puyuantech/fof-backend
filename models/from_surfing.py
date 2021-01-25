@@ -30,11 +30,13 @@ class FOFInfo(SurfingFOFInfo, BaseModel):
 
 
 class FOFScaleAlteration(SurfingFOFScaleAlteration, BaseModel):
+    __tablename__ = 'fof_scale_alteration'
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
 
 
 class FOFAssetAllocation(SurfingFOFAssetAllocation, BaseModel):
+    __tablename__ = 'fof_asset_allocation'
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
 

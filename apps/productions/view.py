@@ -13,7 +13,7 @@ from utils.caches import get_fund_collection_caches, get_hedge_fund_cache
 from surfing.util.calculator import Calculator as SurfingCalculator
 
 from bases.constants import StuffEnum
-from .libs import update_production_info
+from .libs import update_production_info, parse_trade_file, create_single_trade, update_trade
 
 
 class ProductionsAPI(ApiViewHandler):
@@ -75,9 +75,9 @@ class ProductionAPI(ApiViewHandler):
 class ProductionDetail(ApiViewHandler):
 
     @login_required
-    def get(self, _id):
+    def get(self, fof_id):
         results = FOFNav.filter_by_query(
-            fof_id=_id,
+            fof_id=fof_id,
         ).all()
         df = pd.DataFrame([i.to_dict() for i in results])
         if len(df) < 1:
@@ -94,12 +94,12 @@ class ProductionDetail(ApiViewHandler):
 class ProductionTrades(ApiViewHandler):
 
     @login_required
-    def get(self, _id):
+    def get(self, fof_id):
         def helper(x):
-            if x['asset_type'] == '1':
+            if x['asset_type'] == 1:
                 x['fund_name'] = mutual_fund.loc[x['fund_id'], 'fund_name']
                 x['order_book_id'] = mutual_fund.loc[x['fund_id'], 'order_book_id']
-            if x['asset_type'] == '2':
+            if x['asset_type'] == 2:
                 x['fund_name'] = hedge_fund.loc[x['fund_id'], 'fund_name']
                 x['order_book_id'] = hedge_fund.loc[x['fund_id'], 'order_book_id']
             return x
@@ -108,16 +108,46 @@ class ProductionTrades(ApiViewHandler):
         hedge_fund = get_hedge_fund_cache()
 
         results = db.session.query(FOFAssetAllocation).filter(
-            FOFAssetAllocation.fof_id == _id,
+            FOFAssetAllocation.fof_id == fof_id,
         ).all()
         df = pd.DataFrame([i.to_dict() for i in results])
         df = df.apply(helper, axis=1)
         return replace_nan(df.to_dict(orient='records'))
 
+    @login_required
+    def put(self, fof_id):
+        df = parse_trade_file(fof_id)
+
+        for d in df.to_dict(orient='records'):
+            new = FOFAssetAllocation(**replace_nan(d))
+            db.session.add(new)
+        db.session.commit()
+
+    @login_required
+    def post(self, fof_id):
+        create_single_trade(fof_id)
+
+    @login_required
+    def delete(self, fof_id):
+        FOFAssetAllocation.filter_by_query(fof_id=fof_id).delete()
+
+
+class ProductionTradesSingle(ApiViewHandler):
+
+    @login_required
+    def put(self, trade_id):
+        obj = FOFAssetAllocation.get_by_id(trade_id)
+        update_trade(obj)
+
+    @login_required
+    def delete(self, trade_id):
+        obj = FOFAssetAllocation.get_by_id(trade_id)
+        obj.delete()
+
 
 class ProductionInvestor(ApiViewHandler):
 
-    @login_required
+    @admin_login_required([StuffEnum.ADMIN, StuffEnum.OPE_MANAGER, StuffEnum.FUND_MANAGER])
     def get(self, fof_id):
         investor_ids = db.session.query(
             FOFInvestorPosition.investor_id
@@ -136,7 +166,7 @@ class ProductionInvestor(ApiViewHandler):
 class ProductionPosition(ApiViewHandler):
 
     @login_required
-    def get(self, _id):
+    def get(self, fof_id):
         def helper(x):
             if x['asset_type'] == '1':
                 x['fund_name'] = mutual_fund.loc[x['fund_id'], 'fund_name']
@@ -150,7 +180,7 @@ class ProductionPosition(ApiViewHandler):
         hedge_fund = get_hedge_fund_cache()
 
         position = db.session.query(FOFPosition).filter(
-            FOFPosition.fof_id == _id,
+            FOFPosition.fof_id == fof_id,
         ).order_by(FOFPosition.datetime.desc()).limit(1).first()
         if not position:
             return []

@@ -1,5 +1,5 @@
 import traceback
-from flask import views, request, jsonify, make_response, current_app, abort, g
+from flask import views, request, jsonify, make_response, current_app, abort, g, Response
 from .basehandler import BaseHandler, Dict
 from .exceptions import AuthError, LogicError, ParamsError, VerifyError, BaseError
 
@@ -69,6 +69,9 @@ class ApiViewHandler(BaseViewHandler):
             status_code = 500
             err = traceback.format_exc()
             current_app.logger.error(err)
+
+        if isinstance(data, Response):
+            return data
 
         cost_time = self.get_timestamp() - start_time
 

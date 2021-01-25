@@ -1,8 +1,10 @@
 from flask import request, g
 from models import User, UserLogin
 from bases.viewhandler import ApiViewHandler
+from bases.globals import db
 from utils.helper import generate_sql_pagination
 from utils.decorators import params_required, super_admin_login_required, login_required
+from bases.constants import StuffEnum
 from .libs.staff import get_all_user_info_by_user, register_staff_user, update_user_info
 
 
@@ -11,7 +13,10 @@ class StaffsAPI(ApiViewHandler):
     @super_admin_login_required
     def get(self):
         p = generate_sql_pagination()
-        query = User.filter_by_query()
+        query = db.session.query(User).filter(
+            User.role_id != StuffEnum.INVESTOR,
+            User.is_deleted == False,
+        )
         data = p.paginate(query, call_back=lambda x: [get_all_user_info_by_user(i) for i in x])
         return data
 

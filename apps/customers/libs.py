@@ -1,6 +1,10 @@
 import datetime
-from flask import request
-from models import User, UserLogin
+import traceback
+import pandas as pd
+import io
+from flask import request, current_app
+
+from models import User, UserLogin, FOFScaleAlteration
 from bases.exceptions import VerifyError
 from bases.constants import StuffEnum
 
@@ -50,6 +54,13 @@ def register_investor_user(mobile):
     return user, user_login
 
 
+def check_investor_id(user, investor_id):
+    if user.investor_id == investor_id:
+        return
+    if User.filter_by_query(investor_id=request.json.get('investor_id')).first():
+        raise VerifyError('投资者ID已存在')
+
+
 def update_user_info(user):
     columns = [
         'nick_name',
@@ -62,9 +73,13 @@ def update_user_info(user):
         'sign_date',
         'sponsor',
         'investor_id',
+        'cred',
+        'cred_type',
     ]
-    if request.json.get('role_id') and request.json.get('role_id') == 1:
-        raise VerifyError('不能添加管理员权限!')
+
+    if request.json.get('investor_id'):
+        check_investor_id(user, request.json.get('investor_id'))
+
     for i in columns:
         if request.json.get(i) is not None:
             user.update(commit=False, **{i: request.json.get(i)})
@@ -72,5 +87,70 @@ def update_user_info(user):
     return user
 
 
+def parse_trade_file(investor_id):
+    req_file = request.files.get('file')
+    if not req_file:
+        raise VerifyError('Couldn\'t find any uploaded file')
 
+    # 解析文件
+    try:
+        df = pd.read_excel(
+            io.BytesIO(req_file.read()),
+            dtype={'日期': str, '产品ID': float},
+        )
+
+        df = df[['日期', '产品ID', '申购金额', '赎回份额', '确认日期', '入账日期', '确认份额']]
+        df['日期'] = df['日期'].apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date())
+        df = df.rename(columns={
+            '日期': 'datetime',
+            '产品ID': 'fof_id',
+            '申购金额': 'amount',
+            '赎回份额': 'share',
+            '确认日期': 'confirmed_date',
+            '入账日期': 'deposited_date',
+            '确认份额': 'unit_total',
+        })
+        df['investor_id'] = investor_id
+    except:
+        current_app.logger.error(traceback.format_exc())
+        raise VerifyError('解析失败')
+
+    return df
+
+
+def create_single_trade(investor_id):
+    try:
+        FOFScaleAlteration.create(
+            fof_id=request.json.get('fof_id'),
+            datetime=request.json.get('datetime'),
+            investor_id=request.json.get('investor_id'),
+            confirmed_date=request.json.get('confirmed_date'),
+            deposited_date=request.json.get('deposited_date'),
+            amount=request.json.get('amount'),
+            share=request.json.get('share'),
+            unit_total=request.json.get('unit_total'),
+            asset_type=request.json.get('asset_type', 2),
+        )
+    except:
+        current_app.logger.error(traceback.format_exc())
+        raise VerifyError('创建失败！')
+
+
+def update_trade(obj):
+    columns = [
+        'datetime',
+        'fof_id',
+        'investor_id',
+        'confirmed_date',
+        'deposited_date',
+        'amount',
+        'share',
+        'unit_total',
+        'asset_type',
+    ]
+    for i in columns:
+        if request.json.get(i) is not None:
+            obj.update(commit=False, **{i: request.json.get(i)})
+    obj.save()
+    return obj
 
