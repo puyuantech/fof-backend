@@ -1,5 +1,5 @@
 import hashlib
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from flask import g, make_response, request, current_app
 from bases.viewhandler import ApiViewHandler
@@ -37,12 +37,12 @@ class WX(ApiViewHandler):
 
     @params_required(*['signature', 'timestamp', 'nonce'])
     def post(self):
-        xml_data = decode_wx_msg(
+        xml_text = decode_wx_msg(
             self.input.signature,
             self.input.timestamp,
             self.input.nonce,
         )
-        current_app.logger.info(xml_data)
+        xml_data = ET.fromstring(xml_text)
         rec_msg = Msg(xml_data)
 
         if rec_msg.MsgType == 'text':
