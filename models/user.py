@@ -30,7 +30,7 @@ class User(BaseModel):
     sign_date = db.Column(db.String(20))            # 签约日期
     sponsor = db.Column(db.String(20))              # 介绍人
     investor_id = db.Column(db.String(20))              # 客户编号
-    cred_type = db.Column(db.String(20))              # 证件类型
+    cred_type = db.Column(db.String(20))              # 证件类型 1身份证 2护照
     cred = db.Column(db.String(64))              # 证件编号
 
     def to_normal_dict(self):
