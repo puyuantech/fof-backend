@@ -36,6 +36,7 @@ class SHA1:
         try:
             token = token.decode()
             sortlist = [token, timestamp, nonce, encrypt]
+            current_app.logger(encrypt)
             sortlist.sort()
             sha = hashlib.sha1()
             sha.update("".join(sortlist).encode())
