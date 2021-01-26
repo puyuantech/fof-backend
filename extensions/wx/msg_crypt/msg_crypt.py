@@ -32,6 +32,7 @@ class SHA1:
         @return: 安全签名
         """
         try:
+            token = token.decode()
             sortlist = [token, timestamp, nonce, encrypt]
             sortlist.sort()
             sha = hashlib.sha1()
@@ -59,8 +60,8 @@ class XMLParse:
         """
         try:
             xml_tree = ET.fromstring(xmltext)
-            encrypt  = xml_tree.find("Encrypt")
-            touser_name    = xml_tree.find("ToUserName")
+            encrypt = xml_tree.find("Encrypt")
+            touser_name = xml_tree.find("ToUserName")
             return  ierror.WXBizMsgCrypt_OK, encrypt.text, touser_name.text
         except Exception:
             #print e
