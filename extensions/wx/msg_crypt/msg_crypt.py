@@ -207,6 +207,7 @@ class WXBizMsgCrypt(object):
         #return：成功0，sEncryptMsg,失败返回对应的错误码None
         pc = Prpcrypt(self.key)
         ret, encrypt = pc.encrypt(sReplyMsg, self.appid)
+        encrypt = encrypt.decode('utf8')
         if ret != 0:
             return ret, None
         if timestamp is None:
