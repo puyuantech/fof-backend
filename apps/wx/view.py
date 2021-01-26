@@ -37,6 +37,7 @@ class WX(ApiViewHandler):
 
     @params_required(*['signature', 'timestamp', 'nonce'])
     def post(self):
+        print('hhhhh')
         wx_msg_crypt = WXBizMsgCrypt(
             settings['WX']['apps']['fof']['token'],
             settings['WX']['apps']['fof']['aes_key'],
@@ -70,6 +71,7 @@ class WX(ApiViewHandler):
         else:
             ret = '您好'
 
+        current_app.logger.info(ret)
         return make_response(ret)
 
 
