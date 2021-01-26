@@ -1,7 +1,7 @@
 import hashlib
 from xml.etree import ElementTree
 
-from flask import g, make_response, request
+from flask import g, make_response, request, current_app
 from bases.viewhandler import ApiViewHandler
 from bases.globals import settings
 from bases.exceptions import VerifyError
@@ -37,7 +37,7 @@ class WX(ApiViewHandler):
     def post(self):
         data = request.get_data(as_text=True)
         xml_data = ElementTree.fromstring(data)
-        print(xml_data)
+        current_app.logger.info(xml_data)
 
         rec_msg = Msg(xml_data)
 
