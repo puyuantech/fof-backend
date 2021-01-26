@@ -50,6 +50,8 @@ class SHA1:
             sortlist = [token, timestamp, nonce, encrypt]
             sortlist.sort()
             sha = hashlib.sha1()
+            from flask import current_app
+            current_app.logger.info(encrypt)
             sha.update("".join(sortlist).encode())
             return ierror.WXBizMsgCrypt_OK, sha.hexdigest()
         except Exception as e:
