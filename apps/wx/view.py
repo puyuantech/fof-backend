@@ -9,6 +9,7 @@ from utils.decorators import params_required, login_required
 from extensions.wx.union_manager import WXUnionManager
 from extensions.wx.receive import Msg
 from extensions.wx.reply import TextMsg, ImageMsg
+from extensions.wx.msg_crypt.msg_crypt import WXBizMsgCrypt
 
 from .libs import check_we_chat_user_exist, bind_we_chat_user
 
@@ -34,16 +35,34 @@ class WX(ApiViewHandler):
 
         return make_response(ret)
 
+    @params_required(*['signature', 'timestamp', 'nonce'])
     def post(self):
+        wx_msg_crypt = WXBizMsgCrypt(
+            settings['WX']['apps']['fof']['token'],
+            settings['WX']['apps']['fof']['aes_key'],
+            settings['WX']['apps']['fof']['app_id'],
+        )
+
+        # 解密
         data = request.get_data(as_text=True)
-        xml_data = ElementTree.fromstring(data)
+        status, xml_data = wx_msg_crypt.DecryptMsg(
+            data,
+            self.input.signature,
+            self.input.timestamp,
+            self.input.nonce,
+        )
+        if status != 0:
+            current_app.logger.error(status, xml_data)
+            return
+        # xml_data = ElementTree.fromstring(data)
         current_app.logger.info(xml_data)
 
         rec_msg = Msg(xml_data)
 
         if rec_msg.MsgType == 'text':
             input_content = rec_msg.find('Content').decode('utf-8')
-            ret = TextMsg(rec_msg.FromUserName, rec_msg.ToUserName, input_content).send()
+            ret_xml = TextMsg(rec_msg.FromUserName, rec_msg.ToUserName, input_content).results()
+            status, ret = wx_msg_crypt.EncryptMsg(ret_xml, self.input.nonce)
         elif rec_msg.MsgType == 'event':
             pass
         elif rec_msg.MsgType == 'image':

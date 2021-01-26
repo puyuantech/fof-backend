@@ -10,7 +10,7 @@ class TextMsg:
         self.__dict['CreateTime'] = int(time.time())
         self.__dict['Content'] = content
 
-    def send(self):
+    def results(self):
         xml_form = """
         <xml>
         <ToUserName><![CDATA[{ToUserName}]]></ToUserName>
@@ -32,7 +32,7 @@ class ImageMsg:
         self.__dict['CreateTime'] = int(time.time())
         self.__dict['MediaId'] = mediaId
 
-    def send(self):
+    def results(self):
         xml_form = """
         <xml>
         <ToUserName><![CDATA[{ToUserName}]]></ToUserName>
