@@ -43,7 +43,7 @@ class WX(ApiViewHandler):
 
         if rec_msg.MsgType == 'text':
             input_content = rec_msg.find('Content').decode('utf-8')
-            ret = TextMsg(rec_msg.FromUserName, rec_msg.ToUserName, input_content)
+            ret = TextMsg(rec_msg.FromUserName, rec_msg.ToUserName, input_content).send()
         elif rec_msg.MsgType == 'event':
             pass
         elif rec_msg.MsgType == 'image':
