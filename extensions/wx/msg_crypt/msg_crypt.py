@@ -34,6 +34,7 @@ class SHA1:
         @return: 安全签名
         """
         try:
+            token = token.decode()
             sortlist = [token, timestamp, nonce, encrypt]
             sortlist.sort()
             sha = hashlib.sha1()
