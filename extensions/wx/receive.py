@@ -29,6 +29,7 @@ class Msg(object):
 
     def __init__(self, xml_data):
         self.xml_data = xml_data
+        print(xml_data)
         self.ToUserName = xml_data.find('ToUserName').text
         self.FromUserName = xml_data.find('FromUserName').text
         self.CreateTime = xml_data.find('CreateTime').text
