@@ -33,6 +33,13 @@ class SHA1:
         """
         try:
             sortlist = [token, timestamp, nonce, encrypt]
+            from flask import current_app
+            current_app.logger.info(sortlist)
+            current_app.logger.info(token)
+            current_app.logger.info(timestamp)
+            current_app.logger.info(nonce)
+            current_app.logger.info(encrypt)
+
             sortlist.sort()
             sha = hashlib.sha1()
             sha.update("".join(sortlist).encode('utf8'))
