@@ -37,7 +37,10 @@ class WX(ApiViewHandler):
 
     @params_required(*['signature', 'timestamp', 'nonce'])
     def post(self):
-        print('hhhhh')
+        current_app.logger.info(self.input.signature)
+        current_app.logger.info(self.input.timestamp)
+        current_app.logger.info(self.input.nonce)
+
         wx_msg_crypt = WXBizMsgCrypt(
             settings['WX']['apps']['fof']['token'],
             settings['WX']['apps']['fof']['aes_key'],
@@ -46,6 +49,8 @@ class WX(ApiViewHandler):
 
         # 解密
         data = request.get_data(as_text=True)
+        current_app.logger.info(self.input.nonce)
+
         status, xml_data = wx_msg_crypt.DecryptMsg(
             data,
             self.input.signature,
@@ -53,7 +58,7 @@ class WX(ApiViewHandler):
             self.input.nonce,
         )
         if status != 0:
-            current_app.logger.error(status, xml_data)
+            current_app.logger.error(status)
             return
         # xml_data = ElementTree.fromstring(data)
         current_app.logger.info(xml_data)
