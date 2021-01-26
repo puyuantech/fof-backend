@@ -117,7 +117,6 @@ class CustomerTrades(ApiViewHandler):
     @login_required
     def put(self, investor_id):
         df = parse_trade_file(investor_id)
-        print(df)
 
         for d in df.to_dict(orient='records'):
             new = FOFScaleAlteration(**replace_nan(d))

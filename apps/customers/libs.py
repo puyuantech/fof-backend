@@ -98,7 +98,6 @@ def parse_trade_file(investor_id):
             io.BytesIO(req_file.read()),
             dtype={'日期': str, '产品ID': str},
         )
-        print(df)
 
         df = df[['日期', '产品ID', '申购金额', '赎回份额', '确认日期', '入账日期', '确认份额']]
         # df['日期'] = df['日期'].apply(lambda x: datetime.datetime.strptime(x[10], '%Y-%m-%d').date())
