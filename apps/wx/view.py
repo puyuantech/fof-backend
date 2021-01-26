@@ -46,7 +46,7 @@ class WX(ApiViewHandler):
         rec_msg = Msg(xml_data)
 
         if rec_msg.MsgType == 'text':
-            input_content = rec_msg.find('Content').decode('utf-8')
+            input_content = rec_msg.find('Content')
             ret_xml = TextMsg(rec_msg.FromUserName, rec_msg.ToUserName, input_content).results()
             ret = encode_wx_msg(ret_xml, self.input.nonce)
         elif rec_msg.MsgType == 'event':
