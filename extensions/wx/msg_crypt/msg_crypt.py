@@ -132,7 +132,9 @@ class Prpcrypt(object):
         @return: 加密得到的字符串
         """
         # 16位随机字符串添加到明文开头
-        text = self.get_random_str() + struct.pack("I",socket.htonl(len(text))) + text + appid
+        text = text.encode()
+        appid = appid.encode()
+        text = self.get_random_str() + struct.pack("I", socket.htonl(len(text))) + text + appid
         # 使用自定义的填充方式对明文进行补位填充
         pkcs7 = PKCS7Encoder()
         text = pkcs7.encode(text)
@@ -177,9 +179,7 @@ class Prpcrypt(object):
         """ 随机生成16位字符串
         @return: 16位字符串
         """
-        rule = string.letters + string.digits
-        str = random.sample(rule, 16)
-        return "".join(str)
+        return str(random.randint(1000000000000000, 9999999999999999)).encode()
 
 
 class WXBizMsgCrypt(object):
