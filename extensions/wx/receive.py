@@ -28,11 +28,15 @@ def parse_xml(web_data):
 class Msg(object):
 
     def __init__(self, xml_data):
+        self.xml_data = xml_data
         self.ToUserName = xml_data.find('ToUserName').text
         self.FromUserName = xml_data.find('FromUserName').text
         self.CreateTime = xml_data.find('CreateTime').text
         self.MsgType = xml_data.find('MsgType').text
         # self.MsgId = xmlData.find('MsgId').textclass
+
+    def find(self, key):
+        return self.xml_data.find(key).text
 
 
 class TextMsg(Msg):

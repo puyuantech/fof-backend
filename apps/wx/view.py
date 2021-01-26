@@ -1,10 +1,14 @@
-from flask import g, make_response
 import hashlib
+from xml.etree import ElementTree
+
+from flask import g, make_response, request
 from bases.viewhandler import ApiViewHandler
 from bases.globals import settings
 from bases.exceptions import VerifyError
 from utils.decorators import params_required, login_required
 from extensions.wx.union_manager import WXUnionManager
+from extensions.wx.receive import Msg
+from extensions.wx.reply import TextMsg, ImageMsg
 
 from .libs import check_we_chat_user_exist, bind_we_chat_user
 
@@ -27,6 +31,21 @@ class WX(ApiViewHandler):
             ret = str(self.input.echostr)
         else:
             ret = ""
+
+        return make_response(ret)
+
+    def post(self):
+        data = request.get_data(as_text=True)
+        xml_data = ElementTree.fromstring(data)
+        rec_msg = Msg(xml_data)
+
+        if rec_msg.MsgType == 'text':
+            input_content = rec_msg.find('Content').decode('utf-8')
+            ret = TextMsg(rec_msg.FromUserName, rec_msg.ToUserName, input_content)
+        elif rec_msg.MsgType == 'event':
+            pass
+        elif rec_msg.MsgType == 'image':
+            pass
 
         return make_response(ret)
 

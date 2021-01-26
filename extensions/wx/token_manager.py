@@ -72,5 +72,7 @@ class TokenManager:
 
 
 if __name__ == "__main__":
+    from apps import create_app
+    create_app().app_context().push()
     print(f'AccessToken: {TokenManager().get_wechat_token_from_db()}')
     print(f'JsApiTicket: {TokenManager().get_wechat_token_from_db("jsapi_ticket")}')
