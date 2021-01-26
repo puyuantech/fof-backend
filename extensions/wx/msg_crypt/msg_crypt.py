@@ -34,12 +34,14 @@ class SHA1:
         @return: 安全签名
         """
         try:
-            token = token.decode()
             sortlist = [token, timestamp, nonce, encrypt]
-            current_app.logger(encrypt)
             sortlist.sort()
             sha = hashlib.sha1()
-            sha.update("".join(sortlist).encode())
+            data = "".join(sortlist)
+
+            current_app.logger.info(encrypt)
+            current_app.logger.info(data)
+            sha.update(data.encode())
             return ierror.WXBizMsgCrypt_OK, sha.hexdigest()
         except Exception as e:
             current_app.logger.info(traceback.format_exc())
