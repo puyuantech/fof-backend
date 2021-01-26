@@ -1,12 +1,3 @@
-#!/usr/bin/env python
-#-*- encoding:utf-8 -*-
-
-""" 对公众平台发送给公众账号的消息加解密示例代码.
-@copyright: Copyright (c) 1998-2014 Tencent Inc.
-
-"""
-# ------------------------------------------------------------------------
-
 import base64
 import string
 import random
@@ -20,11 +11,6 @@ import sys
 import socket
 
 
-"""
-关于Crypto.Cipher模块，ImportError: No module named 'Crypto'解决方案
-请到官方网站 https://www.dlitz.net/software/pycrypto/ 下载pycrypto。
-下载后，按照README中的“Installation”小节的提示进行pycrypto安装。
-"""
 class FormatException(Exception):
     pass
 
