@@ -96,11 +96,12 @@ def parse_trade_file(investor_id):
     try:
         df = pd.read_excel(
             io.BytesIO(req_file.read()),
-            dtype={'日期': str, '产品ID': float},
+            dtype={'日期': str, '产品ID': str},
         )
+        print(df)
 
         df = df[['日期', '产品ID', '申购金额', '赎回份额', '确认日期', '入账日期', '确认份额']]
-        df['日期'] = df['日期'].apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date())
+        # df['日期'] = df['日期'].apply(lambda x: datetime.datetime.strptime(x[10], '%Y-%m-%d').date())
         df = df.rename(columns={
             '日期': 'datetime',
             '产品ID': 'fof_id',
@@ -110,6 +111,7 @@ def parse_trade_file(investor_id):
             '入账日期': 'deposited_date',
             '确认份额': 'unit_total',
         })
+        df['asset_type'] = 2
         df['investor_id'] = investor_id
     except:
         current_app.logger.error(traceback.format_exc())
