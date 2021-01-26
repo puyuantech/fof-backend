@@ -42,6 +42,7 @@ class WX(ApiViewHandler):
             self.input.timestamp,
             self.input.nonce,
         )
+        current_app.logger.info(xml_data)
         rec_msg = Msg(xml_data)
 
         if rec_msg.MsgType == 'text':

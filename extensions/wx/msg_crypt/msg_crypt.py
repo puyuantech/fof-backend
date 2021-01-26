@@ -228,23 +228,18 @@ class WXBizMsgCrypt(object):
         # @return: 成功0，失败返回对应的错误码
          # 验证安全签名
         xmlParse = XMLParse()
-        ret,encrypt,touser_name = xmlParse.extract(sPostData)
-
-        current_app.logger.info(touser_name)
-        current_app.logger.info(encrypt)
-
+        ret, encrypt, touser_name = xmlParse.extract(sPostData)
         if ret != 0:
             return ret, None
+
         sha1 = SHA1()
-        ret,signature = sha1.getSHA1(self.token, sTimeStamp, sNonce)
-        if ret  != 0:
+        ret, signature = sha1.getSHA1(self.token, sTimeStamp, sNonce)
+        if ret != 0:
             return ret, None
-        current_app.logger.info(signature)
-        current_app.logger.info(sMsgSignature)
 
         if not signature == sMsgSignature:
             return ierror.WXBizMsgCrypt_ValidateSignature_Error, None
         pc = Prpcrypt(self.key)
-        ret, xml_content = pc.decrypt(encrypt,self.appid)
+        ret, xml_content = pc.decrypt(encrypt, self.appid)
         return ret, xml_content
 
