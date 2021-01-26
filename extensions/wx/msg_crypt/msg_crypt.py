@@ -36,12 +36,11 @@ class SHA1:
         try:
             sortlist = [token, timestamp, nonce, encrypt]
             sortlist.sort()
-            sha = hashlib.sha1()
             data = "".join(sortlist)
 
             current_app.logger.info(encrypt)
             current_app.logger.info(data)
-            sha.update(data.encode())
+            sha = hashlib.sha1(data.encode())
             return ierror.WXBizMsgCrypt_OK, sha.hexdigest()
         except Exception as e:
             current_app.logger.info(traceback.format_exc())
