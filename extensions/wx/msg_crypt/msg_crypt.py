@@ -25,7 +25,7 @@ def throw_exception(message, exception_class=FormatException):
 class SHA1:
     """计算公众平台的消息签名接口"""
 
-    def getSHA1(self, token, timestamp, nonce, encrypt):
+    def getSHA1(self, token, timestamp, nonce, encrypt=''):
         """用SHA1算法生成安全签名
         @param token:  票据
         @param timestamp: 时间戳
@@ -36,11 +36,8 @@ class SHA1:
         try:
             sortlist = [token, timestamp, nonce, encrypt]
             sortlist.sort()
-            data = "".join(sortlist)
-
-            current_app.logger.info(encrypt)
-            current_app.logger.info(data)
-            sha = hashlib.sha1(data.encode())
+            data = ''.join(sortlist)
+            sha = hashlib.sha1(data.encode('utf8'))
             return ierror.WXBizMsgCrypt_OK, sha.hexdigest()
         except Exception as e:
             current_app.logger.info(traceback.format_exc())
@@ -160,7 +157,7 @@ class Prpcrypt(object):
         except Exception:
             return  ierror.WXBizMsgCrypt_DecryptAES_Error,None
         try:
-            pad = ord(plain_text[-1])
+            pad = plain_text[-1]
             # 去掉补位字符串
             #pkcs7 = PKCS7Encoder()
             #plain_text = pkcs7.encode(plain_text)
@@ -168,10 +165,12 @@ class Prpcrypt(object):
             content = plain_text[16:-pad]
             xml_len = socket.ntohl(struct.unpack("I",content[ : 4])[0])
             xml_content = content[4 : xml_len+4]
-            from_appid = content[xml_len+4:]
+            from_appid = content[xml_len+4:].decode()
+            print(xml_content, from_appid)
         except Exception:
+            print(traceback.format_exc())
             return  ierror.WXBizMsgCrypt_IllegalBuffer,None
-        if  from_appid != appid:
+        if str(from_appid) != appid:
             return ierror.WXBizMsgCrypt_ValidateAppid_Error,None
         return 0,xml_content
 
@@ -238,7 +237,7 @@ class WXBizMsgCrypt(object):
         if ret != 0:
             return ret, None
         sha1 = SHA1()
-        ret,signature = sha1.getSHA1(self.token, sTimeStamp, sNonce, encrypt)
+        ret,signature = sha1.getSHA1(self.token, sTimeStamp, sNonce)
         if ret  != 0:
             return ret, None
         current_app.logger.info(signature)

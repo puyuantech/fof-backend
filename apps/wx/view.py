@@ -11,7 +11,7 @@ from extensions.wx.receive import Msg
 from extensions.wx.reply import TextMsg, ImageMsg
 from extensions.wx.msg_crypt.msg_crypt import WXBizMsgCrypt
 
-from .libs import check_we_chat_user_exist, bind_we_chat_user
+from .libs import check_we_chat_user_exist, bind_we_chat_user, decode_wx_msg, encode_wx_msg
 
 
 class WX(ApiViewHandler):
@@ -28,11 +28,6 @@ class WX(ApiViewHandler):
         sha1.update(access_list[2].encode("utf-8"))
         hashcode = sha1.hexdigest()
 
-        current_app.logger.info(self.input.signature)
-        current_app.logger.info(self.input.timestamp)
-        current_app.logger.info(self.input.nonce)
-        current_app.logger.info(hashcode)
-
         if hashcode == self.input.signature:
             ret = str(self.input.echostr)
         else:
@@ -42,42 +37,17 @@ class WX(ApiViewHandler):
 
     @params_required(*['signature', 'timestamp', 'nonce'])
     def post(self):
-        current_app.logger.info(self.input.signature)
-        current_app.logger.info(self.input.timestamp)
-        current_app.logger.info(self.input.nonce)
-        current_app.logger.info(settings['WX']['apps']['fof']['token'])
-        current_app.logger.info(settings['WX']['apps']['fof']['aes_key'])
-        current_app.logger.info(settings['WX']['apps']['fof']['app_id'])
-
-        wx_msg_crypt = WXBizMsgCrypt(
-            settings['WX']['apps']['fof']['token'],
-            settings['WX']['apps']['fof']['aes_key'],
-            settings['WX']['apps']['fof']['app_id'],
-        )
-
-        # 解密
-        data = request.get_data(as_text=True)
-        current_app.logger.info(data)
-        current_app.logger.info(request.data)
-
-        status, xml_data = wx_msg_crypt.DecryptMsg(
-            data,
+        xml_data = decode_wx_msg(
             self.input.signature,
             self.input.timestamp,
             self.input.nonce,
         )
-        if status != 0:
-            current_app.logger.error(status)
-            return
-        # xml_data = ElementTree.fromstring(data)
-        current_app.logger.info(xml_data)
-
         rec_msg = Msg(xml_data)
 
         if rec_msg.MsgType == 'text':
             input_content = rec_msg.find('Content').decode('utf-8')
             ret_xml = TextMsg(rec_msg.FromUserName, rec_msg.ToUserName, input_content).results()
-            status, ret = wx_msg_crypt.EncryptMsg(ret_xml, self.input.nonce)
+            ret = encode_wx_msg(ret_xml, self.input.nonce)
         elif rec_msg.MsgType == 'event':
             pass
         elif rec_msg.MsgType == 'image':
@@ -108,6 +78,14 @@ class WXBindUser(ApiViewHandler):
         wx = g.user.we_chat
         for i in wx:
             i.logic_delete()
+
+
+class WXBindMobile(ApiViewHandler):
+
+    def get(self):
+        return {
+            'app_id': settings['WX']['apps']['fof']['app_id'],
+        }
 
 
 class OfficeAPPID(ApiViewHandler):
