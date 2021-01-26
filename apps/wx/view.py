@@ -37,6 +37,8 @@ class WX(ApiViewHandler):
     def post(self):
         data = request.get_data(as_text=True)
         xml_data = ElementTree.fromstring(data)
+        print(xml_data)
+
         rec_msg = Msg(xml_data)
 
         if rec_msg.MsgType == 'text':
@@ -46,6 +48,8 @@ class WX(ApiViewHandler):
             pass
         elif rec_msg.MsgType == 'image':
             pass
+        else:
+            ret = '您好'
 
         return make_response(ret)
 
