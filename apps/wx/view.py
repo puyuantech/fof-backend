@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, make_response
 import hashlib
 from bases.viewhandler import ApiViewHandler
 from bases.globals import settings
@@ -24,9 +24,11 @@ class WX(ApiViewHandler):
         hashcode = sha1.hexdigest()
 
         if hashcode == self.input.signature:
-            return str(self.input.echostr)
+            ret = str(self.input.echostr)
         else:
-            return ""
+            ret = ""
+
+        return make_response(ret)
 
 
 class WXBindUser(ApiViewHandler):
