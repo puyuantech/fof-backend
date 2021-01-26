@@ -32,11 +32,10 @@ class SHA1:
         @return: 安全签名
         """
         try:
-            token = token.decode()
             sortlist = [token, timestamp, nonce, encrypt]
             sortlist.sort()
             sha = hashlib.sha1()
-            sha.update("".join(sortlist).encode('utf8'))
+            sha.update("".join(sortlist).encode('utf-8'))
             return ierror.WXBizMsgCrypt_OK, sha.hexdigest()
         except Exception:
             return ierror.WXBizMsgCrypt_ComputeSignature_Error, None
