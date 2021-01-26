@@ -52,8 +52,9 @@ def register_logging(app):
         maxBytes=app.config['LOG_FILE_MAX_BYTES'],
         backupCount=app.config['LOG_FILE_BACKUP_COUNT']
     )
-    file_handler_info.setFormatter(formatter)
     logging.basicConfig(level=app.config.get('LOG_LEVEL', 'INFO'))
+
+    file_handler_info.setFormatter(formatter)
     app.logger.addHandler(file_handler_info)
 
 

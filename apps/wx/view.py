@@ -50,6 +50,7 @@ class WX(ApiViewHandler):
         # 解密
         data = request.get_data(as_text=True)
         current_app.logger.info(data)
+        current_app.logger.info(request.data)
 
         status, xml_data = wx_msg_crypt.DecryptMsg(
             request.data,

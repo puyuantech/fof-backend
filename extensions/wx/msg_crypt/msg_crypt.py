@@ -46,7 +46,7 @@ class SHA1:
         @return: 安全签名
         """
         try:
-            sortlist = [token, timestamp, nonce, encrypt]
+            sortlist = [token, timestamp, nonce]
             sortlist.sort()
             sha = hashlib.sha1()
             sha.update("".join(sortlist))
