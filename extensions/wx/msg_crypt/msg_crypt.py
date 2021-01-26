@@ -91,6 +91,7 @@ class PKCS7Encoder():
     """提供基于PKCS7算法的加解密接口"""
 
     block_size = 32
+
     def encode(self, text):
         """ 对需要加密的明文进行填充补位
         @param text: 需要进行填充补位操作的明文
@@ -103,7 +104,7 @@ class PKCS7Encoder():
             amount_to_pad = self.block_size
         # 获得补位所用的字符
         pad = chr(amount_to_pad)
-        return text + pad * amount_to_pad
+        return text + (pad * amount_to_pad).encode()
 
     def decode(self, decrypted):
         """删除解密后明文的补位字符
@@ -111,7 +112,7 @@ class PKCS7Encoder():
         @return: 删除补位字符后的明文
         """
         pad = ord(decrypted[-1])
-        if pad<1 or pad >32:
+        if pad < 1 or pad > 32:
             pad = 0
         return decrypted[:-pad]
 
