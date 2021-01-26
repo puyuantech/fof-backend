@@ -49,10 +49,10 @@ class WX(ApiViewHandler):
 
         # 解密
         data = request.get_data(as_text=True)
-        current_app.logger.info(self.input.nonce)
+        current_app.logger.info(data)
 
         status, xml_data = wx_msg_crypt.DecryptMsg(
-            data,
+            request.data,
             self.input.signature,
             self.input.timestamp,
             self.input.nonce,
