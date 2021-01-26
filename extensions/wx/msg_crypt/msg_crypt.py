@@ -234,6 +234,8 @@ class WXBizMsgCrypt(object):
         ret,encrypt,touser_name = xmlParse.extract(sPostData)
 
         current_app.logger.info(touser_name)
+        current_app.logger.info(encrypt)
+
         if ret != 0:
             return ret, None
         sha1 = SHA1()

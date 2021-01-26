@@ -45,6 +45,9 @@ class WX(ApiViewHandler):
         current_app.logger.info(self.input.signature)
         current_app.logger.info(self.input.timestamp)
         current_app.logger.info(self.input.nonce)
+        current_app.logger.info(settings['WX']['apps']['fof']['token'])
+        current_app.logger.info(settings['WX']['apps']['fof']['aes_key'])
+        current_app.logger.info(settings['WX']['apps']['fof']['app_id'])
 
         wx_msg_crypt = WXBizMsgCrypt(
             settings['WX']['apps']['fof']['token'],
