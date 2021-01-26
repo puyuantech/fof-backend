@@ -33,13 +33,6 @@ class SHA1:
         """
         try:
             sortlist = [token, timestamp, nonce, encrypt]
-            from flask import current_app
-            # current_app.logger.info(sortlist)
-            current_app.logger.info(token)
-            current_app.logger.info(timestamp)
-            current_app.logger.info(nonce)
-            current_app.logger.info(encrypt)
-
             sortlist.sort()
             sha = hashlib.sha1()
             sha.update("".join(sortlist).encode('utf8'))
@@ -238,6 +231,10 @@ class WXBizMsgCrypt(object):
         ret,signature = sha1.getSHA1(self.token, sTimeStamp, sNonce, encrypt)
         if ret  != 0:
             return ret, None
+        from flask import current_app
+        current_app.logger.info(signature)
+        current_app.logger.info(sMsgSignature)
+
         if not signature == sMsgSignature:
             return ierror.WXBizMsgCrypt_ValidateSignature_Error, None
         pc = Prpcrypt(self.key)
