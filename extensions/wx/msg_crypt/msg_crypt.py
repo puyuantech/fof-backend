@@ -232,6 +232,8 @@ class WXBizMsgCrypt(object):
          # 验证安全签名
         xmlParse = XMLParse()
         ret,encrypt,touser_name = xmlParse.extract(sPostData)
+
+        current_app.logger.info(touser_name)
         if ret != 0:
             return ret, None
         sha1 = SHA1()
