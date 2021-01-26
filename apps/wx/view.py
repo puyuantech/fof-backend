@@ -28,6 +28,11 @@ class WX(ApiViewHandler):
         sha1.update(access_list[2].encode("utf-8"))
         hashcode = sha1.hexdigest()
 
+        current_app.logger.info(self.input.signature)
+        current_app.logger.info(self.input.timestamp)
+        current_app.logger.info(self.input.nonce)
+        current_app.logger.info(hashcode)
+
         if hashcode == self.input.signature:
             ret = str(self.input.echostr)
         else:
