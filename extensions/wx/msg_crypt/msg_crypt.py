@@ -164,9 +164,8 @@ class Prpcrypt(object):
             # 去除16位随机字符串
             content = plain_text[16:-pad]
             xml_len = socket.ntohl(struct.unpack("I",content[ : 4])[0])
-            xml_content = content[4 : xml_len+4]
+            xml_content = content[4 : xml_len+4].decode()
             from_appid = content[xml_len+4:].decode()
-            print(xml_content, from_appid)
         except Exception:
             print(traceback.format_exc())
             return  ierror.WXBizMsgCrypt_IllegalBuffer,None
