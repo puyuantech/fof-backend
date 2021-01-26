@@ -53,7 +53,7 @@ class WX(ApiViewHandler):
         current_app.logger.info(request.data)
 
         status, xml_data = wx_msg_crypt.DecryptMsg(
-            data,
+            request.data,
             self.input.signature,
             self.input.timestamp,
             self.input.nonce,
