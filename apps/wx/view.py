@@ -10,6 +10,8 @@ from utils.decorators import params_required, login_required
 from extensions.wx.union_manager import WXUnionManager
 from extensions.wx.receive import Msg
 from models import User, WeChatUnionID, Token
+from apps.captchas.libs import check_sms_captcha
+from apps.auth.libs import get_user_by_mobile
 
 from .libs import check_we_chat_user_exist, bind_we_chat_user, decode_wx_msg, encode_wx_msg, \
     wx_text, wx_event
@@ -128,6 +130,20 @@ class WXBindMobile(ApiViewHandler):
         if g.user.mobile:
             raise VerifyError('您已经绑定过手机号！')
 
+        check_sms_captcha(
+            verification_code=self.input.code,
+            verification_key=self.input.mobile,
+        )
+        target_user = get_user_by_mobile(mobile=self.input.mobile)
+        if not target_user:
+            raise VerifyError('账号不存在！')
+
+        if target_user.we_chat:
+            raise VerifyError('目标账户已绑定别的微信号！')
+
+        wx_user = g.user.we_chat
+        wx_user.user_id = target_user.id
+        db.session.commit()
         return
 
 

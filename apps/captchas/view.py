@@ -63,6 +63,15 @@ class GetMobileCaptcha(ApiViewHandler):
             status, msg = send_sms(mobile, code, action)
             if not status:
                 raise LogicError(msg)
+        elif self.input.action == 'official_bind_mobile':
+            print(mobile, code)
+            user = User.filter_by_query(mobile=mobile).first()
+            if not user:
+                raise VerifyError('此账户不存在！')
+            action = SMS.LOGIN
+            status, msg = send_sms(mobile, code, action)
+            if not status:
+                raise LogicError(msg)
         else:
             raise VerifyError('非正确途径')
 

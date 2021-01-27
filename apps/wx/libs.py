@@ -56,23 +56,31 @@ def encode_wx_msg(ret_xml, nonce):
     return xml_data
 
 
+def wx_bind_mobile_news(to_user, from_user):
+    new = News(
+        to_user,
+        from_user,
+        '欢迎来到FOF管理系统',
+        '点击绑定账号，\n获取实时通知👉👉',
+        'https://fof.prism-advisor.com/img/logo-small.d3ee3c36.png',
+        WX_REDIRECT_URL.format(
+            settings['WX']['apps']['fof']['app_id'],
+            'https://fof.prism-advisor.com/wx-bind-mobile'
+        ),
+    )
+    return new.results()
+
+
 def wx_text(rec_msg):
     input_content = rec_msg.find('Content')
     if input_content == '绑定手机号':
-        new = News(
+        ret_xml = wx_bind_mobile_news(
             rec_msg.FromUserName,
             rec_msg.ToUserName,
-            '欢迎来到FOF管理后台',
-            '点击绑定账号，\n获取实时通知👉👉。',
-            'https://fof.prism-advisor.com/img/logo-small.d3ee3c36.png',
-            WX_REDIRECT_URL.format(
-                settings['WX']['apps']['fof']['app_id'],
-                'https://fof.prism-advisor.com/wx-bind-mobile'
-            ),
         )
-        ret_xml = new.results()
     else:
-        ret_xml = TextMsg(rec_msg.FromUserName, rec_msg.ToUserName, input_content).results()
+        content = '您好，您有什么问题需要咨询呢，请留言您的问题、微信号、电话，我们将尽快与您联系。'
+        ret_xml = TextMsg(rec_msg.FromUserName, rec_msg.ToUserName, content).results()
     return ret_xml
 
 
@@ -81,7 +89,11 @@ def wx_event(rec_msg):
     if msg_event == 'SCAN':
         return 'success'
     elif msg_event == 'subscribe':
-        return 'success'
+        ret_xml = wx_bind_mobile_news(
+            rec_msg.FromUserName,
+            rec_msg.ToUserName,
+        )
+        return ret_xml
 
     return 'success'
 
