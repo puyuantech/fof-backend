@@ -25,6 +25,7 @@ class User(BaseModel):
     mobile = db.Column(db.String(20))
     role_id = db.Column(db.Integer, default=0)  # role_id 是否是管理员或者其他权限  1 管理员用户
     is_staff = db.Column(db.BOOLEAN, default=False)  # 是否是员工
+    is_wx = db.Column(db.BOOLEAN, default=False)  # 是否微信虚拟账号
     name = db.Column(db.String(20))                 # 姓名
     amount = db.Column(db.Float)                    # 投资总额
     sign_date = db.Column(db.String(20))            # 签约日期

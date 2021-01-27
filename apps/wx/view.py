@@ -83,6 +83,7 @@ class WxLoginAPI(ApiViewHandler):
                 user = User.create(
                     nick_name=union_info.get('nickname', ''),
                     is_staff=False,
+                    is_wx=True,
                 )
                 user.avatar_url = union_info.get('headimgurl')
                 WeChatUnionID.create(

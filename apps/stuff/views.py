@@ -15,6 +15,7 @@ class StaffsAPI(ApiViewHandler):
         p = generate_sql_pagination()
         query = db.session.query(User).filter(
             User.role_id != StuffEnum.INVESTOR,
+            User.is_wx == False,
             User.is_deleted == False,
         )
         data = p.paginate(query, call_back=lambda x: [get_all_user_info_by_user(i) for i in x])
