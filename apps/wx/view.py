@@ -56,7 +56,6 @@ class WX(ApiViewHandler):
             ret = 'success'
 
         current_app.logger.info(ret)
-        ret = 'success'
         ret = encode_wx_msg(ret, self.input.nonce)
         return make_response(ret)
 
