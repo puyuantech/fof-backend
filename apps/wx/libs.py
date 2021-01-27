@@ -2,7 +2,7 @@ from flask import g, current_app, request
 from models import WeChatUnionID
 from bases.exceptions import VerifyError
 from bases.globals import settings
-from extensions.wx.reply import TextMsg, ImageMsg
+from extensions.wx.reply import TextMsg, News
 from extensions.wx.msg_crypt.msg_crypt import WXBizMsgCrypt
 
 from .constants import WX_REDIRECT_URL
@@ -64,7 +64,19 @@ def encode_wx_msg(ret_xml, nonce):
 
 def wx_text(rec_msg):
     input_content = rec_msg.find('Content')
-    ret_xml = TextMsg(rec_msg.FromUserName, rec_msg.ToUserName, input_content).results()
+    if input_content == '绑定手机号':
+
+        new = News(
+            rec_msg.FromUserName,
+            rec_msg.ToUserName,
+            'fof_t',
+            'fof_d',
+            'https://fof.prism-advisor.com/img/logo-small.d3ee3c36.png',
+            'https://fof.prism-advisor.com',
+        )
+        ret_xml = new.results()
+    else:
+        ret_xml = TextMsg(rec_msg.FromUserName, rec_msg.ToUserName, input_content).results()
     return ret_xml
 
 
