@@ -62,11 +62,10 @@ def encode_wx_msg(ret_xml, nonce):
     return xml_data
 
 
-def wx_text(rec_msg, nonce):
+def wx_text(rec_msg):
     input_content = rec_msg.find('Content')
     ret_xml = TextMsg(rec_msg.FromUserName, rec_msg.ToUserName, input_content).results()
-    ret = encode_wx_msg(ret_xml, nonce)
-    return ret
+    return ret_xml
 
 
 def wx_event(rec_msg):

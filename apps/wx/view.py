@@ -47,7 +47,7 @@ class WX(ApiViewHandler):
         rec_msg = Msg(xml_data)
 
         if rec_msg.MsgType == 'text':
-            ret = wx_text(rec_msg, self.input.nonce)
+            ret = wx_text(rec_msg)
         elif rec_msg.MsgType == 'event':
             ret = wx_event(rec_msg)
         elif rec_msg.MsgType == 'image':
@@ -56,7 +56,9 @@ class WX(ApiViewHandler):
             ret = 'success'
 
         current_app.logger.info(ret)
-        return make_response('success')
+        ret = 'success'
+        ret = encode_wx_msg(ret, self.input.nonce)
+        return make_response(ret)
 
 
 class WxLoginAPI(ApiViewHandler):
