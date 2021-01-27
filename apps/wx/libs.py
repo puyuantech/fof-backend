@@ -65,7 +65,7 @@ def wx_text(rec_msg):
             '欢迎来到FOF管理后台',
             '点击绑定账号，\n获取实时通知👉👉。',
             'https://fof.prism-advisor.com/img/logo-small.d3ee3c36.png',
-            'WX_REDIRECT_URL'.format(
+            WX_REDIRECT_URL.format(
                 settings['WX']['apps']['fof']['app_id'],
                 'https://fof.prism-advisor.com/wx-bind-mobile'
             ),
