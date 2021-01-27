@@ -64,7 +64,7 @@ class News(Msg):
         self.__dict['PicUrl'] = pic_url
         self.__dict['Url'] = url
 
-    def send(self):
+    def results(self):
         xml_form = """
         <xml>
             <ToUserName><![CDATA[{ToUserName}]]></ToUserName>

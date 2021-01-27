@@ -64,7 +64,7 @@ def wx_text(rec_msg):
             rec_msg.ToUserName,
             'fof_t',
             'fof_d',
-            'http://mmbiz.qpic.cn/mmbiz_jpg/jCVxvrjcLyJy8r7mBEouZXv3ITQRN5BR9gT3IQTFUYiaEkiceHSwHLrtdKtPjyNdLDOEX9rfRgyqZdyMzZ06949w/0?wx_fmt=jpeg',
+            'https://fof.prism-advisor.com/img/logo-small.d3ee3c36.png',
             'https://fof.prism-advisor.com',
         )
         ret_xml = new.results()
