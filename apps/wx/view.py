@@ -143,8 +143,9 @@ class WXBindMobile(ApiViewHandler):
         if target_user.we_chat:
             raise VerifyError('目标账户已绑定别的微信号！')
 
-        wx_user = g.user.we_chat
+        wx_user = g.user.we_chat[0]
         wx_user.user_id = target_user.id
+        g.user.is_deleted = True
         db.session.commit()
         return
 
