@@ -7,6 +7,12 @@ from extensions.wx.msg_crypt.msg_crypt import WXBizMsgCrypt
 
 from .constants import WX_REDIRECT_URL
 
+wx_msg_crypt = WXBizMsgCrypt(
+    settings['WX']['apps']['fof']['token'],
+    settings['WX']['apps']['fof']['aes_key'],
+    settings['WX']['apps']['fof']['app_id'],
+)
+
 
 def check_we_chat_user_exist(union_id):
     wx = WeChatUnionID.filter_by_query(
@@ -27,12 +33,6 @@ def bind_we_chat_user(union_id, open_id):
 
 def decode_wx_msg(signature, timestamp, nonce):
     # 解密
-    wx_msg_crypt = WXBizMsgCrypt(
-        settings['WX']['apps']['fof']['token'],
-        settings['WX']['apps']['fof']['aes_key'],
-        settings['WX']['apps']['fof']['app_id'],
-    )
-
     data = request.get_data(as_text=True)
     status, xml_data = wx_msg_crypt.DecryptMsg(
         data,
@@ -49,12 +49,6 @@ def decode_wx_msg(signature, timestamp, nonce):
 
 def encode_wx_msg(ret_xml, nonce):
     # 加密
-    wx_msg_crypt = WXBizMsgCrypt(
-        settings['WX']['apps']['fof']['token'],
-        settings['WX']['apps']['fof']['aes_key'],
-        settings['WX']['apps']['fof']['app_id'],
-    )
-
     status, xml_data = wx_msg_crypt.EncryptMsg(ret_xml, nonce)
     if status != 0:
         raise VerifyError('加密失败！')
@@ -65,13 +59,12 @@ def encode_wx_msg(ret_xml, nonce):
 def wx_text(rec_msg):
     input_content = rec_msg.find('Content')
     if input_content == '绑定手机号':
-
         new = News(
             rec_msg.FromUserName,
             rec_msg.ToUserName,
             'fof_t',
             'fof_d',
-            'https://fof.prism-advisor.com/img/logo-small.d3ee3c36.png',
+            'http://mmbiz.qpic.cn/mmbiz_jpg/jCVxvrjcLyJy8r7mBEouZXv3ITQRN5BR9gT3IQTFUYiaEkiceHSwHLrtdKtPjyNdLDOEX9rfRgyqZdyMzZ06949w/0?wx_fmt=jpeg',
             'https://fof.prism-advisor.com',
         )
         ret_xml = new.results()
