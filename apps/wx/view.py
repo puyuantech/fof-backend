@@ -21,6 +21,7 @@ class WX(ApiViewHandler):
 
     @params_required(*['signature', 'timestamp', 'nonce', 'echostr'])
     def get(self):
+        """绑定后台验证时使用"""
         token = settings['WX']['apps']['fof']['token']
 
         access_list = [token, self.input.timestamp, self.input.nonce]
@@ -40,6 +41,7 @@ class WX(ApiViewHandler):
 
     @params_required(*['signature', 'timestamp', 'nonce'])
     def post(self):
+        """处理用户消息"""
         xml_text = decode_wx_msg(
             self.input.signature,
             self.input.timestamp,
@@ -131,7 +133,7 @@ class WXBindMobile(ApiViewHandler):
             raise VerifyError('您已经绑定过手机号！')
 
         check_sms_captcha(
-            verification_code=self.input.code,
+            verification_code=self.input.mobile_code,
             verification_key=self.input.mobile,
         )
         target_user = get_user_by_mobile(mobile=self.input.mobile)
