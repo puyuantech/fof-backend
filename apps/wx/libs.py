@@ -97,4 +97,3 @@ def wx_event(rec_msg):
 
     return 'success'
 
-

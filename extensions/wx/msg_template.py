@@ -1,4 +1,6 @@
 
+PRODUCTION_TEMPLATE_ID = 'c3ADcbl-eShFi5xQJioDNFUXCcq36A75IZHrZsjFuuo'
+
 
 def init_template(open_id, template_id, data, url=None, mp_app_id=None, mp_page_path=None):
     miniprogram = {
@@ -9,8 +11,8 @@ def init_template(open_id, template_id, data, url=None, mp_app_id=None, mp_page_
     return {
            "touser": open_id,
            "template_id": template_id,
-           "url": url or None,
-           "miniprogram": miniprogram,
+           # "url": url or None,
+           # "miniprogram": miniprogram,
            "data": data,
        }
 
