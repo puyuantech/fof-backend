@@ -9,8 +9,7 @@ from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from bases.constants import StuffEnum
 from utils.helper import generate_sql_pagination, replace_nan
-from utils.decorators import params_required, super_admin_login_required, admin_login_required, login_required
-from utils.caches import get_fund_collection_caches, get_hedge_fund_cache
+from utils.decorators import params_required, admin_login_required, login_required
 from .libs import get_all_user_info_by_user, register_investor_user, update_user_info, update_trade, parse_trade_file, \
     create_single_trade
 

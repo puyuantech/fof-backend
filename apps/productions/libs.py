@@ -4,10 +4,10 @@ import traceback
 import io
 from flask import request, current_app
 
-from bases.exceptions import VerifyError
-from models import FOFAssetAllocation
+from bases.exceptions import VerifyError, LogicError
+from models import FOFAssetAllocation, FOFNav
 from utils.caches import get_fund_collection_caches
-from surfing.constant import HoldingAssetType, FundStatus
+from surfing.constant import FOFStatementStatus, FOFTradeStatus, FOFTransitStatus, FOFOtherRecordStatus
 
 
 def update_production_info(obj):
@@ -28,6 +28,8 @@ def update_production_info(obj):
         'current_deposit_rate',
         'initial_raised_fv',
         'initial_net_value',
+        'incentive_fee_type',
+        'incentive_fee_str',
     ]
     for i in columns:
         if request.json.get(i) is not None:
@@ -90,6 +92,39 @@ def parse_trade_file(fof_id):
     return df
 
 
+def parse_nav_file(fof_id):
+    req_file = request.files.get('file')
+    if not req_file:
+        raise VerifyError('Couldn\'t find any uploaded file')
+
+    # 解析文件
+    try:
+        df = pd.read_excel(
+            io.BytesIO(req_file.read()),
+            dtype={'日期': str},
+        )
+        df = df.dropna(how='all')
+
+        df = df[['日期', '净值', '总份额', '投资成本', '当前市值', '累计收益', '累计收益率']]
+        df['日期'] = df['日期'].apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date())
+        df = df.rename(columns={
+            '日期': 'datetime',
+            '净值': 'nav',
+            '总份额': 'volume',
+            '投资成本': 'cost',
+            '当前市值': 'mv',
+            '累计收益': 'income',
+            '累计收益率': 'income_rate',
+        })
+        df['fof_id'] = fof_id
+        print(df)
+    except:
+        current_app.logger.error(traceback.format_exc())
+        raise VerifyError('解析失败')
+
+    return df
+
+
 def create_single_trade(fof_id):
     try:
         fund_id = request.json.get('fund_id')
@@ -111,6 +146,23 @@ def create_single_trade(fof_id):
         raise VerifyError('创建失败！')
 
 
+def create_single_nav(fof_id, date):
+    try:
+        FOFNav.create(
+            fof_id=fof_id,
+            datetime=date,
+            nav=request.json.get('nav'),
+            volume=request.json.get('volume'),
+            cost=request.json.get('cost'),
+            mv=request.json.get('mv'),
+            income=request.json.get('income'),
+            income_rate=request.json.get('income_rate'),
+        )
+    except:
+        current_app.logger.error(traceback.format_exc())
+        raise LogicError('创建失败！')
+
+
 def update_trade(obj):
     columns = [
         'datetime',
@@ -126,6 +178,170 @@ def update_trade(obj):
         fund_id = request.json.get('fund_id')
         asset_type = get_asset_type_by_fund(fund_id)
         obj.asset_type = asset_type
+
+    for i in columns:
+        if request.json.get(i) is not None:
+            obj.update(commit=False, **{i: request.json.get(i)})
+    obj.save()
+    return obj
+
+
+def update_nav(obj):
+    columns = [
+        'nav',
+        'volume',
+        'cost',
+        'mv',
+        'income',
+        'income_rate',
+    ]
+
+    for i in columns:
+        if request.json.get(i) is not None:
+            obj.update(commit=False, **{i: request.json.get(i)})
+    obj.save()
+    return obj
+
+
+def update_account_statement(self, obj):
+    columns = [
+        'datetime',
+        'trade_num',
+        'event_type',
+        'amount',
+        'remain_cash',
+        'remark',
+    ]
+
+    for i in columns:
+        if request.json.get(i) is not None:
+            obj.update(commit=False, **{i: request.json.get(i)})
+    obj.save()
+    return obj
+
+
+def parse_account_statement(self, fof_id):
+    req_file = request.files.get('file')
+    if not req_file:
+        raise VerifyError('Couldn\'t find any uploaded file')
+
+    # 解析文件
+    try:
+        df = pd.read_excel(
+            io.BytesIO(req_file.read()),
+            dtype={'时间': str},
+        )
+        df = df.dropna(how='all')
+
+        df = df[['时间', '流水编号', '交易类型', '金额', '账户余额', '备注']]
+        df['日期'] = df['日期'].apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date())
+        df = df.rename(columns={
+            '时间': 'datetime',
+            '流水编号': 'trade_num',
+            '交易类型': 'event_type',
+            '金额': 'amount',
+            '账户余额': 'remain_cash',
+            '备注': 'remark',
+        })
+        df['fof_id'] = fof_id
+    except:
+        current_app.logger.error(traceback.format_exc())
+        raise VerifyError('解析失败')
+
+    return df
+
+
+def update_transit_money(self, obj):
+    columns = [
+        'fund_id',
+        'confirmed_datetime',
+        'event_type',
+        'amount',
+        'transit_cash',
+        'remark',
+    ]
+
+    for i in columns:
+        if request.json.get(i) is not None:
+            obj.update(commit=False, **{i: request.json.get(i)})
+    obj.save()
+    return obj
+
+
+def parse_transit_money(self, fof_id):
+    req_file = request.files.get('file')
+    if not req_file:
+        raise VerifyError('Couldn\'t find any uploaded file')
+
+    # 解析文件
+    try:
+        df = pd.read_excel(
+            io.BytesIO(req_file.read()),
+            dtype={'时间': str},
+        )
+        df = df.dropna(how='all')
+
+        df = df[['基金ID', '确认时间', '类型', '金额', '在途资金总额', '备注']]
+        df['日期'] = df['日期'].apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date())
+        df = df.rename(columns={
+            '基金ID': 'fund_id',
+            '确认时间': 'confirmed_datetime',
+            '类型': 'event_type',
+            '金额': 'amount',
+            '在途资金总额': 'transit_cash',
+            '备注': 'remark',
+        })
+        df['fof_id'] = fof_id
+    except:
+        current_app.logger.error(traceback.format_exc())
+        raise VerifyError('解析失败')
+
+    return df
+
+
+def update_estimate_interest(self, obj):
+    columns = [
+        'date',
+        'remain_cash',
+        'interest',
+        'remark',
+        'total_interest',
+    ]
+
+    for i in columns:
+        if request.json.get(i) is not None:
+            obj.update(commit=False, **{i: request.json.get(i)})
+    obj.save()
+    return obj
+
+
+def update_estimate_fee(self, obj):
+    columns = [
+        'date',
+        'pre_market_value',
+        'management_fee',
+        'total_management_fee',
+        'custodian_fee',
+        'total_custodian_fee',
+        'administrative_fee',
+        'total_administrative_fee',
+        'is_down',
+        'remark',
+    ]
+
+    for i in columns:
+        if request.json.get(i) is not None:
+            obj.update(commit=False, **{i: request.json.get(i)})
+    obj.save()
+    return obj
+
+
+def update_other_record(self, obj):
+    columns = [
+        'event_type',
+        'amount',
+        'remark',
+    ]
 
     for i in columns:
         if request.json.get(i) is not None:

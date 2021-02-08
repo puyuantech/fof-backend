@@ -161,6 +161,29 @@ class HedgeComment(BaseModel):
     comment = Column(VARCHAR(255))                                                 # 评论
 
 
+class HedgeFavorite(BaseModel):
+    """
+    用户关注
+    """
+    __tablename__ = 'hedge_favorites'
+
+    id = Column(INTEGER, primary_key=True, autoincrement=True)
+    fund_id = Column(CHAR(16))
+    user_id = Column(INTEGER, ForeignKey('users.id'))
+    user = relationship('User', backref='favorites')
+
+
+class HedgeAllocation(BaseModel):
+    """
+    用户关注
+    """
+    __tablename__ = 'hedge_allocation'
+
+    id = Column(INTEGER, primary_key=True, autoincrement=True)
+    fof_id = Column(CHAR(16))
+    fund_id = Column(CHAR(16))
+
+
 # class InvestorPosition(BaseModel):
 #     """
 #     产品

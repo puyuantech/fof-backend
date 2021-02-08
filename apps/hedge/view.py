@@ -39,6 +39,30 @@ class HedgesAPI(ApiViewHandler):
             'incentive_fee_mode': request.json.get('incentive_fee_mode'),
             'incentive_fee_ratio': request.json.get('incentive_fee_ratio'),
             'v_nav_decimals': request.json.get('v_nav_decimals'),
+            'incentive_fee_str': request.json.get('incentive_fee_str'),
+            'incentive_fee_type': request.json.get('incentive_fee_type'),
+            'company': request.json.get('company'),
+            'found_date': request.json.get('found_date'),
+            'invest_strategy': request.json.get('invest_strategy'),
+            'size': request.json.get('size'),
+            'manager': request.json.get('manager'),
+            'incentive_fee_date': request.json.get('incentive_fee_date'),
+            'fund_adviser': request.json.get('fund_adviser'),
+            'records_no': request.json.get('records_no'),
+            'records_date': request.json.get('records_date'),
+            'deposit_security': request.json.get('deposit_security'),
+            'open_date': request.json.get('open_date'),
+            'warning_line': request.json.get('warning_line'),
+            'closeout_line': request.json.get('closeout_line'),
+            'management_fee': request.json.get('management_fee'),
+            'custodian_fee': request.json.get('custodian_fee'),
+            'administrative_fee': request.json.get('administrative_fee'),
+            'purchase_fee': request.json.get('purchase_fee'),
+            'redeem_fee': request.json.get('redeem_fee'),
+            'purchase_confirmed': request.json.get('purchase_confirmed'),
+            'purchase_done': request.json.get('purchase_done'),
+            'redeem_confirmed': request.json.get('redeem_confirmed'),
+            'redeem_done': request.json.get('redeem_done'),
         }
         if HedgeFundInfo.filter_by_query(fund_id=self.input.fund_id).one_or_none():
             raise VerifyError('ID 重复')
@@ -75,17 +99,18 @@ class HedgeDetail(ApiViewHandler):
 
         data = {
             'dates': df['datetime'].to_list(),
-            'v_net_value': df['v_net_value'].to_list(),
+            'adjusted_net_value': df['adjusted_net_value'].to_list(),
             'net_asset_value': df['net_asset_value'].to_list(),
             'acc_unit_value': df['acc_unit_value'].to_list(),
+            'change_rate': df['change_rate'].to_list(),
             'ratios': {},
         }
 
-        df = df.dropna(subset=['v_net_value'])
+        df = df.dropna(subset=['adjusted_net_value'])
         if len(df) < 1:
             return data
 
-        data['ratios'] = SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'v_net_value').__dict__
+        data['ratios'] = SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'adjusted_net_value').__dict__
         return replace_nan(data)
 
     @login_required
@@ -187,7 +212,7 @@ class HedgeAPI(ApiViewHandler):
 
 class HedgeSingleChangeAPI(ApiViewHandler):
     @login_required
-    @params_required(*['fund_id', 'datetime', 'net_asset_value', 'acc_unit_value', 'v_net_value'])
+    @params_required(*['fund_id', 'datetime'])
     def post(self):
         date = datetime.datetime.strptime(
             self.input.datetime,
@@ -200,10 +225,17 @@ class HedgeSingleChangeAPI(ApiViewHandler):
         if not obj:
             raise VerifyError('修改目标不存在！')
 
-        obj.net_asset_value = self.input.net_asset_value
-        obj.acc_unit_value = self.input.acc_unit_value
-        obj.v_net_value = self.input.v_net_value
+        columns = [
+            'net_asset_value',
+            'acc_unit_value',
+            'adjusted_net_value',
+            'change_rate',
+        ]
+        for i in columns:
+            if i in request.json:
+                obj.update(commit=False, **{i: request.json.get(i)})
         obj.save()
+
         update_hedge_value(self.input.fund_id)
         return
 
@@ -223,7 +255,7 @@ class HedgeSingleChangeAPI(ApiViewHandler):
 
         obj.net_asset_value = self.input.net_asset_value
         obj.acc_unit_value = self.input.acc_unit_value
-        obj.v_net_value = self.input.v_net_value
+        obj.adjusted_net_value = self.input.adjusted_net_value
         obj.save()
         update_hedge_value(self.input.fund_id)
         return

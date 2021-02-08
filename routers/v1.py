@@ -8,6 +8,8 @@ from apps.customers import blu as customer_blu
 from apps.markets import blu as market_blu
 from apps.logic import blu as logic_blu
 from apps.wx import blu as wx_blu
+from apps.favorites import blu as favorite_blu
+from apps.allocations import blu as allocation_blu
 
 routers = [
     auth_blu,
@@ -20,5 +22,7 @@ routers = [
     market_blu,
     logic_blu,
     wx_blu,
+    favorite_blu,
+    allocation_blu,
 ]
 

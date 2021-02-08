@@ -1,6 +1,6 @@
-from flask import request
+from flask import request, g
 from bases.globals import db
-from models import HedgeFundInfo, HedgeFundNAV, HedgeComment
+from models import HedgeFundInfo, HedgeFundNAV, HedgeComment, HedgeFavorite, HedgeAllocation
 
 
 def update_hedge_fund_info(obj):
@@ -15,6 +15,31 @@ def update_hedge_fund_info(obj):
         'brief_name',
         'stars',
         'comment',
+        'company',
+        'found_date',
+        'invest_strategy',
+        'incentive_fee_type',
+        'incentive_fee_str',
+        'size',
+        'manager',
+        'incentive_fee_date',
+        'fund_adviser',
+        'records_no',
+        'records_date',
+        'deposit_security',
+        'open_date',
+        'warning_line',
+        'closeout_line',
+        'management_fee',
+        'custodian_fee',
+        'administrative_fee',
+        'purchase_fee',
+        'redeem_fee',
+        'purchase_confirmed',
+        'purchase_done',
+        'redeem_confirmed',
+        'redeem_done',
+
     ]
     for i in columns:
         if request.json.get(i) is not None:
@@ -26,9 +51,14 @@ def update_hedge_fund_info(obj):
 def make_hedge_fund_info(obj):
     data = obj.to_dict()
     comments = HedgeComment.filter_by_query(fund_id=obj.fund_id).all()
+    favorite = HedgeFavorite.filter_by_query(
+        fund_id=obj.fund_id,
+        user_id=g.user.id,
+    ).one_or_none()
     comments = [i.to_dict() for i in comments]
     data.update({
-        'comments': comments
+        'comments': comments,
+        'favorite_status': True if favorite else False,
     })
     return data
 
@@ -48,6 +78,6 @@ def update_hedge_value(fund_id):
 
     info.net_asset_value = nav.net_asset_value
     info.acc_unit_value = nav.acc_unit_value
-    info.v_net_value = nav.v_net_value
+    info.adjusted_net_value = nav.adjusted_net_value
     db.session.commit()
 

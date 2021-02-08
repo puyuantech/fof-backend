@@ -75,6 +75,12 @@ def update_user_info(user):
         'investor_id',
         'cred',
         'cred_type',
+        'is_institution',
+        'address',
+        'ins_name',
+        'ins_code',
+        'contact_name',
+        'contact_mobile',
     ]
 
     if request.json.get('investor_id'):

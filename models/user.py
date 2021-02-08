@@ -33,6 +33,12 @@ class User(BaseModel):
     investor_id = db.Column(db.String(20))              # 客户编号
     cred_type = db.Column(db.String(20))              # 证件类型 1身份证 2护照
     cred = db.Column(db.String(64))              # 证件编号
+    is_institution = db.Column(db.BOOLEAN, default=False)  # 是否机构
+    address = db.Column(db.String(256))          # 通讯地址
+    ins_name = db.Column(db.String(63))             # 机构名称
+    ins_code = db.Column(db.String(31))             # 机构代码
+    contact_name = db.Column(db.String(31))         # 联系人
+    contact_mobile = db.Column(db.String(20))       # 联系方式
 
     def to_normal_dict(self):
         return {
@@ -66,6 +72,12 @@ class User(BaseModel):
             'investor_id': self.investor_id,
             'cred_type': self.cred_type,
             'cred': self.cred,
+            'is_institution': self.is_institution,
+            'address': self.address,
+            'ins_name': self.ins_name,
+            'ins_code': self.ins_code,
+            'contact_name': self.contact_name,
+            'contact_mobile': self.contact_mobile,
             'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
         }
 
