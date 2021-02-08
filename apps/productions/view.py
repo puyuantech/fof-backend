@@ -1,8 +1,9 @@
 import pandas as pd
 import json
 import datetime
+import traceback
 
-from flask import request
+from flask import request, current_app
 
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
@@ -276,6 +277,9 @@ class ProductionInvestor(ApiViewHandler):
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.OPE_MANAGER, StuffEnum.FUND_MANAGER])
     def get(self, fof_id):
         investor_return = FOFDataManager.get_investor_return(fof_id)
+        if len(investor_return) > 1:
+            investor_return['shares_sum'] = investor_return['shares'].sum()
+            investor_return['shares_weight'] = investor_return['shares'] / investor_return['shares_sum']
 
         info = FOFInfo.filter_by_query(
             fof_id=fof_id
@@ -314,11 +318,14 @@ class ProductionInvestor(ApiViewHandler):
                 d.update({
                     'user_total_rr': investor_return.loc[i.investor_id, 'total_rr'],
                     'user_v_nav': investor_return.loc[i.investor_id, 'v_nav'],
+                    'user_shares_weight': investor_return.loc[i.investor_id, 'shares_weight'],
                 })
             except Exception:
+                current_app.logger.info(traceback.format_exc())
                 d.update({
                     'user_total_rr': None,
                     'user_v_nav': None,
+                    'user_shares_weight': None,
                 })
             data.append(d)
 
