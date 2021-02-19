@@ -30,6 +30,12 @@ def init_admin(username, password):
     print('\033[32m {} 创建成功！！！请牢记您的账号和密码。'.format(username))
 
 
+@manager.option('--id', dest='fof_id', help='fof id', default=None)
+def update_fof(fof_id):
+    from scripts.refresh_fof import update_fof
+    update_fof(fof_id)
+
+
 if __name__ == '__main__':
     manager.run()
 

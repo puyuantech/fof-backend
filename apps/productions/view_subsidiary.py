@@ -1,8 +1,9 @@
 from bases.viewhandler import ApiViewHandler
-from models import FOFAccountStatement, FOFTransitMoney, FOFEstimateFee, FOFEstimateInterest, FOFOtherRecord
+from models import FOFAccountStatement, FOFTransitMoney, FOFEstimateFee, FOFEstimateInterest, FOFOtherRecord, FOFIncidentalStatement
+from utils.caches import get_fund_cache
 from .mixin import ViewDetailMixin, ViewAllMixin
 from .libs import update_account_statement, update_transit_money, update_estimate_fee, update_estimate_interest, \
-    update_other_record, parse_account_statement, parse_transit_money
+    update_other_record, parse_account_statement, parse_transit_money, update_incidental_statement
 
 
 class AccountStatementAPI(ApiViewHandler, ViewAllMixin):
@@ -55,4 +56,14 @@ class OtherRecordAPI(ApiViewHandler, ViewAllMixin):
 class OtherRecordDetailAPI(ApiViewHandler, ViewDetailMixin):
     model = FOFOtherRecord
     update_func = update_other_record
+
+
+class IncidentalStatement(ApiViewHandler, ViewAllMixin):
+    model = FOFIncidentalStatement
+    update_func = update_incidental_statement
+
+
+class IncidentalStatementDetail(ApiViewHandler, ViewDetailMixin):
+    model = FOFIncidentalStatement
+    update_func = update_incidental_statement
 

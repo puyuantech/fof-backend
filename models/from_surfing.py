@@ -11,6 +11,11 @@ from surfing.data.view.basic_models import FOFEstimateInterest as SurfingFOFEsti
 from surfing.data.view.basic_models import FOFEstimateFee as SurfingFOFEstimateFee
 from surfing.data.view.basic_models import FOFOtherRecord as SurfingFOFOtherRecord
 from surfing.data.view.basic_models import MngInfo as SurfingMngInfo
+from surfing.data.view.basic_models import FOFIncidentalStatement as SurfingFOFIncidentalStatement
+from surfing.data.view.basic_models import FOFRealAccountStatement as SurfingFOFRealAccountStatement
+from surfing.data.view.basic_models import FOFRealTransitMoney as SurfingFOFRealTransitMoney
+from surfing.data.view.basic_models import FOFRealEstimateInterest as SurfingFOFRealEstimateInterest
+from surfing.data.view.basic_models import FOFRealEstimateFee as SurfingFOFRealEstimateFee
 
 from surfing.data.view.derived_models import FOFPosition as SurfingFOFPosition
 from surfing.data.view.derived_models import FOFNav as SurfingFOFNav
@@ -78,6 +83,11 @@ class FOFNavPublic(SurfingFOFNavPublic, BaseModel):
     __table_args__ = {'extend_existing': True}
 
 
+class FOFIncidentalStatement(SurfingFOFIncidentalStatement, BaseModel):
+    __bind_key__ = 'basic'
+    __table_args__ = {'extend_existing': True}
+
+
 class FOFAccountStatement(SurfingFOFAccountStatement, BaseModel):
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
@@ -94,6 +104,30 @@ class FOFEstimateInterest(SurfingFOFEstimateInterest, BaseModel):
 
 
 class FOFEstimateFee(SurfingFOFEstimateFee, BaseModel):
+    __bind_key__ = 'basic'
+    __table_args__ = {'extend_existing': True}
+
+
+class FOFRealAccountStatement(SurfingFOFRealAccountStatement, BaseModel):
+    __tablename__ = 'fof_account_statement_real'
+    __bind_key__ = 'basic'
+    __table_args__ = {'extend_existing': True}
+
+
+class FOFRealTransitMoney(SurfingFOFRealTransitMoney, BaseModel):
+    __tablename__ = 'fof_transit_money_real'
+    __bind_key__ = 'basic'
+    __table_args__ = {'extend_existing': True}
+
+
+class FOFRealEstimateInterest(SurfingFOFRealEstimateInterest, BaseModel):
+    __tablename__ = 'fof_estimate_interest_real'
+    __bind_key__ = 'basic'
+    __table_args__ = {'extend_existing': True}
+
+
+class FOFRealEstimateFee(SurfingFOFRealEstimateFee, BaseModel):
+    __tablename__ = 'fof_estimate_fee_real'
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
 

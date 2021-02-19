@@ -8,7 +8,8 @@ from flask import request, current_app
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
-from models import FOFInfo, FOFNav, FOFNavPublic, FOFAssetAllocation, FOFPosition, FOFInvestorPosition, User
+from models import FOFInfo, FOFNav, FOFNavPublic, FOFAssetAllocation, FOFPosition, FOFInvestorPosition, User, \
+    FOFScaleAlteration
 from utils.decorators import params_required, login_required, admin_login_required
 from utils.helper import generate_sql_pagination, replace_nan
 from utils.caches import get_fund_collection_caches, get_hedge_fund_cache
@@ -17,7 +18,7 @@ from surfing.data.manager.manager_fof import FOFDataManager
 
 from bases.constants import StuffEnum
 from .libs import update_production_info, parse_trade_file, create_single_trade, update_trade, parse_nav_file, \
-    create_single_nav, update_nav
+    create_single_nav, update_nav, parse_investor_trade_file
 
 
 class ProductionsAPI(ApiViewHandler):
@@ -269,6 +270,74 @@ class ProductionTradesSingle(ApiViewHandler):
     @login_required
     def delete(self, trade_id):
         obj = FOFAssetAllocation.get_by_id(trade_id)
+        obj.delete()
+
+
+class ProductionInvestorTrades(ApiViewHandler):
+
+    @login_required
+    def get(self, fof_id):
+        p = generate_sql_pagination()
+        query = FOFScaleAlteration.filter_by_query(fof_id=fof_id)
+        data = p.paginate(query)
+        return data
+
+    @login_required
+    def put(self, fof_id):
+        df = parse_investor_trade_file(fof_id=fof_id)
+
+        for d in df.to_dict(orient='records'):
+            new = FOFScaleAlteration(**replace_nan(d))
+            db.session.add(new)
+        db.session.commit()
+
+    @login_required
+    def post(self, fof_id):
+        try:
+            FOFScaleAlteration.create(
+                fof_id=fof_id,
+                datetime=request.json.get('datetime'),
+                investor_id=request.json.get('investor_id'),
+                confirmed_date=request.json.get('confirmed_date'),
+                deposited_date=request.json.get('deposited_date'),
+                amount=request.json.get('amount'),
+                share=request.json.get('share'),
+                unit_total=request.json.get('unit_total'),
+                asset_type=request.json.get('asset_type', 2),
+            )
+        except:
+            current_app.logger.error(traceback.format_exc())
+            raise VerifyError('创建失败！')
+
+    @login_required
+    def delete(self, fof_id):
+        FOFScaleAlteration.filter_by_query(fof_id=fof_id).delete()
+
+
+class ProductionInvestorTradesSingle(ApiViewHandler):
+
+    @login_required
+    def put(self, trade_id):
+        obj = FOFScaleAlteration.get_by_id(trade_id)
+        columns = [
+            'datetime',
+            'fof_id',
+            'investor_id',
+            'confirmed_date',
+            'deposited_date',
+            'amount',
+            'share',
+            'unit_total',
+            'asset_type',
+        ]
+        for i in columns:
+            if request.json.get(i) is not None:
+                obj.update(commit=False, **{i: request.json.get(i)})
+        return
+
+    @login_required
+    def delete(self, trade_id):
+        obj = FOFScaleAlteration.get_by_id(trade_id)
         obj.delete()
 
 

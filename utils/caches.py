@@ -32,3 +32,18 @@ def get_hedge_fund_cache():
     df['order_book_id'] = df['fund_id']
     return df.set_index('fund_id')
 
+
+@cache.memoize(timeout=30, make_name='get_fund_cache')
+def get_fund_cache():
+    data = dict()
+    mutual_fund = get_fund_collection_caches()
+    hedge_fund = get_hedge_fund_cache()
+
+    for i in mutual_fund.index:
+        data[i] = mutual_fund.loc[i, 'fund_name']
+
+    for i in hedge_fund.index:
+        data[i] = hedge_fund.loc[i, 'fund_name']
+
+    return data
+

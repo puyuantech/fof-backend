@@ -19,6 +19,25 @@ class ViewDetailMixin:
         obj.delete()
 
 
+class ViewObject:
+    model = None
+    parse_func = None
+    update_func = None
+
+
+class ViewList(ViewObject):
+
+    @login_required
+    def get(self, fof_id):
+        p = generate_sql_pagination()
+
+        query = self.model.filter_by_query(
+            fof_id=fof_id
+        )
+        data = p.paginate(query)
+        return data
+
+
 class ViewAllMixin:
     model = None
     parse_func = None

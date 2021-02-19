@@ -92,6 +92,37 @@ def parse_trade_file(fof_id):
     return df
 
 
+def parse_investor_trade_file(fof_id):
+    req_file = request.files.get('file')
+    if not req_file:
+        raise VerifyError('Couldn\'t find any uploaded file')
+
+    # 解析文件
+    try:
+        df = pd.read_excel(
+            io.BytesIO(req_file.read()),
+            dtype={'日期': str},
+        )
+
+        df = df[['日期', '用户ID', '申购金额', '赎回份额', '确认日期', '入账日期', '确认份额']]
+        df = df.rename(columns={
+            '日期': 'datetime',
+            '用户ID': 'investor_id',
+            '申购金额': 'amount',
+            '赎回份额': 'share',
+            '确认日期': 'confirmed_date',
+            '入账日期': 'deposited_date',
+            '确认份额': 'unit_total',
+        })
+        df['asset_type'] = 2
+        df['fof_id'] = fof_id
+    except:
+        current_app.logger.error(traceback.format_exc())
+        raise VerifyError('解析失败')
+
+    return df
+
+
 def parse_nav_file(fof_id):
     req_file = request.files.get('file')
     if not req_file:
@@ -137,6 +168,7 @@ def create_single_trade(fof_id):
             asset_type=asset_type,
             amount=request.json.get('amount'),
             share=request.json.get('share'),
+            nav=request.json.get('nav'),
             status=request.json.get('status'),
             confirmed_date=request.json.get('confirmed_date'),
             unit_total=request.json.get('unit_total'),
@@ -268,6 +300,22 @@ def update_transit_money(self, obj):
     return obj
 
 
+def update_incidental_statement(self, obj):
+    columns = [
+        'datetime',
+        'trade_num',
+        'event_type',
+        'amount',
+        'remark',
+    ]
+
+    for i in columns:
+        if request.json.get(i) is not None:
+            obj.update(commit=False, **{i: request.json.get(i)})
+    obj.save()
+    return obj
+
+
 def parse_transit_money(self, fof_id):
     req_file = request.files.get('file')
     if not req_file:
@@ -341,6 +389,7 @@ def update_other_record(self, obj):
         'event_type',
         'amount',
         'remark',
+        'date',
     ]
 
     for i in columns:
