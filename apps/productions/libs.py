@@ -222,10 +222,9 @@ def update_nav(obj):
     columns = [
         'nav',
         'volume',
-        'cost',
+        'acc_net_value',
         'mv',
-        'income',
-        'income_rate',
+        'ret',
     ]
 
     for i in columns:

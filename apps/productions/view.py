@@ -12,7 +12,7 @@ from models import FOFInfo, FOFNav, FOFNavPublic, FOFAssetAllocation, FOFPositio
     FOFScaleAlteration
 from utils.decorators import params_required, login_required, admin_login_required
 from utils.helper import generate_sql_pagination, replace_nan
-from utils.caches import get_fund_collection_caches, get_hedge_fund_cache
+from utils.caches import get_fund_collection_caches, get_hedge_fund_cache, get_fund_cache
 from surfing.util.calculator import Calculator as SurfingCalculator
 from surfing.data.manager.manager_fof import FOFDataManager
 
@@ -142,11 +142,10 @@ class ProductionNav(ApiViewHandler):
         data = {
             'dates': df['datetime'].to_list(),
             'nav': df['nav'].to_list(),
+            'acc_net_value': df['acc_net_value'].to_list(),
             'volume': df['volume'].to_list(),
-            'cost': df['cost'].to_list(),
             'mv': df['mv'].to_list(),
-            'income': df['income'].to_list(),
-            'income_rate': df['income_rate'].to_list(),
+            'ret': df['ret'].to_list(),
             'ratios': SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'nav').__dict__,
         }
         return replace_nan(data)
@@ -223,24 +222,16 @@ class ProductionTrades(ApiViewHandler):
 
     @login_required
     def get(self, fof_id):
-        def helper(x):
-            if x['asset_type'] == 1:
-                x['fund_name'] = mutual_fund.loc[x['fund_id'], 'fund_name']
-                x['order_book_id'] = mutual_fund.loc[x['fund_id'], 'order_book_id']
-            if x['asset_type'] == 2:
-                x['fund_name'] = hedge_fund.loc[x['fund_id'], 'fund_name']
-                x['order_book_id'] = hedge_fund.loc[x['fund_id'], 'order_book_id']
-            return x
+        fund_name_dict = get_fund_cache()
 
-        mutual_fund = get_fund_collection_caches()
-        hedge_fund = get_hedge_fund_cache()
+        p = generate_sql_pagination()
+        query = FOFAssetAllocation.filter_by_query(fof_id=fof_id)
+        data = p.paginate(query)
 
-        results = db.session.query(FOFAssetAllocation).filter(
-            FOFAssetAllocation.fof_id == fof_id,
-        ).all()
-        df = pd.DataFrame([i.to_dict() for i in results])
-        df = df.apply(helper, axis=1)
-        return replace_nan(df.to_dict(orient='records'))
+        results = data['results']
+        for i in results:
+            i['fund_name'] = fund_name_dict.get(i['fund_id'])
+        return data
 
     @login_required
     def put(self, fof_id):
@@ -302,6 +293,8 @@ class ProductionInvestorTrades(ApiViewHandler):
                 deposited_date=request.json.get('deposited_date'),
                 amount=request.json.get('amount'),
                 share=request.json.get('share'),
+                nav=request.json.get('nav'),
+                status=request.json.get('status'),
                 unit_total=request.json.get('unit_total'),
                 asset_type=request.json.get('asset_type', 2),
             )
@@ -327,6 +320,8 @@ class ProductionInvestorTradesSingle(ApiViewHandler):
             'deposited_date',
             'amount',
             'share',
+            'nav',
+            'status',
             'unit_total',
             'asset_type',
         ]

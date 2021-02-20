@@ -61,11 +61,19 @@ def check_investor_id(user, investor_id):
         raise VerifyError('投资者ID已存在')
 
 
+def check_user_mobile(user, mobile):
+    if user.mobile == mobile:
+        return
+    if User.filter_by_query(mobile=request.json.get('mobile')).first():
+        raise VerifyError('电话号码已存在')
+
+
 def update_user_info(user):
     columns = [
         'nick_name',
         'sex',
         'email',
+        'mobile',
         'avatar_url',
         'site',
         'name',
@@ -85,6 +93,9 @@ def update_user_info(user):
 
     if request.json.get('investor_id'):
         check_investor_id(user, request.json.get('investor_id'))
+
+    if request.json.get('mobile'):
+        check_user_mobile(user, request.json.get('mobile'))
 
     for i in columns:
         if request.json.get(i) is not None:
