@@ -4,7 +4,7 @@ import pandas as pd
 import io
 from flask import request, current_app
 
-from models import User, UserLogin, FOFScaleAlteration
+from models import User, UserLogin, FOFScaleAlteration, FOFInvestorData
 from bases.exceptions import VerifyError
 from bases.constants import StuffEnum
 
@@ -26,6 +26,17 @@ def get_all_user_info_by_user(user):
     if not user_login:
         return user_dict
     user_dict['username'] = user_login.username
+
+    if not user.investor_id:
+        return user_dict
+
+    investor_data = FOFInvestorData.filter_by_query(
+        investor_id=user.investor_id,
+    ).first()
+    if not investor_data:
+        return user_dict
+
+    user_dict['total_investment'] = investor_data.total_investment
     return user_dict
 
 
@@ -147,6 +158,7 @@ def create_single_trade(investor_id):
             amount=request.json.get('amount'),
             share=request.json.get('share'),
             unit_total=request.json.get('unit_total'),
+            event_type=request.json.get('event_type'),
             asset_type=request.json.get('asset_type', 2),
         )
     except:
@@ -164,6 +176,7 @@ def update_trade(obj):
         'amount',
         'share',
         'unit_total',
+        'event_type',
         'asset_type',
     ]
     for i in columns:

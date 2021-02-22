@@ -3,8 +3,9 @@ from flask import request
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
-from models import HedgeAllocation, HedgeFundInfo
+from models import HedgeAllocation, FOFPositionDetail
 from utils.decorators import params_required, login_required
+from utils.caches import get_fund_cache
 from utils.helper import generate_sql_pagination, replace_nan
 
 from .libs import make_hedge_favorite_info
@@ -73,4 +74,24 @@ class AllocationStatusAPI(ApiViewHandler):
         return {
                 'status': False,
             }
+
+
+class AllocationPositionAPI(ApiViewHandler):
+
+    @login_required
+    def get(self, fof_id):
+        # results = FOFPositionDetail.filter_by_query(
+        #     fof_id=fof_id,
+        # ).all()
+        # results = [i.to_dict() for i in results]
+
+        p = generate_sql_pagination()
+        query = FOFPositionDetail.filter_by_query(fof_id=fof_id)
+        data = p.paginate(query)
+        fund_name_dict = get_fund_cache()
+
+        results = data['results']
+        for i in results:
+            i['fund_name'] = fund_name_dict.get(i['fund_id'])
+        return data
 

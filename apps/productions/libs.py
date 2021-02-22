@@ -170,7 +170,7 @@ def create_single_trade(fof_id):
             share=request.json.get('share'),
             nav=request.json.get('nav'),
             status=request.json.get('status'),
-            confirmed_date=request.json.get('confirmed_date'),
+            applied_date=request.json.get('applied_date'),
             unit_total=request.json.get('unit_total'),
         )
     except:
@@ -184,11 +184,10 @@ def create_single_nav(fof_id, date):
             fof_id=fof_id,
             datetime=date,
             nav=request.json.get('nav'),
+            acc_net_value=request.json.get('nav'),
             volume=request.json.get('volume'),
-            cost=request.json.get('cost'),
             mv=request.json.get('mv'),
-            income=request.json.get('income'),
-            income_rate=request.json.get('income_rate'),
+            ret=request.json.get('ret'),
         )
     except:
         current_app.logger.error(traceback.format_exc())
@@ -203,7 +202,7 @@ def update_trade(obj):
         'share',
         'status',
         'amount',
-        'confirmed_date',
+        'applied_date',
         'unit_total',
     ]
     if request.json.get('fund_id'):

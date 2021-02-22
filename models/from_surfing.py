@@ -20,6 +20,8 @@ from surfing.data.view.basic_models import FOFRealEstimateFee as SurfingFOFRealE
 from surfing.data.view.derived_models import FOFPosition as SurfingFOFPosition
 from surfing.data.view.derived_models import FOFNav as SurfingFOFNav
 from surfing.data.view.derived_models import FOFNavPublic as SurfingFOFNavPublic
+from surfing.data.view.derived_models import FOFPositionDetail as SurfingFOFPositionDetail
+from surfing.data.view.derived_models import FOFInvestorData as SurfingFOFInvestorData
 
 from bases.dbwrapper import BaseModel, db
 
@@ -136,3 +138,12 @@ class FOFOtherRecord(SurfingFOFOtherRecord, BaseModel):
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
 
+
+class FOFPositionDetail(SurfingFOFPositionDetail, BaseModel):
+    __bind_key__ = 'derived'
+    __table_args__ = {'extend_existing': True}
+
+
+class FOFInvestorData(SurfingFOFInvestorData, BaseModel):
+    __bind_key__ = 'derived'
+    __table_args__ = {'extend_existing': True}
