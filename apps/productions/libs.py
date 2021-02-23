@@ -169,8 +169,9 @@ def create_single_trade(fof_id):
             amount=request.json.get('amount'),
             share=request.json.get('share'),
             nav=request.json.get('nav'),
+            event_type=request.json.get('event_type'),
             status=request.json.get('status'),
-            applied_date=request.json.get('applied_date'),
+            confirmed_date=request.json.get('confirmed_date'),
             unit_total=request.json.get('unit_total'),
         )
     except:
@@ -202,8 +203,9 @@ def update_trade(obj):
         'share',
         'status',
         'amount',
-        'applied_date',
+        'confirmed_date',
         'unit_total',
+        'event_type',
     ]
     if request.json.get('fund_id'):
         fund_id = request.json.get('fund_id')
