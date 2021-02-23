@@ -1,0 +1,167 @@
+import uuid
+import datetime
+
+from bases.globals import settings
+from bases.dbwrapper import BaseModel, db
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
+TOKEN_EXPIRATION_IN_MINUTES = settings.get('TOKEN_EXPIRATION_IN_MINUTES', 60 * 24)
+TOKEN_MAX_NUM = settings.get('TOKEN_MAX_NUM', 2)
+
+
+class User(BaseModel):
+    """
+    用户
+    """
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nick_name = db.Column(db.String(31))
+    sex = db.Column(db.Integer, default=0, nullable=False)  # 1表示男，2表示女，其它未知
+    email = db.Column(db.String(64), nullable=True)
+    avatar_url = db.Column(db.String(128))
+    site = db.Column(db.String(256))
+    mobile = db.Column(db.String(20))
+    role_id = db.Column(db.Integer, default=0)  # role_id 是否是管理员或者其他权限  1 管理员用户
+    is_staff = db.Column(db.BOOLEAN, default=False)  # 是否是员工
+    is_wx = db.Column(db.BOOLEAN, default=False)  # 是否微信虚拟账号
+    name = db.Column(db.String(20))                 # 姓名
+    amount = db.Column(db.Float)                    # 投资总额
+    sign_date = db.Column(db.String(20))            # 签约日期
+    sponsor = db.Column(db.String(20))              # 介绍人
+    investor_id = db.Column(db.String(20))              # 客户编号
+    cred_type = db.Column(db.String(20))              # 证件类型 1身份证 2护照
+    cred = db.Column(db.String(64))              # 证件编号
+    is_institution = db.Column(db.BOOLEAN, default=False)  # 是否机构
+    address = db.Column(db.String(256))          # 通讯地址
+    ins_name = db.Column(db.String(63))             # 机构名称
+    ins_code = db.Column(db.String(31))             # 机构代码
+    contact_name = db.Column(db.String(31))         # 联系人
+    contact_mobile = db.Column(db.String(20))       # 联系方式
+
+    def to_normal_dict(self):
+        return {
+            'id': self.id,
+            'nick_name': self.nick_name,
+            'sex': self.sex,
+            'email': self.email,
+            'avatar_url': self.avatar_url,
+            'site': self.site,
+            'mobile': self.mobile,
+            'role_id': self.role_id,
+            'is_staff': self.is_staff,
+            'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+
+    def to_cus_dict(self):
+        return {
+            'id': self.id,
+            'nick_name': self.nick_name,
+            'sex': self.sex,
+            'email': self.email,
+            'avatar_url': self.avatar_url,
+            'site': self.site,
+            'role_id': self.role_id,
+            'is_staff': self.is_staff,
+            'name': self.name,
+            'mobile': self.mobile,
+            'amount': self.amount,
+            'sign_date': self.sign_date,
+            'sponsor': self.sponsor,
+            'investor_id': self.investor_id,
+            'cred_type': self.cred_type,
+            'cred': self.cred,
+            'is_institution': self.is_institution,
+            'address': self.address,
+            'ins_name': self.ins_name,
+            'ins_code': self.ins_code,
+            'contact_name': self.contact_name,
+            'contact_mobile': self.contact_mobile,
+            'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+
+    @staticmethod
+    def get_all_user_info(user_login):
+        user_dict = user_login.to_dict(remove_fields_list=['password_hash'])
+        user_login.last_login = datetime.datetime.now()
+        user_login.save()
+        user_info = User.get_by_id(user_login.user_id)
+        user_dict.update(user_info.to_dict())
+        return user_dict
+
+
+class UserLogin(BaseModel):
+    """
+    用户登录表
+    """
+    __tablename__ = 'user_login'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    password_hash = db.Column(db.String(256), nullable=False)
+    last_login = db.Column(db.DATETIME, default=datetime.datetime.now)
+
+    @property
+    def password(self):
+        raise AttributeError("当前属性不可读")  # _password
+
+    @password.setter
+    def password(self, value):
+        self.password_hash = generate_password_hash(value)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+
+class Token(BaseModel):
+    """
+    用户token
+    """
+    __tablename__ = "tokens"
+
+    id = db.Column(db.Integer, primary_key=True)      # 编号
+    key = db.Column(db.String(32))                         # key值
+    refresh_key = db.Column(db.String(32))                 # 刷新key值
+    expires_at = db.Column(db.DateTime, nullable=False)  # 过期时间
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = db.relationship('User', backref='token')
+
+    @staticmethod
+    def generate_key():
+        return uuid.uuid4().hex
+
+    @staticmethod
+    def generate_expires_at():
+        return datetime.datetime.now() + datetime.timedelta(minutes=TOKEN_EXPIRATION_IN_MINUTES)
+
+    def is_valid(self):
+        return datetime.datetime.now() < self.expires_at
+
+    def refresh(self, refresh_key):
+        if self.refresh_key == refresh_key:
+            self.key = self.generate_key()
+            self.expires_at = self.generate_expires_at()
+
+    @classmethod
+    def generate_token(cls, user_id):
+        tokens = cls.filter_by_query(
+            user_id=user_id,
+        ).order_by(cls.expires_at.asc()).all()
+
+        if len(tokens) < TOKEN_MAX_NUM:
+            token = cls.create(
+                key=cls.generate_key(),
+                refresh_key=cls.generate_key(),
+                expires_at=cls.generate_expires_at(),
+                user_id=user_id,
+            )
+        else:
+            token = tokens[0]
+            token.refresh(token.refresh_key)
+            token.save()
+
+        token = cls.get_by_id(token.id)
+        return token.to_dict()
+
