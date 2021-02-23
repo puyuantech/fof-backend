@@ -268,9 +268,21 @@ class ProductionInvestorTrades(ApiViewHandler):
 
     @login_required
     def get(self, fof_id):
+        def fill_trade_info(obj):
+            data_dict = obj.to_dict()
+            user = User.filter_by_query(
+                investor_id=obj.investor_id,
+                is_deleted=False,
+            ).first()
+
+            data_dict['name'] = user.name
+            data_dict['ins_name'] = user.ins_name
+            data_dict['is_institution'] = user.is_institution
+            return data_dict
+
         p = generate_sql_pagination()
         query = FOFScaleAlteration.filter_by_query(fof_id=fof_id)
-        data = p.paginate(query)
+        data = p.paginate(query, call_back=lambda x: [fill_trade_info(i) for i in x])
         return data
 
     @login_required
