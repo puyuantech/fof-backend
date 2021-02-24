@@ -1,6 +1,7 @@
 from flask import g, request, current_app
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
+from bases.constants import StuffEnum
 from models import Token
 from utils.decorators import params_required, login_required
 from apps.captchas.libs import check_img_captcha, check_sms_captcha
@@ -38,6 +39,36 @@ class MobileLoginAPI(ApiViewHandler):
         user = get_user_by_mobile(mobile=self.input.mobile)
         if not user:
             raise VerifyError('用户不存在')
+        if user.role_id not in [StuffEnum.ADMIN, StuffEnum.OPE_MANAGER, StuffEnum.FUND_MANAGER]:
+            raise VerifyError('权限错误')
+
+        user_dict = user.to_dict()
+        user_login = get_user_login_by_id(user.id)
+        user_dict.update({
+            'username': user_login.username
+        })
+        token_dict = Token.generate_token(user.id)
+
+        data = {
+            'user': user_dict,
+            'token': token_dict,
+        }
+        return data
+
+
+class InvestorMobileLoginAPI(ApiViewHandler):
+    @params_required(*['mobile', 'code'])
+    def post(self):
+        check_sms_captcha(
+            verification_code=self.input.code,
+            verification_key=self.input.mobile,
+        )
+        user = get_user_by_mobile(mobile=self.input.mobile)
+        if not user:
+            raise VerifyError('用户不存在')
+        if user.role_id not in [StuffEnum.INVESTOR]:
+            raise VerifyError('权限错误')
+
         user_dict = user.to_dict()
         user_login = get_user_login_by_id(user.id)
         user_dict.update({

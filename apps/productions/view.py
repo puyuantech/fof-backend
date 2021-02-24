@@ -307,7 +307,6 @@ class ProductionInvestorTrades(ApiViewHandler):
                 share=request.json.get('share'),
                 nav=request.json.get('nav'),
                 status=request.json.get('status'),
-                unit_total=request.json.get('unit_total'),
                 asset_type=request.json.get('asset_type', 2),
             )
         except:
@@ -334,7 +333,6 @@ class ProductionInvestorTradesSingle(ApiViewHandler):
             'share',
             'nav',
             'status',
-            'unit_total',
             'asset_type',
         ]
         for i in columns:

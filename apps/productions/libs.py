@@ -172,7 +172,7 @@ def create_single_trade(fof_id):
             event_type=request.json.get('event_type'),
             status=request.json.get('status'),
             confirmed_date=request.json.get('confirmed_date'),
-            unit_total=request.json.get('unit_total'),
+            deposited_date=request.json.get('deposited_date'),
         )
     except:
         current_app.logger.error(traceback.format_exc())
@@ -204,7 +204,7 @@ def update_trade(obj):
         'status',
         'amount',
         'confirmed_date',
-        'unit_total',
+        'deposited_date',
         'event_type',
         'nav',
     ]
