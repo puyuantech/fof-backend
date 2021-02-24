@@ -20,7 +20,12 @@ class CusAPI(ApiViewHandler):
     def get(self):
         p = generate_sql_pagination()
         query = User.filter_by_query(role_id=StuffEnum.INVESTOR)
-        data = p.paginate(query, call_back=lambda x: [get_all_user_info_by_user(i) for i in x])
+        data = p.paginate(
+            query,
+            call_back=lambda x: [get_all_user_info_by_user(i) for i in x],
+            equal_filter=[User.name, User.cred, User.mobile, User.sponsor],
+            range_filter=[User.sign_date],
+        )
         return data
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])

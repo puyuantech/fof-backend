@@ -1,4 +1,5 @@
 from sqlalchemy import text
+from flask import request
 
 
 class BasePagination:
@@ -17,7 +18,23 @@ class BasePagination:
 
 class SQLPagination(BasePagination):
 
-    def paginate(self, query, call_back=None):
+    def paginate(self, query, call_back=None, equal_filter=None, range_filter=None):
+
+        if range_filter:
+            for i in range_filter:
+                j = str(i).split('.')[1]
+                if request.args.get('min_{}'.format(j)) is not None:
+                    query = query.filter(i >= request.args.get('min_{}'.format(j)))
+
+                if request.args.get('max_{}'.format(j)) is not None:
+                    query = query.filter(i <= request.args.get('max_{}'.format(j)))
+
+        if equal_filter:
+            for i in equal_filter:
+                j = str(i).split('.')[1]
+                if request.args.get(j) is not None:
+                    query = query.filter_by(**{j: request.args.get(j)})
+
         if self.ordering:
             query = query.order_by(*[text(i) for i in self.ordering])
         instances = query.limit(self.page_size).offset((self.page - 1) * self.page_size).all()

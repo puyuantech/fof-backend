@@ -11,10 +11,12 @@ def user_operation_log_middleware(app):
         if not hasattr(g, 'user_operation'):
             return response
 
-        if g.user_operation == '登录-密码':
+        if g.user_operation.startswith('登录'):
             request_data = '******'
+            response_data = '******'
         else:
             request_data = request.json
+            response_data = request.data
 
         if not hasattr(g, 'user'):
             g.user = User()
@@ -30,7 +32,7 @@ def user_operation_log_middleware(app):
                 url=str(request.url),
                 method=request.method,
                 request_data=json.dumps(request_data),
-                response_data=json.dumps(json.loads(response.data)),
+                response_data=json.dumps(json.loads(response_data)),
                 response_status=response.status,
             )
         except Exception as e:
