@@ -160,6 +160,8 @@ def create_single_trade(investor_id):
             unit_total=request.json.get('unit_total'),
             event_type=request.json.get('event_type'),
             asset_type=request.json.get('asset_type', 2),
+            status=request.json.get('status'),
+            nav=request.json.get('nav'),
         )
     except:
         current_app.logger.error(traceback.format_exc())
@@ -178,6 +180,8 @@ def update_trade(obj):
         'unit_total',
         'event_type',
         'asset_type',
+        'status',
+        'nav',
     ]
     for i in columns:
         if request.json.get(i) is not None:

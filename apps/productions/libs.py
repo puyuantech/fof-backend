@@ -206,6 +206,7 @@ def update_trade(obj):
         'confirmed_date',
         'unit_total',
         'event_type',
+        'nav',
     ]
     if request.json.get('fund_id'):
         fund_id = request.json.get('fund_id')
