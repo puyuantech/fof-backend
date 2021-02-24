@@ -275,6 +275,7 @@ class ProductionInvestorTrades(ApiViewHandler):
                 is_deleted=False,
             ).first()
 
+            data_dict['user_id'] = user.id
             data_dict['name'] = user.name
             data_dict['ins_name'] = user.ins_name
             data_dict['is_institution'] = user.is_institution
