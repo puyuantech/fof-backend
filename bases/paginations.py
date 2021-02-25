@@ -23,16 +23,16 @@ class SQLPagination(BasePagination):
         if range_filter:
             for i in range_filter:
                 j = str(i).split('.')[1]
-                if request.args.get('min_{}'.format(j)) is not None:
+                if request.args.get('min_{}'.format(j)) is not None and request.args.get('min_{}'.format(j)) != '':
                     query = query.filter(i >= request.args.get('min_{}'.format(j)))
 
-                if request.args.get('max_{}'.format(j)) is not None:
+                if request.args.get('max_{}'.format(j)) is not None and request.args.get('max_{}'.format(j)) != '':
                     query = query.filter(i <= request.args.get('max_{}'.format(j)))
 
         if equal_filter:
             for i in equal_filter:
                 j = str(i).split('.')[1]
-                if request.args.get(j) is not None:
+                if request.args.get(j) is not None and request.args.get(j) != '':
                     query = query.filter_by(**{j: request.args.get(j)})
 
         if self.ordering:

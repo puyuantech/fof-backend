@@ -19,7 +19,7 @@ def check_img_captcha(verification_key, verification_code):
 
 
 def check_sms_captcha(verification_key, verification_code):
-    if verification_code == '9527':
+    if settings['dev'] is True and verification_code == '9527':
         return
     instance = MobileCode.filter_by_query(
         mobile=verification_key,

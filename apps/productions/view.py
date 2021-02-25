@@ -223,9 +223,16 @@ class ProductionTrades(ApiViewHandler):
     @login_required
     def get(self, fof_id):
         fund_name_dict = get_fund_cache()
+        event_type = request.args.get('event_type')
 
         p = generate_sql_pagination()
-        query = FOFAssetAllocation.filter_by_query(fof_id=fof_id)
+        if event_type:
+            query = FOFAssetAllocation.filter_by_query(
+                fof_id=fof_id,
+                event_type=event_type,
+            )
+        else:
+            query = FOFAssetAllocation.filter_by_query(fof_id=fof_id)
         data = p.paginate(query)
 
         results = data['results']

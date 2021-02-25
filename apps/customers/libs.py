@@ -4,7 +4,7 @@ import pandas as pd
 import io
 from flask import request, current_app
 
-from models import User, UserLogin, FOFScaleAlteration, FOFInvestorData
+from models import User, UserLogin, FOFScaleAlteration, FOFInvestorData, UserTag
 from bases.exceptions import VerifyError
 from bases.constants import StuffEnum
 
@@ -24,8 +24,17 @@ def get_all_user_info_by_user(user):
         user_id=user.id,
     ).first()
     if not user_login:
-        return user_dict
-    user_dict['username'] = user_login.username
+        user_dict['username'] = None
+    else:
+        user_dict['username'] = user_login.username
+
+    tags = UserTag.filter_by_query(
+        user_id=user.id,
+    ).all()
+    if not tags:
+        user_dict['tags'] = []
+    else:
+        user_dict['tags'] = [i.to_dict() for i in tags]
 
     if not user.investor_id:
         return user_dict
@@ -34,9 +43,10 @@ def get_all_user_info_by_user(user):
         investor_id=user.investor_id,
     ).first()
     if not investor_data:
-        return user_dict
+        user_dict['total_investment'] = None
+    else:
+        user_dict['total_investment'] = investor_data.total_investment
 
-    user_dict['total_investment'] = investor_data.total_investment
     return user_dict
 
 
@@ -100,6 +110,9 @@ def update_user_info(user):
         'ins_code',
         'contact_name',
         'contact_mobile',
+        'status',
+        'origin',
+        'salesman',
     ]
 
     if request.json.get('investor_id'):

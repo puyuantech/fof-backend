@@ -16,19 +16,19 @@ from .libs import get_all_user_info_by_user, register_investor_user, update_user
 
 class CusAPI(ApiViewHandler):
 
-    @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
+    @login_required
     def get(self):
         p = generate_sql_pagination()
         query = User.filter_by_query(role_id=StuffEnum.INVESTOR)
         data = p.paginate(
             query,
             call_back=lambda x: [get_all_user_info_by_user(i) for i in x],
-            equal_filter=[User.name, User.cred, User.mobile, User.sponsor],
+            equal_filter=[User.name, User.cred, User.mobile, User.sponsor, User.status, User.salesman],
             range_filter=[User.sign_date],
         )
         return data
 
-    @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
+    @login_required
     @params_required(*['mobile', 'investor_id'])
     def post(self):
         if not self.is_valid_mobile(self.input.mobile):
@@ -77,7 +77,7 @@ class CustomerAPI(ApiViewHandler):
 
 class CustomerPosition(ApiViewHandler):
 
-    @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
+    @login_required
     def get(self, investor_id):
 
         results = db.session.query(FOFInvestorPosition, FOFInfo.fof_name).filter(
@@ -97,18 +97,28 @@ class CustomerPosition(ApiViewHandler):
             return []
 
         df['sum_amount'] = df['amount'].sum()
-        df['weight'] = df['amount'] / df['sum_amount']
+        df['sum_total_ret'] = df['total_ret'].sum()
+        df['sum_mv'] = df['mv'].sum()
+        df['weight'] = df['mv'] / df['sum_mv']
         return replace_nan(df.to_dict(orient='records'))
 
 
 class CustomerTrades(ApiViewHandler):
 
-    @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
+    @login_required
     def get(self, investor_id):
-        results = db.session.query(FOFScaleAlteration, FOFInfo.fof_name).filter(
-            FOFScaleAlteration.investor_id == investor_id,
-            FOFInfo.fof_id == FOFScaleAlteration.fof_id,
-        )
+        event_type = request.args.get('event_type')
+        if event_type:
+            results = db.session.query(FOFScaleAlteration, FOFInfo.fof_name).filter(
+                FOFScaleAlteration.investor_id == investor_id,
+                FOFScaleAlteration.event_type == event_type,
+                FOFInfo.fof_id == FOFScaleAlteration.fof_id,
+            )
+        else:
+            results = db.session.query(FOFScaleAlteration, FOFInfo.fof_name).filter(
+                FOFScaleAlteration.investor_id == investor_id,
+                FOFInfo.fof_id == FOFScaleAlteration.fof_id,
+            )
         df_list = []
         for i in results:
             d = i[0].to_dict()
