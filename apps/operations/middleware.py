@@ -13,7 +13,7 @@ def user_operation_log_middleware(app):
 
         if g.user_operation.startswith('登录'):
             request_data = {}
-            response_data = {}
+            response_data = '{}'
         else:
             request_data = request.json
             response_data = request.data

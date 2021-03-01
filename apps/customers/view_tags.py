@@ -25,7 +25,6 @@ class TagsAPI(ApiViewHandler):
         ).group_by(
             UserTag.user_id
         ).all()
-        print(users)
 
         return [i.to_cus_dict() for i in users]
 

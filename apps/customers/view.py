@@ -109,9 +109,10 @@ class CustomerTrades(ApiViewHandler):
     def get(self, investor_id):
         event_type = request.args.get('event_type')
         if event_type:
+            event_type = [int(i) for i in event_type.split(',')]
             results = db.session.query(FOFScaleAlteration, FOFInfo.fof_name).filter(
                 FOFScaleAlteration.investor_id == investor_id,
-                FOFScaleAlteration.event_type == event_type,
+                FOFScaleAlteration.event_type.in_(event_type),
                 FOFInfo.fof_id == FOFScaleAlteration.fof_id,
             )
         else:
@@ -147,6 +148,11 @@ class CustomerTrades(ApiViewHandler):
 
 
 class CustomerTradesSingle(ApiViewHandler):
+
+    @login_required
+    def get(self, trade_id):
+        obj = FOFScaleAlteration.get_by_id(trade_id)
+        return obj.to_dict()
 
     @login_required
     def put(self, trade_id):

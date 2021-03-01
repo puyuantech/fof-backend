@@ -97,6 +97,15 @@ class User(BaseModel):
         return user_dict
 
 
+class ManagerInfo(BaseModel):
+    """
+    管理者
+    """
+    __tablename__ = 'manager_info'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+
 class UserLogin(BaseModel):
     """
     用户登录表

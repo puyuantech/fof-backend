@@ -282,14 +282,22 @@ class ProductionInvestorTrades(ApiViewHandler):
                 is_deleted=False,
             ).first()
 
-            data_dict['user_id'] = user.id
-            data_dict['name'] = user.name
-            data_dict['ins_name'] = user.ins_name
-            data_dict['is_institution'] = user.is_institution
+            data_dict['user_id'] = user.id if user else None
+            data_dict['name'] = user.name if user else None
+            data_dict['ins_name'] = user.ins_name if user else None
+            data_dict['is_institution'] = user.is_institution if user else None
             return data_dict
 
         p = generate_sql_pagination()
-        query = FOFScaleAlteration.filter_by_query(fof_id=fof_id)
+        event_type = request.args.get('event_type')
+        if event_type:
+            event_type = [int(i) for i in event_type.split(',')]
+            query = db.session.query(FOFScaleAlteration).filter(
+                FOFScaleAlteration.event_type.in_(event_type),
+                FOFScaleAlteration.fof_id == fof_id,
+            )
+        else:
+            query = FOFScaleAlteration.filter_by_query(fof_id=fof_id)
         data = p.paginate(query, call_back=lambda x: [fill_trade_info(i) for i in x])
         return data
 

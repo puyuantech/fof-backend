@@ -71,7 +71,11 @@ class InvestorMobileLoginAPI(ApiViewHandler):
         )
         user = get_user_by_mobile(mobile=self.input.mobile)
         if not user:
-            raise VerifyError('用户不存在')
+            user = User.create(
+                nick_name=self.input.mobile,
+                mobile=self.input.mobile,
+                role_id=StuffEnum.INVESTOR,
+            )
         if user.role_id not in [StuffEnum.INVESTOR]:
             raise VerifyError('权限错误')
 
