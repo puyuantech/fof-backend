@@ -4,7 +4,7 @@ import pandas as pd
 import io
 from flask import request, current_app
 
-from models import User, UserLogin, FOFScaleAlteration, FOFInvestorData
+from models import User, UserLogin, FOFScaleAlteration, FOFInvestorData, UserTag
 from bases.exceptions import VerifyError
 from bases.constants import StuffEnum
 
@@ -24,8 +24,17 @@ def get_all_user_info_by_user(user):
         user_id=user.id,
     ).first()
     if not user_login:
-        return user_dict
-    user_dict['username'] = user_login.username
+        user_dict['username'] = None
+    else:
+        user_dict['username'] = user_login.username
+
+    tags = UserTag.filter_by_query(
+        user_id=user.id,
+    ).all()
+    if not tags:
+        user_dict['tags'] = []
+    else:
+        user_dict['tags'] = [i.to_dict() for i in tags]
 
     if not user.investor_id:
         return user_dict
@@ -34,9 +43,10 @@ def get_all_user_info_by_user(user):
         investor_id=user.investor_id,
     ).first()
     if not investor_data:
-        return user_dict
+        user_dict['total_investment'] = None
+    else:
+        user_dict['total_investment'] = investor_data.total_investment
 
-    user_dict['total_investment'] = investor_data.total_investment
     return user_dict
 
 
@@ -100,6 +110,9 @@ def update_user_info(user):
         'ins_code',
         'contact_name',
         'contact_mobile',
+        'status',
+        'origin',
+        'salesman',
     ]
 
     if request.json.get('investor_id'):
@@ -153,13 +166,14 @@ def create_single_trade(investor_id):
             fof_id=request.json.get('fof_id'),
             datetime=request.json.get('datetime'),
             investor_id=request.json.get('investor_id'),
-            confirmed_date=request.json.get('confirmed_date'),
+            applied_date=request.json.get('applied_date'),
             deposited_date=request.json.get('deposited_date'),
             amount=request.json.get('amount'),
             share=request.json.get('share'),
-            unit_total=request.json.get('unit_total'),
             event_type=request.json.get('event_type'),
             asset_type=request.json.get('asset_type', 2),
+            status=request.json.get('status'),
+            nav=request.json.get('nav'),
         )
     except:
         current_app.logger.error(traceback.format_exc())
@@ -171,13 +185,14 @@ def update_trade(obj):
         'datetime',
         'fof_id',
         'investor_id',
-        'confirmed_date',
+        'applied_date',
         'deposited_date',
         'amount',
         'share',
-        'unit_total',
         'event_type',
         'asset_type',
+        'status',
+        'nav',
     ]
     for i in columns:
         if request.json.get(i) is not None:

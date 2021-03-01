@@ -1,7 +1,8 @@
 from flask import g, request, current_app
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
-from models import Token
+from bases.constants import StuffEnum
+from models import Token, User
 from utils.decorators import params_required, login_required
 from apps.captchas.libs import check_img_captcha, check_sms_captcha
 from .libs import check_login, get_all_user_info, register_user, get_user_by_mobile, get_user_login_by_id
@@ -10,6 +11,7 @@ from .libs import check_login, get_all_user_info, register_user, get_user_by_mob
 class LoginAPI(ApiViewHandler):
     @params_required(*['username', 'password', 'verification_code', 'verification_key'])
     def post(self):
+        g.user_operation = '登录-密码'
         check_img_captcha(
             verification_code=self.input.verification_code,
             verification_key=self.input.verification_key,
@@ -19,18 +21,21 @@ class LoginAPI(ApiViewHandler):
             password=self.input.password,
         )
         user_dict = get_all_user_info(user_login)
+        user = User.get_by_id(user_login.user_id)
         token_dict = Token.generate_token(user_login.user_id)
 
         data = {
             'user': user_dict,
             'token': token_dict,
         }
+        g.user = user
         return data
 
 
 class MobileLoginAPI(ApiViewHandler):
     @params_required(*['mobile', 'code'])
     def post(self):
+        g.user_operation = '登录-手机号'
         check_sms_captcha(
             verification_code=self.input.code,
             verification_key=self.input.mobile,
@@ -38,6 +43,9 @@ class MobileLoginAPI(ApiViewHandler):
         user = get_user_by_mobile(mobile=self.input.mobile)
         if not user:
             raise VerifyError('用户不存在')
+        if user.role_id not in [StuffEnum.ADMIN, StuffEnum.OPE_MANAGER, StuffEnum.FUND_MANAGER]:
+            raise VerifyError('权限错误')
+
         user_dict = user.to_dict()
         user_login = get_user_login_by_id(user.id)
         user_dict.update({
@@ -49,6 +57,40 @@ class MobileLoginAPI(ApiViewHandler):
             'user': user_dict,
             'token': token_dict,
         }
+        g.user = user
+        return data
+
+
+class InvestorMobileLoginAPI(ApiViewHandler):
+    @params_required(*['mobile', 'code'])
+    def post(self):
+        g.user_operation = '登录-手机号'
+        check_sms_captcha(
+            verification_code=self.input.code,
+            verification_key=self.input.mobile,
+        )
+        user = get_user_by_mobile(mobile=self.input.mobile)
+        if not user:
+            user = User.create(
+                nick_name=self.input.mobile,
+                mobile=self.input.mobile,
+                role_id=StuffEnum.INVESTOR,
+            )
+        if user.role_id not in [StuffEnum.INVESTOR]:
+            raise VerifyError('权限错误')
+
+        user_dict = user.to_dict()
+        user_login = get_user_login_by_id(user.id)
+        user_dict.update({
+            'username': user_login.username
+        })
+        token_dict = Token.generate_token(user.id)
+
+        data = {
+            'user': user_dict,
+            'token': token_dict,
+        }
+        g.user = user
         return data
 
 
@@ -74,8 +116,5 @@ class RegisterAPI(ApiViewHandler):
 class Logic(ApiViewHandler):
 
     def get(self):
-        current_app.logger.info(request.headers)
-        print(request.headers)
-        print(request.data)
-        print(request)
+        return
 

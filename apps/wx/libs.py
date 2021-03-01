@@ -1,5 +1,5 @@
 from flask import g, current_app, request
-from models import WeChatUnionID
+from models import WeChatUnionID, Token, User
 from bases.exceptions import VerifyError
 from bases.globals import settings
 from extensions.wx.reply import TextMsg, News
@@ -12,6 +12,18 @@ wx_msg_crypt = WXBizMsgCrypt(
     settings['WX']['apps']['fof']['aes_key'],
     settings['WX']['apps']['fof']['app_id'],
 )
+
+
+def refresh_token(user):
+    user = User.get_by_id(user.id)
+    token_dict = Token.generate_token(user.id)
+
+    data = {
+        'user': user.to_dict(),
+        'token': token_dict,
+    }
+    g.user = user
+    return data
 
 
 def check_we_chat_user_exist(union_id):

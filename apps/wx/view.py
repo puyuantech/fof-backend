@@ -14,7 +14,7 @@ from apps.captchas.libs import check_sms_captcha
 from apps.auth.libs import get_user_by_mobile
 
 from .libs import check_we_chat_user_exist, bind_we_chat_user, decode_wx_msg, encode_wx_msg, \
-    wx_text, wx_event
+    wx_text, wx_event, refresh_token
 
 
 class WX(ApiViewHandler):
@@ -139,7 +139,9 @@ class WXBindMobile(ApiViewHandler):
         )
         target_user = get_user_by_mobile(mobile=self.input.mobile)
         if not target_user:
-            raise VerifyError('账号不存在！')
+            g.user.mobile = self.input.mobile
+            db.session.commit()
+            return refresh_token(g.user)
 
         if target_user.we_chat:
             raise VerifyError('目标账户已绑定别的微信号！')
@@ -148,7 +150,7 @@ class WXBindMobile(ApiViewHandler):
         wx_user.user_id = target_user.id
         g.user.is_deleted = True
         db.session.commit()
-        return
+        return refresh_token(target_user)
 
 
 class OfficeAPPID(ApiViewHandler):

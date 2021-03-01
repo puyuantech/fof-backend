@@ -169,9 +169,10 @@ def create_single_trade(fof_id):
             amount=request.json.get('amount'),
             share=request.json.get('share'),
             nav=request.json.get('nav'),
+            event_type=request.json.get('event_type'),
             status=request.json.get('status'),
-            applied_date=request.json.get('applied_date'),
-            unit_total=request.json.get('unit_total'),
+            confirmed_date=request.json.get('confirmed_date'),
+            deposited_date=request.json.get('deposited_date'),
         )
     except:
         current_app.logger.error(traceback.format_exc())
@@ -202,8 +203,10 @@ def update_trade(obj):
         'share',
         'status',
         'amount',
-        'applied_date',
-        'unit_total',
+        'confirmed_date',
+        'deposited_date',
+        'event_type',
+        'nav',
     ]
     if request.json.get('fund_id'):
         fund_id = request.json.get('fund_id')

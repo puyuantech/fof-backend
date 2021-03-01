@@ -1,7 +1,6 @@
 import pandas as pd
-import traceback
 import datetime
-from flask import request, current_app
+from flask import request
 
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
@@ -115,7 +114,7 @@ class HedgeDetail(ApiViewHandler):
 
     @login_required
     def post(self, _id):
-        obj = HedgeFundInfo.get_by_query(fund_id=_id)
+        HedgeFundInfo.get_by_query(fund_id=_id)
 
         req_file = request.files.get('file')
         if not req_file:
@@ -259,4 +258,3 @@ class HedgeSingleChangeAPI(ApiViewHandler):
         obj.save()
         update_hedge_value(self.input.fund_id)
         return
-

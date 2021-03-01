@@ -39,6 +39,9 @@ class User(BaseModel):
     ins_code = db.Column(db.String(31))             # 机构代码
     contact_name = db.Column(db.String(31))         # 联系人
     contact_mobile = db.Column(db.String(20))       # 联系方式
+    origin = db.Column(db.String(20))               # 来源
+    status = db.Column(db.Integer)                  # 客户状态
+    salesman = db.Column(db.String(20))             # 销售人员
 
     def to_normal_dict(self):
         return {
@@ -79,6 +82,9 @@ class User(BaseModel):
             'contact_name': self.contact_name,
             'contact_mobile': self.contact_mobile,
             'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'origin': self.origin,
+            'status': self.status,
+            'salesman': self.salesman,
         }
 
     @staticmethod
@@ -89,6 +95,15 @@ class User(BaseModel):
         user_info = User.get_by_id(user_login.user_id)
         user_dict.update(user_info.to_dict())
         return user_dict
+
+
+class ManagerInfo(BaseModel):
+    """
+    管理者
+    """
+    __tablename__ = 'manager_info'
+
+    id = db.Column(db.Integer, primary_key=True)
 
 
 class UserLogin(BaseModel):

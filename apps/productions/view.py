@@ -223,9 +223,16 @@ class ProductionTrades(ApiViewHandler):
     @login_required
     def get(self, fof_id):
         fund_name_dict = get_fund_cache()
+        event_type = request.args.get('event_type')
 
         p = generate_sql_pagination()
-        query = FOFAssetAllocation.filter_by_query(fof_id=fof_id)
+        if event_type:
+            query = FOFAssetAllocation.filter_by_query(
+                fof_id=fof_id,
+                event_type=event_type,
+            )
+        else:
+            query = FOFAssetAllocation.filter_by_query(fof_id=fof_id)
         data = p.paginate(query)
 
         results = data['results']
@@ -268,9 +275,30 @@ class ProductionInvestorTrades(ApiViewHandler):
 
     @login_required
     def get(self, fof_id):
+        def fill_trade_info(obj):
+            data_dict = obj.to_dict()
+            user = User.filter_by_query(
+                investor_id=obj.investor_id,
+                is_deleted=False,
+            ).first()
+
+            data_dict['user_id'] = user.id if user else None
+            data_dict['name'] = user.name if user else None
+            data_dict['ins_name'] = user.ins_name if user else None
+            data_dict['is_institution'] = user.is_institution if user else None
+            return data_dict
+
         p = generate_sql_pagination()
-        query = FOFScaleAlteration.filter_by_query(fof_id=fof_id)
-        data = p.paginate(query)
+        event_type = request.args.get('event_type')
+        if event_type:
+            event_type = [int(i) for i in event_type.split(',')]
+            query = db.session.query(FOFScaleAlteration).filter(
+                FOFScaleAlteration.event_type.in_(event_type),
+                FOFScaleAlteration.fof_id == fof_id,
+            )
+        else:
+            query = FOFScaleAlteration.filter_by_query(fof_id=fof_id)
+        data = p.paginate(query, call_back=lambda x: [fill_trade_info(i) for i in x])
         return data
 
     @login_required
@@ -295,7 +323,6 @@ class ProductionInvestorTrades(ApiViewHandler):
                 share=request.json.get('share'),
                 nav=request.json.get('nav'),
                 status=request.json.get('status'),
-                unit_total=request.json.get('unit_total'),
                 asset_type=request.json.get('asset_type', 2),
             )
         except:
@@ -322,7 +349,6 @@ class ProductionInvestorTradesSingle(ApiViewHandler):
             'share',
             'nav',
             'status',
-            'unit_total',
             'asset_type',
         ]
         for i in columns:

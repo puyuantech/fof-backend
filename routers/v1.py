@@ -10,6 +10,7 @@ from apps.logic import blu as logic_blu
 from apps.wx import blu as wx_blu
 from apps.favorites import blu as favorite_blu
 from apps.allocations import blu as allocation_blu
+from apps.operations import blu as operation_blu
 
 routers = [
     auth_blu,
@@ -24,5 +25,6 @@ routers = [
     wx_blu,
     favorite_blu,
     allocation_blu,
+    operation_blu,
 ]
 

@@ -24,6 +24,12 @@ def register_router(app):
     return app
 
 
+def register_middleware(app):
+    from apps.operations.middleware import user_operation_log_middleware
+    user_operation_log_middleware(app)
+    return app
+
+
 def register_logging(app):
     import logging
     from logging.handlers import RotatingFileHandler
@@ -69,6 +75,7 @@ def create_app(**kwargs):
     register_converter(app)
     register_logging(app)
     register_router(app)
+    register_middleware(app)
     return app
 
 
