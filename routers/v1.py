@@ -14,6 +14,7 @@ from apps.operations import blu as operation_blu
 from apps.index import blu as index_blu
 from apps.informations import blu as info_blu
 from apps.uploads import blu as upload_blu
+from apps.investor import blu as investor_blu
 
 routers = [
     auth_blu,
@@ -32,4 +33,5 @@ routers = [
     index_blu,
     info_blu,
     upload_blu,
+    investor_blu,
 ]
