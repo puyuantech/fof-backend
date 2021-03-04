@@ -27,7 +27,11 @@ class ProductionsAPI(ApiViewHandler):
     def get(self):
         p = generate_sql_pagination()
         query = FOFInfo.filter_by_query()
-        data = p.paginate(query)
+        data = p.paginate(
+            query,
+            equal_filter=[FOFInfo.fof_name, FOFInfo.fof_id, FOFInfo.strategy_type, FOFInfo.fof_status],
+            range_filter=[FOFInfo.established_date]
+        )
         return data
 
     @login_required
@@ -53,6 +57,11 @@ class ProductionsAPI(ApiViewHandler):
             'initial_net_value': request.json.get('initial_net_value'),
             'incentive_fee_type': request.json.get('incentive_fee_type'),
             'incentive_fee_str': request.json.get('incentive_fee_str'),
+            'strategy_type': request.json.get('strategy_type'),
+            'risk_type': request.json.get('risk_type'),
+            'is_fof': request.json.get('is_fof'),
+            'is_on_sale': request.json.get('is_on_sale'),
+            'benchmark': request.json.get('benchmark'),
         }
         if FOFInfo.filter_by_query(fof_id=self.input.fof_id, show_deleted=True).one_or_none():
             raise VerifyError('ID 重复')
@@ -102,30 +111,29 @@ class ProductionNavPublic(ApiViewHandler):
         }
         return replace_nan(data)
 
-    @login_required
-    def post(self, fof_id):
-        db.session.query(
-            FOFNavPublic
-        ).filter(
-            FOFNavPublic.fof_id == fof_id,
-        ).delete(synchronize_session=False)
-
-        results = FOFNav.filter_by_query(
-            fof_id=fof_id,
-        ).all()
-
-        for i in results:
-            FOFNavPublic.create(
-                fof_id=i.fof_id,
-                datetime=i.datetime,
-                nav=i.nav,
-                volume=i.volume,
-                cost=i.cost,
-                mv=i.mv,
-                income=i.income,
-                income_rate=i.income_rate,
-            )
-        db.session.commit()
+    # @login_required
+    # def post(self, fof_id):
+    #     db.session.query(
+    #         FOFNavPublic
+    #     ).filter(
+    #         FOFNavPublic.fof_id == fof_id,
+    #     ).delete(synchronize_session=False)
+    #
+    #     results = FOFNav.filter_by_query(
+    #         fof_id=fof_id,
+    #     ).all()
+    #
+    #     for i in results:
+    #         FOFNavPublic.create(
+    #             fof_id=i.fof_id,
+    #             datetime=i.datetime,
+    #             nav=i.nav,
+    #             volume=i.volume,
+    #             mv=i.mv,
+    #             ret=i.ret,
+    #             acc_net_value=i.acc_net_value,
+    #         )
+    #     db.session.commit()
 
 
 class ProductionNav(ApiViewHandler):
@@ -293,8 +301,8 @@ class ProductionInvestorTrades(ApiViewHandler):
         if event_type:
             event_type = [int(i) for i in event_type.split(',')]
             query = db.session.query(FOFScaleAlteration).filter(
-                FOFScaleAlteration.event_type.in_(event_type),
                 FOFScaleAlteration.fof_id == fof_id,
+                FOFScaleAlteration.event_type.in_(event_type),
             )
         else:
             query = FOFScaleAlteration.filter_by_query(fof_id=fof_id)
@@ -324,6 +332,7 @@ class ProductionInvestorTrades(ApiViewHandler):
                 nav=request.json.get('nav'),
                 status=request.json.get('status'),
                 asset_type=request.json.get('asset_type', 2),
+                event_type=request.json.get('event_type'),
             )
         except:
             current_app.logger.error(traceback.format_exc())
@@ -350,6 +359,7 @@ class ProductionInvestorTradesSingle(ApiViewHandler):
             'nav',
             'status',
             'asset_type',
+            'event_type',
         ]
         for i in columns:
             if request.json.get(i) is not None:
@@ -367,7 +377,7 @@ class ProductionInvestor(ApiViewHandler):
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.OPE_MANAGER, StuffEnum.FUND_MANAGER])
     def get(self, fof_id):
         investor_return = FOFDataManager.get_investor_return(fof_id)
-        if len(investor_return) > 1:
+        if investor_return and len(investor_return) > 1:
             investor_return['shares_sum'] = investor_return['shares'].sum()
             investor_return['shares_weight'] = investor_return['shares'] / investor_return['shares_sum']
 

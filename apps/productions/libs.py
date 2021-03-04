@@ -30,6 +30,11 @@ def update_production_info(obj):
         'initial_net_value',
         'incentive_fee_type',
         'incentive_fee_str',
+        'strategy_type',
+        'risk_type',
+        'is_on_sale',
+        'benchmark',
+        'is_fof',
     ]
     for i in columns:
         if request.json.get(i) is not None:

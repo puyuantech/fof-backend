@@ -16,4 +16,7 @@ pyjwt
 surfing
 xlrd
 openpyxl
-
+elasticsearch == 7.7.1
+elasticsearch_dsl == 7.2.0
+pypinyin
+empyrical
