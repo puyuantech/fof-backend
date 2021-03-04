@@ -6,7 +6,7 @@ blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/informa
 api = Api(blu)
 
 api.add_resource(InformationAPI, '/info')
-api.add_resource(InformationDetailAPI, '/info/detail')
+api.add_resource(InformationDetailAPI, '/info/<int:_id>')
 
 api.add_resource(TemplateAPI, '/template')
-api.add_resource(TemplateDetailAPI, '/template/detail')
+api.add_resource(TemplateDetailAPI, '/template/<int:_id>')

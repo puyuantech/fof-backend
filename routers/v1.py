@@ -12,6 +12,8 @@ from apps.favorites import blu as favorite_blu
 from apps.allocations import blu as allocation_blu
 from apps.operations import blu as operation_blu
 from apps.index import blu as index_blu
+from apps.informations import blu as info_blu
+from apps.uploads import blu as upload_blu
 
 routers = [
     auth_blu,
@@ -28,5 +30,6 @@ routers = [
     allocation_blu,
     operation_blu,
     index_blu,
+    info_blu,
+    upload_blu,
 ]
-

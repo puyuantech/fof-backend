@@ -1,4 +1,5 @@
 import pandas as pd
+from flask import request
 from utils.helper import generate_sql_pagination, replace_nan
 from utils.decorators import login_required
 from bases.globals import db
@@ -7,7 +8,7 @@ from bases.globals import db
 class ViewObject:
     model = None
     parse_func = None
-    update_func = None
+    update_columns = []
 
     def get_objects(self):
         return self.model.filter_by_query()
@@ -21,12 +22,17 @@ class ViewDetailGet(ViewObject):
         return obj.to_dict()
 
 
-class ViewDetailPut(ViewObject):
+class ViewDetailUpdate(ViewObject):
 
     @login_required
     def put(self, _id):
         obj = self.model.get_by_id(_id)
-        self.update_func(obj)
+
+        for i in self.update_columns:
+            if request.json.get(i) is not None:
+                obj.update(commit=False, **{i: request.json.get(i)})
+        obj.save()
+        return
 
 
 class ViewDetailDelete(ViewObject):
@@ -48,7 +54,7 @@ class ViewList(ViewObject):
         return data
 
 
-class ViewUpdate(ViewObject):
+class ViewCreate(ViewObject):
 
     @login_required
     def put(self):
