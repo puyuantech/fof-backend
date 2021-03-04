@@ -8,6 +8,7 @@ from .view import ProductionsAPI, ProductionAPI, ProductionNav, \
 from .view_subsidiary import *
 from .view_subsidiary2 import *
 from .view_refresh import ProductionRefresh
+from .view_profit import ProductionRet, ProductionMonthlyRet, ProductionWinRate, ProductionRatio
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/production')
 api = Api(blu)
@@ -44,6 +45,13 @@ api.add_resource(RealEstimateInterestAPI, '/real_estimate_interest/<string:fof_i
 api.add_resource(RealEstimateInterestDetailAPI, '/real_estimate_interest/detail/<int:_id>')
 api.add_resource(RealTransitMoneyAPI, '/real_transit_money/<string:fof_id>')
 api.add_resource(RealTransitMoneyDetailAPI, '/real_transit_money/detail/<int:_id>')
+
+# profit
+api.add_resource(ProductionRet, '/ret/<string:fof_id>')
+api.add_resource(ProductionMonthlyRet, '/monthly_ret/<string:fof_id>')
+api.add_resource(ProductionWinRate, '/win_rate/<string:fof_id>')
+api.add_resource(ProductionRatio, '/ratios/<string:fof_id>')
+
 
 api.add_resource(
     ProductionRefresh,

@@ -15,6 +15,7 @@ class BaseViewHandler(views.MethodView, BaseHandler):
 
 
 class ApiViewHandler(BaseViewHandler):
+    auth = None
 
     def dispatch_request(self, *args, **kwargs):
         self.set_header = {}

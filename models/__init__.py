@@ -6,3 +6,4 @@ from .wechat import *
 from .from_surfing import *
 from .operations import *
 from .tags import *
+from .information import *
