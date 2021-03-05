@@ -44,8 +44,8 @@ def update_info_production(obj):
             i.logic_delete()
 
     for i in productions:
-        if i not in fof_ids:
+        if i['fof_id'] not in fof_ids:
             InfoToProduction.create(
-                fof_id=i,
+                fof_id=i['fof_id'],
                 info_id=obj.id,
             )

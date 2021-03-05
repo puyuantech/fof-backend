@@ -42,7 +42,7 @@ class InformationAPI(ApiViewHandler, ViewList):
 
 class InformationDetailAPI(ApiViewHandler, ViewDetailGet, ViewDetailUpdate, ViewDetailDelete):
     model = InfoDetail
-    update_func = [
+    update_columns = [
         'title',
         'info_type',
         'content_type',
@@ -70,9 +70,21 @@ class InformationDetailAPI(ApiViewHandler, ViewDetailGet, ViewDetailUpdate, View
         return
 
 
-class TemplateAPI(ApiViewHandler, ViewList, ViewCreate):
+class TemplateAPI(ApiViewHandler, ViewList):
     model = InfoTemplate
+
+    @params_required(*['template_name'])
+    @login_required
+    def post(self):
+        InfoTemplate.create(
+            template_name=self.input.template_name,
+            content=request.json.get('content'),
+        )
 
 
 class TemplateDetailAPI(ApiViewHandler, ViewDetailGet, ViewDetailUpdate, ViewDetailDelete):
     model = InfoTemplate
+    update_columns = [
+        'template_name',
+        'content',
+    ]
