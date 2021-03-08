@@ -15,18 +15,12 @@ manager.add_command('db', MigrateCommand)
 def init_admin(username, password):
 
     # create admin
-    user_info = User(
-        nick_name=username,
+    u = User(
         role_id=1,
     )
-    user_info = user_info.save()
-
-    user_login = UserLogin(
-        user_id=user_info.id,
-    )
-    user_login.username = username
-    user_login.password = password
-    user_login.save()
+    u.username = username
+    u.password = password
+    u.save()
     print('\033[32m {} 创建成功！！！请牢记您的账号和密码。'.format(username))
 
 
@@ -34,6 +28,12 @@ def init_admin(username, password):
 def update_fof(fof_id):
     from scripts.refresh_fof import update_fof
     update_fof(fof_id)
+
+
+@manager.option('--id', dest='fof_id', help='fof id', default=None)
+def pub_fof(fof_id):
+    from scripts.refresh_fof import update_public_fof
+    update_public_fof(fof_id)
 
 
 if __name__ == '__main__':
