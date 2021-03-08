@@ -4,13 +4,13 @@ import pandas as pd
 import io
 from flask import request, current_app
 
-from models import User, UserLogin, FOFScaleAlteration, FOFInvestorData, UserTag
+from models import User, FOFScaleAlteration, FOFInvestorData, UserTag
 from bases.exceptions import VerifyError
 from bases.constants import StuffEnum
 
 
 def get_user_by_username(username):
-    return UserLogin.filter_by_query(username=username).first()
+    return User.filter_by_query(username=username).first()
 
 
 def get_user_by_mobile(mobile):
@@ -19,14 +19,6 @@ def get_user_by_mobile(mobile):
 
 def get_all_user_info_by_user(user):
     user_dict = user.to_cus_dict()
-
-    user_login = UserLogin.filter_by_query(
-        user_id=user.id,
-    ).first()
-    if not user_login:
-        user_dict['username'] = None
-    else:
-        user_dict['username'] = user_login.username
 
     tags = UserTag.filter_by_query(
         user_id=user.id,

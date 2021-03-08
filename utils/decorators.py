@@ -1,6 +1,5 @@
 import functools
 
-from models import UserLogin
 from flask import g, request
 from bases.exceptions import LogicError, AuthError, AuthPermissionError
 
@@ -12,9 +11,7 @@ def login_required(func):
         user, token = TokenAuthentication().authenticate(request)
         if not user:
             raise AuthError('请先登录')
-        user_login = UserLogin.filter_by_query(user_id=user.id).first()
         g.user = user
-        g.user_login = user_login
         g.token = token
 
         return func(cls, *args, **kwargs)

@@ -3,7 +3,7 @@ import io
 import datetime
 from flask import request, g, views, make_response
 
-from models import User, UserLogin, FOFInvestorPosition, FOFScaleAlteration, FOFInfo
+from models import User, FOFInvestorPosition, FOFScaleAlteration, FOFInfo
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
@@ -69,9 +69,6 @@ class CustomerAPI(ApiViewHandler):
         user = User.filter_by_query(id=_id, role_id=StuffEnum.INVESTOR).first()
         if not user:
             raise VerifyError('不存在！')
-        user_login = UserLogin.filter_by_query(user_id=user.id).first()
-        if user_login:
-            user_login.delete()
         user.logic_delete()
 
 
@@ -194,9 +191,7 @@ class ResetStaffPassword(ApiViewHandler):
         if not user:
             raise VerifyError('不存在！')
 
-        user_login = UserLogin.filter_by_query(user_id=user.id).one()
-        user_login.password = password
-        user_login.save()
+        user.password = password
+        user.save()
         return 'success'
-
 

@@ -1,5 +1,5 @@
 from flask import request, g
-from models import User, UserLogin
+from models import User
 from bases.viewhandler import ApiViewHandler
 from bases.globals import db
 from utils.helper import generate_sql_pagination
@@ -54,10 +54,7 @@ class StaffAPI(ApiViewHandler):
     @super_admin_login_required
     def delete(self, _id):
         user = User.get_by_id(_id)
-        user_login = UserLogin.filter_by_query(user_id=user.id).first()
         user.logic_delete()
-        if user_login:
-            user_login.logic_delete()
 
 
 class ResetStaffPassword(ApiViewHandler):

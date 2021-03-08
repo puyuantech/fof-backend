@@ -1,11 +1,11 @@
 import datetime
 from flask import request
-from models import User, UserLogin
+from models import User
 from bases.exceptions import VerifyError
 
 
 def get_user_by_username(username):
-    return UserLogin.filter_by_query(show_deleted=True, username=username).first()
+    return User.filter_by_query(show_deleted=True, username=username).first()
 
 
 def get_all_user_info(user_login):
@@ -19,13 +19,6 @@ def get_all_user_info(user_login):
 
 def get_all_user_info_by_user(user):
     user_dict = user.to_normal_dict()
-
-    user_login = UserLogin.filter_by_query(
-        user_id=user.id,
-    ).first()
-    if not user_login:
-        return user_dict
-    user_dict['username'] = user_login.username
     return user_dict
 
 
@@ -34,18 +27,11 @@ def register_staff_user(username, password):
         raise VerifyError('用户名已存在！')
     user = User.create(
         nick_name=username,
+        username=username,
+        password=password,
         is_staff=True,
     )
-    try:
-        user_login = UserLogin.create(
-            user_id=user.id,
-            username=username,
-            password=password,
-        )
-    except Exception as e:
-        user.delete()
-        raise e
-    return user, user_login
+    return user
 
 
 def update_user_info(user):
