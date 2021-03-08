@@ -1,8 +1,10 @@
 from flask import request, g
-from utils.decorators import login_required
+
+from bases.exceptions import LogicError, VerifyError
 from bases.viewhandler import ApiViewHandler
-from bases.exceptions import VerifyError, LogicError
+from extensions.s3.image_store import ImageStore
 from extensions.s3.pdf_store import PdfStore
+from utils.decorators import login_required
 
 
 class UploadPDFAPI(ApiViewHandler):
@@ -19,6 +21,16 @@ class UploadPDFAPI(ApiViewHandler):
         return {
             'file_key': file_key
         }
+
+
+class UploadImageAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        """上传图片"""
+        file_obj = request.files.get('file')
+        file_key = ImageStore.store_image_from_user(g.user.id, file_obj)
+        return {'file_key': file_key}
 
 
 class ParsePDFAPI(ApiViewHandler):
