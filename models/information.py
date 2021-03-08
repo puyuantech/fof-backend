@@ -40,4 +40,5 @@ class InfoTemplate(BaseModel):
     __tablename__ = 'info_templates'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)            # 编号
+    template_name = db.Column(db.String(63))                                    # 模版名称
     content = db.Column(db.TEXT)                                                # 配置

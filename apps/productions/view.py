@@ -102,38 +102,74 @@ class ProductionNavPublic(ApiViewHandler):
         data = {
             'dates': df['datetime'].to_list(),
             'nav': df['nav'].to_list(),
+            'acc_net_value': df['acc_net_value'].to_list(),
             'volume': df['volume'].to_list(),
-            'cost': df['cost'].to_list(),
             'mv': df['mv'].to_list(),
-            'income': df['income'].to_list(),
-            'income_rate': df['income_rate'].to_list(),
+            'ret': df['ret'].to_list(),
             'ratios': SurfingCalculator.get_stat_result_from_df(df, 'datetime', 'nav').__dict__,
         }
         return replace_nan(data)
 
-    # @login_required
-    # def post(self, fof_id):
-    #     db.session.query(
-    #         FOFNavPublic
-    #     ).filter(
-    #         FOFNavPublic.fof_id == fof_id,
-    #     ).delete(synchronize_session=False)
-    #
-    #     results = FOFNav.filter_by_query(
-    #         fof_id=fof_id,
-    #     ).all()
-    #
-    #     for i in results:
-    #         FOFNavPublic.create(
-    #             fof_id=i.fof_id,
-    #             datetime=i.datetime,
-    #             nav=i.nav,
-    #             volume=i.volume,
-    #             mv=i.mv,
-    #             ret=i.ret,
-    #             acc_net_value=i.acc_net_value,
-    #         )
-    #     db.session.commit()
+    @login_required
+    def delete(self, fof_id):
+        FOFNavPublic.filter_by_query(fof_id=fof_id).delete()
+
+
+class ProductionNavPublicSingle(ApiViewHandler):
+
+    @params_required(*['datetime'])
+    @login_required
+    def put(self, fof_id):
+        date = datetime.datetime.strptime(
+            self.input.datetime,
+            '%Y-%m-%d',
+        ).date()
+        obj = FOFNavPublic.filter_by_query(
+            fof_id=fof_id,
+            datetime=date,
+        ).one_or_none()
+        if not obj:
+            raise VerifyError('不存在！')
+        update_nav(obj)
+
+    @params_required(*['datetime'])
+    @login_required
+    def post(self, fof_id):
+        date = datetime.datetime.strptime(
+            self.input.datetime,
+            '%Y-%m-%d',
+        ).date()
+        obj = FOFNavPublic.filter_by_query(
+            fof_id=fof_id,
+            datetime=date,
+        ).one_or_none()
+        if obj:
+            raise VerifyError('此日期数据已存在！')
+
+        FOFNavPublic.create(
+            fof_id=fof_id,
+            datetime=date,
+            nav=request.json.get('nav'),
+            acc_net_value=request.json.get('nav'),
+            volume=request.json.get('volume'),
+            mv=request.json.get('mv'),
+            ret=request.json.get('ret'),
+        )
+
+    @params_required(*['datetime'])
+    @login_required
+    def delete(self, fof_id):
+        date = datetime.datetime.strptime(
+            self.input.datetime,
+            '%Y-%m-%d',
+        ).date()
+        obj = FOFNavPublic.filter_by_query(
+            fof_id=fof_id,
+            datetime=date,
+        ).one_or_none()
+        if not obj:
+            raise VerifyError('不存在！')
+        obj.delete()
 
 
 class ProductionNav(ApiViewHandler):
@@ -377,7 +413,7 @@ class ProductionInvestor(ApiViewHandler):
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.OPE_MANAGER, StuffEnum.FUND_MANAGER])
     def get(self, fof_id):
         investor_return = FOFDataManager.get_investor_return(fof_id)
-        if investor_return and len(investor_return) > 1:
+        if isinstance(investor_return, pd.DataFrame) and len(investor_return) > 1:
             investor_return['shares_sum'] = investor_return['shares'].sum()
             investor_return['shares_weight'] = investor_return['shares'] / investor_return['shares_sum']
 
