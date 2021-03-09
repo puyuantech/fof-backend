@@ -1,5 +1,5 @@
 FROM python:3.7.5
-LABEL name="tl-backend"
+LABEL name="fof-backend"
 LABEL maintainer="puyuan<github@puyuan.tech>"
 
 ENV TZ=Asia/Shanghai
