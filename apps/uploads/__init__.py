@@ -8,4 +8,5 @@ api = Api(blu)
 api.add_resource(UploadPDFAPI, '/pdf')
 api.add_resource(UploadImageAPI, '/image')
 api.add_resource(ParsePDFAPI, '/parse')
+api.add_resource(UploadPublicFileAPI, '/public_file')
 
