@@ -4,7 +4,25 @@ from bases.exceptions import LogicError, VerifyError
 from bases.viewhandler import ApiViewHandler
 from extensions.s3.image_store import ImageStore
 from extensions.s3.pdf_store import PdfStore
-from utils.decorators import login_required
+from extensions.s3.public_file_store import FileStore
+from utils.decorators import login_required, params_required
+
+
+class UploadPublicFileAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        """上传公共文件"""
+        file_obj = request.files.get('file')
+        content_type = request.args.get('content_type')
+        if not file_obj:
+            raise VerifyError('没有文件！')
+        file_key, url = FileStore().store_file_from_user(g.user.id, file_obj, content_type)
+        if not file_key:
+            raise LogicError('store file failed! (err_msg){}'.format(url))
+        return {
+            'url': url
+        }
 
 
 class UploadPDFAPI(ApiViewHandler):
