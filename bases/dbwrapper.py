@@ -1,6 +1,6 @@
 from bases.globals import db
 from bases.basehandler import BaseHandler
-from bases.exceptions import BaseError
+from bases.exceptions import BaseError, VerifyError
 from flask import current_app
 import copy
 import datetime
@@ -64,7 +64,7 @@ class DBMixin(BaseHandler):
             query_dict['is_deleted'] = False
         instance = db.session.query(cls).filter_by(**query_dict).first()
         if not instance:
-            raise BaseError(cls.__name__ + ' Not Find')
+            raise VerifyError(cls.__name__ + ' Not Find')
         return instance
 
     @classmethod

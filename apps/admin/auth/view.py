@@ -39,4 +39,3 @@ class AdminLoginAPI(ApiViewHandler):
             'token': token.to_dict(),
         }
         return data
-

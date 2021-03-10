@@ -70,30 +70,70 @@ class InvestorMobileLoginAPI(ApiViewHandler):
             verification_code=self.input.code,
             verification_key=self.input.mobile,
         )
-
+        # 1. user
         manager = ManagerInfo.get_by_query(manager_id=self.input.manager_id)
         user = get_user_by_mobile(mobile=self.input.mobile)
+
         if not user:
-            user = User.create(
-                mobile=self.input.mobile,
-                password='',
-            )
+            user, investor = User.create_main_user_investor(mobile=self.input.mobile)
+            investor.create_manager_map(manager.manager_id)
             user = User.get_by_id(user.id)
-        user_dict = user.to_dict()
+            user_dict = user.to_dict()
+            investor_dict = chose_investor(user, manager, investor_id=investor.investor_id)
+        else:
+            user_dict = user.to_dict()
+            investor = user.get_main_investor()
+            if not investor.check_manager_map(manager_id=manager.manager_id):
+                investor.create_manager_map(manager_id=manager.manager_id)
+                user.last_login_investor = None
+            investor_dict = chose_investor(user, manager)
 
-        if user.last_login_investor:
-            chose_investor(user, user.last_login_investor)
-
+        # 2. token
         token = Token.generate_token(user.id)
         token.manager_id = self.input.manager_id
+        token.investor_id = investor_dict['investor_id']
         token_dict = token.to_dict()
         token.save()
+
+        user.last_login_investor = investor_dict['investor_id']
+        g.user.last_login = datetime.datetime.now()
+        user.save()
 
         data = {
             'user': user_dict,
             'token': token_dict,
+            'investor': investor_dict,
         }
         g.user = user
+        return data
+
+
+class ChoseInvestor(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        return get_user_investors(g.user, g.token.manager_id)
+
+    @login_required
+    @params_required(*['investor_id'])
+    def post(self):
+        manager = ManagerInfo.get_by_query(manager_id=g.token.manager_id)
+
+        investor_dict = chose_investor(g.user, manager, investor_id=self.input.investor_id)
+        token = Token.generate_token(g.user.id)
+        token.manager_id = self.input.manager_id
+        token.investor_id = investor_dict['investor_id']
+        token_dict = token.to_dict()
+        token.save()
+
+        g.user.last_login_investor = investor_dict['investor_id']
+        g.user.last_login = datetime.datetime.now()
+        g.user.save()
+
+        data = {
+            'token': token_dict,
+            'investor': investor_dict,
+        }
         return data
 
 
@@ -105,15 +145,6 @@ class Logout(ApiViewHandler):
 
     def post(self):
         return self.get()
-
-
-class RegisterAPI(ApiViewHandler):
-    @params_required(*['username', 'password'])
-    def post(self):
-        if not self.is_valid_password(self.input.password):
-            raise VerifyError('Password should contain both numbers and letters,'
-                              ' and the length should be between 8-16 bits !')
-        register_user(self.input.username, self.input.password)
 
 
 class Logic(ApiViewHandler):
