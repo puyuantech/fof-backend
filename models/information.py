@@ -27,6 +27,7 @@ class InfoDetail(BaseModel):
     effect_time = db.Column(db.DATETIME)                                        # 上架时间
     effect_user_name = db.Column(db.String(63))                                   # 上架人姓名
     create_user_id = db.Column(db.Integer)                                      # 创建人ID
+    manager_id = db.Column(db.String(32))                                       # 管理者ID
 
 
 class InfoToProduction(BaseModel):

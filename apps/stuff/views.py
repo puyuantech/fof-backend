@@ -14,7 +14,7 @@ class StaffsAPI(ApiViewHandler):
     def get(self):
         p = generate_sql_pagination()
         query = db.session.query(User).filter(
-            User.role_id != StuffEnum.INVESTOR,
+            User.is_staff == True,
             User.is_wx == False,
             User.is_deleted == False,
         )
@@ -64,9 +64,6 @@ class ResetStaffPassword(ApiViewHandler):
         password = request.json.get('password')
         password = password if password else '123456'
         user = User.get_by_id(_id)
-        user_login = UserLogin.filter_by_query(user_id=user.id).one()
-        user_login.password = password
-        user_login.save()
+        user.password = password
+        user.save()
         return 'success'
-
-

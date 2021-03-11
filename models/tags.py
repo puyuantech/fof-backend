@@ -1,13 +1,14 @@
 from bases.dbwrapper import db, BaseModel
 
 
-class UserTag(BaseModel):
-    """用户标签"""
-    __tablename__ = 'user_tags'
+class InvestorTag(BaseModel):
+    """投资者标签标签"""
+    __tablename__ = 'investor_tags'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)    # 数据行编号
     tag_name = db.Column(db.String(16))                                 # 标签名称
-    user_id = db.Column(db.Integer)                                     # 用户ID
+    investor_id = db.Column(db.String(32))                              # 投资者ID
+    manager_id = db.Column(db.String(32))                               # 管理端ID
     add_user_id = db.Column(db.Integer)                                 # 添加者ID
     del_user_id = db.Column(db.Integer)                                 # 删除者ID
 

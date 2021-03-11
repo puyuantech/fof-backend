@@ -29,13 +29,18 @@ class AdminLoginAPI(ApiViewHandler):
         ).first()
         if not m:
             raise VerifyError('未找到管理信息')
+        user_dict = user.to_dict()
 
         token = Token.generate_token(user.id)
         token.manager_id = self.input.manager_id
+        token_dict = token.to_dict()
         token.save()
 
+        g.user = user
+        g.token = token
+
         data = {
-            'user': user.to_dict(),
-            'token': token.to_dict(),
+            'user': user_dict,
+            'token': token_dict,
         }
         return data

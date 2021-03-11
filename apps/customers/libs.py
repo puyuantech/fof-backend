@@ -4,7 +4,7 @@ import pandas as pd
 import io
 from flask import request, current_app
 
-from models import User, FOFScaleAlteration, FOFInvestorData, UserTag
+from models import User, FOFScaleAlteration, FOFInvestorData, InvestorTag, InvestorInfo
 from bases.exceptions import VerifyError
 from bases.constants import StuffEnum
 
@@ -17,54 +17,40 @@ def get_user_by_mobile(mobile):
     return User.filter_by_query(mobile=mobile).first()
 
 
-def get_all_user_info_by_user(user):
-    user_dict = user.to_cus_dict()
+def get_investor_info(unit):
+    data_dict = unit.to_cus_dict()
 
-    tags = UserTag.filter_by_query(
-        user_id=user.id,
+    tags = InvestorTag.filter_by_query(
+        investor_id=unit.investor_id,
+        manager_id=unit.manager_id,
     ).all()
     if not tags:
-        user_dict['tags'] = []
+        data_dict['tags'] = []
     else:
-        user_dict['tags'] = [i.to_dict() for i in tags]
-
-    if not user.investor_id:
-        return user_dict
+        data_dict['tags'] = [i.to_dict() for i in tags]
 
     investor_data = FOFInvestorData.filter_by_query(
-        investor_id=user.investor_id,
+        investor_id=unit.investor_id,
     ).first()
     if not investor_data:
-        user_dict['total_investment'] = None
+        data_dict['total_investment'] = None
     else:
-        user_dict['total_investment'] = investor_data.total_investment
+        data_dict['total_investment'] = investor_data.total_investment
 
-    return user_dict
+    return data_dict
 
 
 def register_investor_user(mobile):
-    if get_user_by_mobile(mobile):
-        raise VerifyError('电话号码已存在！')
+    investor = InvestorInfo.get_by_mobile(mobile)
 
-    if get_user_by_username(mobile):
-        raise VerifyError('用户名已存在！')
+    if investor.check_manager_map(mobile):
+        raise VerifyError('此手机号已添加过')
 
-    user = User.create(
-        nick_name=mobile,
-        is_staff=False,
-        role_id=StuffEnum.INVESTOR,
-        mobile=mobile,
-    )
-    try:
-        user_login = UserLogin.create(
-            user_id=user.id,
-            username=mobile,
-            password='',
-        )
-    except Exception as e:
-        user.delete()
-        raise e
-    return user, user_login
+    if not investor:
+        user, investor = User.create_main_user_investor(mobile)
+
+    unit_map = investor.create_manager_map(g.token.manager_id)
+    return unit_map
 
 
 def check_investor_id(user, investor_id):
@@ -166,6 +152,7 @@ def create_single_trade(investor_id):
             asset_type=request.json.get('asset_type', 2),
             status=request.json.get('status'),
             nav=request.json.get('nav'),
+            manager_id=g.token.manager_id,
         )
     except:
         current_app.logger.error(traceback.format_exc())

@@ -15,7 +15,7 @@ class InformationAPI(ApiViewHandler, ViewList):
     def get(self):
         p = generate_sql_pagination()
 
-        query = InfoDetail.filter_by_query()
+        query = InfoDetail.filter_by_query(manager_id=g.token.manager_id)
         data = p.paginate(
             query,
             call_back=lambda x: [get_info_production(i) for i in x],
@@ -36,6 +36,7 @@ class InformationAPI(ApiViewHandler, ViewList):
             effect_user_name=request.json.get('effect_user_name'),
             effect_time=request.json.get('effect_time'),
             create_user_id=g.user.id,
+            manager_id=g.token.manager_id,
         )
         update_info_production(obj)
 
@@ -70,7 +71,7 @@ class InformationDetailAPI(ApiViewHandler, ViewDetailGet, ViewDetailUpdate, View
         return
 
 
-class TemplateAPI(ApiViewHandler, ViewList, ViewCreate):
+class TemplateAPI(ApiViewHandler, ViewList):
     model = InfoTemplate
 
 

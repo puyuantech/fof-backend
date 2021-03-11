@@ -36,13 +36,7 @@ def register_staff_user(username, password):
 
 def update_user_info(user):
     columns = [
-        'nick_name',
-        'sex',
-        'email',
-        'avatar_url',
-        'site',
-        'role_id',
-        'mobile'
+        'staff_name',
     ]
     if request.json.get('role_id') and request.json.get('role_id') == 1:
         raise VerifyError('不能添加管理员权限!')

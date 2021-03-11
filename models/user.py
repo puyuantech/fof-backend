@@ -26,6 +26,7 @@ class User(BaseModel):
     username = db.Column(db.String(20))
     role_id = db.Column(db.Integer, default=0)                      # role_id 是否是管理员或者其他权限  1 管理员用户
     is_staff = db.Column(db.BOOLEAN, default=False)                 # 是否是员工
+    staff_name = db.Column(db.String(20))                           # 员工姓名
     is_wx = db.Column(db.BOOLEAN, default=False)                    # 是否微信虚拟账号
     password_hash = db.Column(db.String(256), nullable=False)
     last_login = db.Column(db.DATETIME, default=datetime.datetime.now)
@@ -131,6 +132,32 @@ class InvestorInfo(BaseModel):
         ).first()
         return unit_map
 
+    def update_columns(self, request):
+        columns = [
+            'name',
+            'email',
+            'nationality',
+            'gender',
+            'age',
+            'landline_phone',
+            'profession',
+            'job',
+            'postcode',
+            'address',
+        ]
+
+        for i in columns:
+            if request.json.get(i) is not None:
+                self.update(commit=False, **{i: request.json.get(i)})
+        self.save()
+        return self
+
+    @classmethod
+    def get_by_mobile(cls, mobile):
+        return cls.filter_by_query(
+            mobile_phone=mobile,
+        ).first()
+
 
 class UnitMap(BaseModel):
     """
@@ -157,7 +184,30 @@ class UnitMap(BaseModel):
     address = db.Column(db.String(256))                                 # 通讯地址
     origin = db.Column(db.String(20))                                   # 来源
     status = db.Column(db.Integer)                                      # 客户审核状态
+    sponsor = db.Column(db.String(20))                                  # 推荐人
     salesman = db.Column(db.String(20))                                 # 销售人员
+
+    def update_columns(self, request):
+        columns = [
+            'investor_type',
+            'name',
+            'cred_type',
+            'cred',
+            'mobile',
+            'amount',
+            'email',
+            'sign_date',
+            'address',
+            'origin',
+            'status',
+            'salesman',
+        ]
+
+        for i in columns:
+            if request.json.get(i) is not None:
+                self.update(commit=False, **{i: request.json.get(i)})
+        self.save()
+        return self
 
 
 class ManagerInfo(BaseModel):
