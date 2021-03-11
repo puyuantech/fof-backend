@@ -76,7 +76,7 @@ class CustomerPosition(ApiViewHandler):
     @login_required
     def get(self, investor_id):
 
-        results = db.session.query(FOFInvestorPosition, FOFInfo.fof_name).filter(
+        results = db.session.query(FOFInvestorPosition, FOFInfo).filter(
             FOFInvestorPosition.investor_id == investor_id,
             FOFInvestorPosition.manager_id == g.token.manager_id,
             FOFInfo.fof_id == FOFInvestorPosition.fof_id,
@@ -85,7 +85,11 @@ class CustomerPosition(ApiViewHandler):
         df_data = []
         for i in results:
             d = i[0].to_dict()
-            d['fof_name'] = i[1]
+            d['fof_name'] = i[1].fof_name
+            d['net_asset_value'] = i[1].net_asset_value
+            d['acc_unit_value'] = i[1].acc_unit_value
+            d['ret_year_to_now'] = i[1].ret_year_to_now
+            d['ret_total'] = i[1].ret_total
             df_data.append(d)
 
         df = pd.DataFrame(df_data)

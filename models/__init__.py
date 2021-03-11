@@ -8,3 +8,5 @@ from .operations import *
 from .tags import *
 from .information import *
 from .super_admin import *
+from .investor import *
+from .risk_level import *
