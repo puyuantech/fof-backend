@@ -1,7 +1,7 @@
 
 from bases.validation import UnitValidation, ContractValidation
 from bases.viewhandler import ApiViewHandler
-from models import InvestorContract
+from models import InvestorCertification, InvestorContract, FOFInfo
 from utils.decorators import login_required
 
 from .validators.contract import (RiskDiscloseValidation, FundContractValidation, ProtocolValidation,
@@ -13,7 +13,18 @@ class ContractAPI(ApiViewHandler):
     @login_required
     def get(self):
         data = ContractValidation.get_valid_data(self.input)
-        return InvestorContract.get_investor_contract(**data)
+        investor_contract = InvestorContract.get_investor_contract(**data)
+        if investor_contract:
+            cert_num = InvestorCertification.get_effective_certification(
+                data['investor_id'], data['manager_id']
+            )['cert_num']
+            fof_info = FOFInfo.get_by_query(fof_id=investor_contract['fof_id'])
+
+            investor_contract.update({
+                'cert_num': cert_num[:4] + '************' + cert_num[-2:],
+                'fof_name': fof_info.fof_name,
+            })
+        return investor_contract
 
 
 class ContractListAPI(ApiViewHandler):
