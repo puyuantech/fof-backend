@@ -3,7 +3,7 @@ import json
 import datetime
 import traceback
 
-from flask import request, current_app
+from flask import request, current_app, g
 
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
@@ -26,7 +26,7 @@ class ProductionsAPI(ApiViewHandler):
     @login_required
     def get(self):
         p = generate_sql_pagination()
-        query = FOFInfo.filter_by_query()
+        query = FOFInfo.filter_by_query(manager_id=g.token.manager_id)
         data = p.paginate(
             query,
             equal_filter=[FOFInfo.fof_name, FOFInfo.fof_id, FOFInfo.strategy_type, FOFInfo.fof_status],

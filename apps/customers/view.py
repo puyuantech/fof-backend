@@ -3,14 +3,14 @@ import io
 import datetime
 from flask import request, g, views, make_response
 
-from models import User, UserLogin, FOFInvestorPosition, FOFScaleAlteration, FOFInfo
+from models import User, FOFInvestorPosition, FOFScaleAlteration, FOFInfo, UnitMap, InvestorInfo
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from bases.constants import StuffEnum
 from utils.helper import generate_sql_pagination, replace_nan
 from utils.decorators import params_required, admin_login_required, login_required
-from .libs import get_all_user_info_by_user, register_investor_user, update_user_info, update_trade, parse_trade_file, \
+from .libs import get_investor_info, register_investor_user, update_user_info, update_trade, parse_trade_file, \
     create_single_trade
 
 
@@ -19,31 +19,30 @@ class CusAPI(ApiViewHandler):
     @login_required
     def get(self):
         p = generate_sql_pagination()
-        query = User.filter_by_query(role_id=StuffEnum.INVESTOR)
+        query = UnitMap.filter_by_query(
+            manager_id=g.token.manager_id,
+        )
         data = p.paginate(
             query,
-            call_back=lambda x: [get_all_user_info_by_user(i) for i in x],
-            equal_filter=[User.name, User.cred, User.mobile, User.sponsor, User.status, User.salesman],
-            range_filter=[User.sign_date],
+            call_back=lambda x: [get_investor_info(i) for i in x],
+            equal_filter=[UnitMap.name, UnitMap.cred, UnitMap.mobile, UnitMap.sponsor, UnitMap.status, UnitMap.salesman],
+            range_filter=[UnitMap.sign_date],
         )
         return data
 
     @login_required
-    @params_required(*['mobile', 'investor_id'])
+    @params_required(*['mobile'])
     def post(self):
         if not self.is_valid_mobile(self.input.mobile):
             raise VerifyError('电话号码有误！')
 
-        if User.filter_by_query(investor_id=self.input.investor_id).first():
-            raise VerifyError('投资者ID已存在')
-
         # 创建投资者
-        user, user_login = register_investor_user(
+        unit_map = register_investor_user(
             self.input.mobile,
         )
 
         # 添加信息
-        update_user_info(user)
+        unit_map.update_columns(request)
         return 'success'
 
 
@@ -51,28 +50,25 @@ class CustomerAPI(ApiViewHandler):
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
     def get(self, _id):
-        instance = User.filter_by_query(id=_id, role_id=StuffEnum.INVESTOR).first()
+        instance = UnitMap.get_by_id(_id)
         if not instance:
             raise VerifyError('不存在！')
-        return get_all_user_info_by_user(instance)
+        return get_investor_info(instance)
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
     def put(self, _id):
-        instance = User.filter_by_query(id=_id, role_id=StuffEnum.INVESTOR).first()
+        instance = UnitMap.get_by_id(_id)
         if not instance:
             raise VerifyError('不存在！')
-        user = update_user_info(instance)
-        return get_all_user_info_by_user(user)
+        instance.update_columns(instance)
+        return get_investor_info(instance)
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
     def delete(self, _id):
-        user = User.filter_by_query(id=_id, role_id=StuffEnum.INVESTOR).first()
-        if not user:
+        instance = UnitMap.get_by_id(_id)
+        if not instance:
             raise VerifyError('不存在！')
-        user_login = UserLogin.filter_by_query(user_id=user.id).first()
-        if user_login:
-            user_login.delete()
-        user.logic_delete()
+        instance.logic_delete()
 
 
 class CustomerPosition(ApiViewHandler):
@@ -82,6 +78,7 @@ class CustomerPosition(ApiViewHandler):
 
         results = db.session.query(FOFInvestorPosition, FOFInfo).filter(
             FOFInvestorPosition.investor_id == investor_id,
+            FOFInvestorPosition.manager_id == g.token.manager_id,
             FOFInfo.fof_id == FOFInvestorPosition.fof_id,
         ).all()
 
@@ -116,12 +113,14 @@ class CustomerTrades(ApiViewHandler):
             event_type = [int(i) for i in event_type.split(',')]
             results = db.session.query(FOFScaleAlteration, FOFInfo.fof_name).filter(
                 FOFScaleAlteration.investor_id == investor_id,
+                FOFScaleAlteration.manager_id == g.token.manager_id,
                 FOFScaleAlteration.event_type.in_(event_type),
                 FOFInfo.fof_id == FOFScaleAlteration.fof_id,
             )
         else:
             results = db.session.query(FOFScaleAlteration, FOFInfo.fof_name).filter(
                 FOFScaleAlteration.investor_id == investor_id,
+                FOFScaleAlteration.manager_id == g.token.manager_id,
                 FOFInfo.fof_id == FOFScaleAlteration.fof_id,
             )
         df_list = []
@@ -198,9 +197,7 @@ class ResetStaffPassword(ApiViewHandler):
         if not user:
             raise VerifyError('不存在！')
 
-        user_login = UserLogin.filter_by_query(user_id=user.id).one()
-        user_login.password = password
-        user_login.save()
+        user.password = password
+        user.save()
         return 'success'
-
 

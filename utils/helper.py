@@ -144,12 +144,18 @@ def generate_sql_pagination():
     return SQLPagination(page, page_size, ordering)
 
 
-if __name__ == '__main__':
-    code = ShareTokenAuth.encode(
-        {'data': {'name': 1}},
-        '1'
-    )
-    print(code)
-    print(ShareTokenAuth.decode(code, '1'))
+def generate_hash_char(num: int) -> str:
+    num = num + 100009527
+    s = 'mnopqrstbc1y832vwx5u49deghijklza67f'
+    length = len(s)
 
+    def temp(n):
+        if num == 0:
+            return s[0]
+
+        if n == 0:
+            return ''
+        return temp(n // length) + s[n % length]
+
+    return temp(num)
 

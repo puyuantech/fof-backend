@@ -11,7 +11,7 @@ class CustomIndex(BaseModel):
     id = db.Column(db.Integer, primary_key=True)                                # 编号
     name = db.Column(db.String(31))                                             # 名称
     desc = db.Column(db.String(255))                                            # 描述
-    recent_1m_ret= db.Column(DOUBLE(asdecimal=False))                           # 最近1月收益
+    recent_1m_ret = db.Column(DOUBLE(asdecimal=False))                           # 最近1月收益
     recent_3m_ret = db.Column(DOUBLE(asdecimal=False))                          # 最近3月收益
     recent_6m_ret = db.Column(DOUBLE(asdecimal=False))                          # 最近6月收益
     recent_y1_ret = db.Column(DOUBLE(asdecimal=False))                          # 近一年收益

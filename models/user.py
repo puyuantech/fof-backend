@@ -1,8 +1,13 @@
 import uuid
 import datetime
+import traceback
 
+from flask import current_app
+from bases.base_enmu import EnumBase
 from bases.globals import settings
+from bases.exceptions import VerifyError
 from bases.dbwrapper import BaseModel, db
+from utils.helper import generate_hash_char
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -17,106 +22,18 @@ class User(BaseModel):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    nick_name = db.Column(db.String(31))
-    sex = db.Column(db.Integer, default=0, nullable=False)  # 1表示男，2表示女，其它未知
-    email = db.Column(db.String(64), nullable=True)
-    avatar_url = db.Column(db.String(128))
-    site = db.Column(db.String(256))
-    mobile = db.Column(db.String(20))
-    role_id = db.Column(db.Integer, default=0)  # role_id 是否是管理员或者其他权限  1 管理员用户
-    is_staff = db.Column(db.BOOLEAN, default=False)  # 是否是员工
-    is_wx = db.Column(db.BOOLEAN, default=False)  # 是否微信虚拟账号
-    name = db.Column(db.String(20))                 # 姓名
-    amount = db.Column(db.Float)                    # 投资总额
-    sign_date = db.Column(db.String(20))            # 签约日期
-    sponsor = db.Column(db.String(20))              # 介绍人
-    investor_id = db.Column(db.String(20))              # 客户编号
-    cred_type = db.Column(db.String(20))              # 证件类型 1身份证 2护照
-    cred = db.Column(db.String(64))              # 证件编号
-    is_institution = db.Column(db.BOOLEAN, default=False)  # 是否机构
-    address = db.Column(db.String(256))          # 通讯地址
-    ins_name = db.Column(db.String(63))             # 机构名称
-    ins_code = db.Column(db.String(31))             # 机构代码
-    contact_name = db.Column(db.String(31))         # 联系人
-    contact_mobile = db.Column(db.String(20))       # 联系方式
-    origin = db.Column(db.String(20))               # 来源
-    status = db.Column(db.Integer)                  # 客户状态
-    salesman = db.Column(db.String(20))             # 销售人员
-
-    def to_normal_dict(self):
-        return {
-            'id': self.id,
-            'nick_name': self.nick_name,
-            'sex': self.sex,
-            'email': self.email,
-            'avatar_url': self.avatar_url,
-            'site': self.site,
-            'mobile': self.mobile,
-            'role_id': self.role_id,
-            'is_staff': self.is_staff,
-            'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
-        }
-
-    def to_cus_dict(self):
-        return {
-            'id': self.id,
-            'nick_name': self.nick_name,
-            'sex': self.sex,
-            'email': self.email,
-            'avatar_url': self.avatar_url,
-            'site': self.site,
-            'role_id': self.role_id,
-            'is_staff': self.is_staff,
-            'name': self.name,
-            'mobile': self.mobile,
-            'amount': self.amount,
-            'sign_date': self.sign_date,
-            'sponsor': self.sponsor,
-            'investor_id': self.investor_id,
-            'cred_type': self.cred_type,
-            'cred': self.cred,
-            'is_institution': self.is_institution,
-            'address': self.address,
-            'ins_name': self.ins_name,
-            'ins_code': self.ins_code,
-            'contact_name': self.contact_name,
-            'contact_mobile': self.contact_mobile,
-            'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
-            'origin': self.origin,
-            'status': self.status,
-            'salesman': self.salesman,
-        }
-
-    @staticmethod
-    def get_all_user_info(user_login):
-        user_dict = user_login.to_dict(remove_fields_list=['password_hash'])
-        user_login.last_login = datetime.datetime.now()
-        user_login.save()
-        user_info = User.get_by_id(user_login.user_id)
-        user_dict.update(user_info.to_dict())
-        return user_dict
-
-
-class ManagerInfo(BaseModel):
-    """
-    管理者
-    """
-    __tablename__ = 'manager_info'
-
-    id = db.Column(db.Integer, primary_key=True)
-
-
-class UserLogin(BaseModel):
-    """
-    用户登录表
-    """
-    __tablename__ = 'user_login'
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
-    username = db.Column(db.String(20), nullable=False, unique=True)
+    mobile = db.Column(db.String(20), unique=True)
+    username = db.Column(db.String(20))
+    role_id = db.Column(db.Integer, default=0)                      # role_id 是否是管理员或者其他权限  1 管理员用户
+    is_staff = db.Column(db.BOOLEAN, default=False)                 # 是否是员工
+    staff_name = db.Column(db.String(20))                           # 员工姓名
+    is_wx = db.Column(db.BOOLEAN, default=False)                    # 是否微信虚拟账号
     password_hash = db.Column(db.String(256), nullable=False)
     last_login = db.Column(db.DATETIME, default=datetime.datetime.now)
+    last_login_investor = db.Column(db.String(32))
+
+    def to_dict(self, fields_list=None, remove_fields_list=None, remove_deleted=True):
+        return super().to_dict(remove_fields_list=['password_hash'])
 
     @property
     def password(self):
@@ -128,6 +45,190 @@ class UserLogin(BaseModel):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    @classmethod
+    def create_main_user_investor(cls, mobile):
+        user = cls.create(
+            mobile=mobile,
+            password='',
+        )
+        try:
+            investor_id = generate_hash_char(user.id)
+            investor = InvestorInfo(
+                investor_id=investor_id,
+                mobile_phone=mobile,
+            )
+            investor_map = UserInvestorMap(
+                user_id=user.id,
+                investor_id=investor_id,
+                map_type=UserInvestorMap.MapType.MAIN,
+            )
+            db.session.add(investor_map)
+            db.session.add(investor)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            user.delete()
+            current_app.logger.error(traceback.format_exc())
+            raise VerifyError('创建用户失败！')
+
+        return user, investor
+
+    def get_main_investor(self):
+        investor = db.session.query(InvestorInfo).filter(
+            UserInvestorMap.user_id == self.id,
+            UserInvestorMap.investor_id == InvestorInfo.investor_id,
+            UserInvestorMap.map_type == UserInvestorMap.MapType.MAIN,
+        ).first()
+        return investor
+
+
+class UserInvestorMap(BaseModel):
+    """
+    用户 投资者 映射表
+    """
+    __tablename__ = 'user_investor_map'
+
+    class MapType(EnumBase):
+        MAIN = 1
+        SUB = 2
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    investor_id = db.Column(db.String(32), nullable=False)
+    map_type = db.Column(db.Integer)
+
+
+class InvestorInfo(BaseModel):
+    """
+    投资者
+    """
+    __tablename__ = 'user_investor_info'
+
+    investor_id = db.Column(db.String(32), primary_key=True)
+    name = db.Column(db.String(10))  # 姓名
+    email = db.Column(db.String(64))  # 邮箱
+    nationality = db.Column(db.String(32))  # 国籍
+    gender = db.Column(db.Integer, default=0)  # 性别(1: 男, 2: 女)
+    age = db.Column(db.Integer)  # 年龄
+    mobile_phone = db.Column(db.String(20), unique=True)  # 手机
+    landline_phone = db.Column(db.String(20))  # 座机
+    profession = db.Column(db.String(32))  # 职业
+    job = db.Column(db.String(32))  # 职务
+    postcode = db.Column(db.String(20))  # 邮编
+    address = db.Column(db.String(256))  # 住址
+
+    def create_manager_map(self, manager_id):
+        unit_map = UnitMap.create(
+            investor_id=self.investor_id,
+            manager_id=manager_id,
+        )
+        return unit_map
+
+    def check_manager_map(self, manager_id):
+        unit_map = UnitMap.filter_by_query(
+            investor_id=self.investor_id,
+            manager_id=manager_id,
+        ).first()
+        return unit_map
+
+    def update_columns(self, request):
+        columns = [
+            'name',
+            'email',
+            'nationality',
+            'gender',
+            'age',
+            'landline_phone',
+            'profession',
+            'job',
+            'postcode',
+            'address',
+        ]
+
+        for i in columns:
+            if request.json.get(i) is not None:
+                self.update(commit=False, **{i: request.json.get(i)})
+        self.save()
+        return self
+
+    @classmethod
+    def get_by_mobile(cls, mobile):
+        return cls.filter_by_query(
+            mobile_phone=mobile,
+        ).first()
+
+
+class UnitMap(BaseModel):
+    """
+    投资者和管理者关联表
+    """
+    __tablename__ = 'user_unit_map'
+
+    class InvestorType(EnumBase):
+        NATURAL = 1
+        INSTITUTION = 2
+        PRODUCTION = 3
+
+    id = db.Column(db.Integer, primary_key=True)
+    manager_id = db.Column(db.String(32), db.ForeignKey('user_manager_info.manager_id'), nullable=False)
+    investor_id = db.Column(db.String(32), db.ForeignKey('user_investor_info.investor_id'), nullable=False)
+    investor_type = db.Column(db.Integer, default=1)                    # 投资者类型
+    name = db.Column(db.String(20))                                     # 姓名
+    cred_type = db.Column(db.String(20))                                # 证件类型 1身份证 2护照
+    cred = db.Column(db.String(64))                                     # 证件编号
+    mobile = db.Column(db.String(20))                                   # 手机号
+    amount = db.Column(db.Float)                                        # 投资总额
+    email = db.Column(db.String(64))                                    # 邮件地址
+    sign_date = db.Column(db.String(20))                                # 签约日期
+    address = db.Column(db.String(256))                                 # 通讯地址
+    origin = db.Column(db.String(20))                                   # 来源
+    status = db.Column(db.Integer)                                      # 客户审核状态
+    sponsor = db.Column(db.String(20))                                  # 推荐人
+    salesman = db.Column(db.String(20))                                 # 销售人员
+
+    def update_columns(self, request):
+        columns = [
+            'investor_type',
+            'name',
+            'cred_type',
+            'cred',
+            'mobile',
+            'amount',
+            'email',
+            'sign_date',
+            'address',
+            'origin',
+            'status',
+            'salesman',
+        ]
+
+        for i in columns:
+            if request.json.get(i) is not None:
+                self.update(commit=False, **{i: request.json.get(i)})
+        self.save()
+        return self
+
+
+class ManagerInfo(BaseModel):
+    """
+    管理者
+    """
+    __tablename__ = 'user_manager_info'
+
+    manager_id = db.Column(db.String(32), primary_key=True)         # 代码
+    name = db.Column(db.String(127))                                # 名称
+    id_type = db.Column(db.Integer)                                 # 凭证类型
+    id_number = db.Column(db.String(127))                           # 凭证编码
+
+
+class ManagerUserMap(BaseModel):
+    """
+    管理者 映射表
+    """
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # 编号
+    user_id = db.Column(db.Integer)
+    manager_id = db.Column(db.String(32))
 
 
 class Token(BaseModel):
@@ -142,6 +243,8 @@ class Token(BaseModel):
     expires_at = db.Column(db.DateTime, nullable=False)  # 过期时间
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship('User', backref='token')
+    manager_id = db.Column(db.String(32))
+    investor_id = db.Column(db.String(32))
 
     @staticmethod
     def generate_key():
@@ -157,6 +260,8 @@ class Token(BaseModel):
     def refresh(self, refresh_key):
         if self.refresh_key == refresh_key:
             self.key = self.generate_key()
+            self.manager_id = None
+            self.investor_id = None
             self.expires_at = self.generate_expires_at()
 
     @classmethod
@@ -178,5 +283,4 @@ class Token(BaseModel):
             token.save()
 
         token = cls.get_by_id(token.id)
-        return token.to_dict()
-
+        return token

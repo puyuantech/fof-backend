@@ -1,5 +1,8 @@
 from apps.accounts import blu as accounts_blu
 from apps.auth import blu as auth_blu
+from apps.admin_super import super_admin_router
+
+from apps.admin.auth import blu as admin_blu
 from apps.captchas import blu as captcha_blu
 from apps.stuff import blu as stuff_blu
 from apps.productions import blu as production_blu
@@ -33,5 +36,7 @@ routers = [
     index_blu,
     info_blu,
     upload_blu,
+    admin_blu,
     investor_blu,
 ]
+routers.extend(super_admin_router)

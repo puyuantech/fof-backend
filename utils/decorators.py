@@ -1,6 +1,5 @@
 import functools
 
-from models import UserLogin
 from flask import g, request
 from bases.exceptions import LogicError, AuthError, AuthPermissionError
 
@@ -12,9 +11,7 @@ def login_required(func):
         user, token = TokenAuthentication().authenticate(request)
         if not user:
             raise AuthError('请先登录')
-        user_login = UserLogin.filter_by_query(user_id=user.id).first()
         g.user = user
-        g.user_login = user_login
         g.token = token
 
         return func(cls, *args, **kwargs)
@@ -30,9 +27,7 @@ def super_admin_login_required(func):
             raise AuthError('请先登录')
         if user.role_id != 1:
             raise AuthPermissionError('非超级管理员')
-        user_login = UserLogin.filter_by_query(user_id=user.id).first()
         g.user = user
-        g.user_login = user_login
         g.token = token
 
         return func(cls, *args, **kwargs)
@@ -56,9 +51,7 @@ def admin_login_required(permissions=None):
                 pass
             elif user.role_id not in permission_list:
                 raise AuthPermissionError('权限不足')
-            user_login = UserLogin.filter_by_query(user_id=user.id).first()
             g.user = user
-            g.user_login = user_login
             g.token = token
 
             return func(cls, *args, **kwargs)

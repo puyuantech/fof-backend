@@ -27,6 +27,8 @@ def user_operation_log_middleware(app):
         try:
             Operation.create(
                 user_id=g.user.id,
+                investor_id=g.token.investor_id,
+                manager_id=g.token.manager_id,
                 ip=str(remote_addr),
                 action=g.user_operation,
                 url=str(request.url),
