@@ -154,3 +154,64 @@ class ManageFundValidation(BaseModel):
             manager_ids=data['manager_ids'],
         )
 
+
+class ManagementSeniorValidation(BaseModel):
+    """sync with ManagementSenior"""
+    job_title: constr(max_length=64)
+    senior_name: constr(max_length=32)
+    has_qualification: constr(max_length=1)
+    qualification_source: constr(max_length=8)
+    job_history: List[list]
+
+    @classmethod
+    def get_senior(cls, data: dict):
+        job_history = []
+        for job_time, *params in data['工作履历']:
+            job_history.append([
+                job_time.replace(' ', '').replace('\n', ''),
+                *params
+            ])
+        return cls(
+            job_title=data['职务'],
+            senior_name=data['姓名'],
+            has_qualification=data['是否有基金从业资格'],
+            qualification_source=data['资格获取方式'],
+            job_history=job_history,
+        )
+
+
+class ManagementRelatedPartyValidation(BaseModel):
+    """sync with ManagementRelatedParty"""
+    number: int
+    related_manager_id: constr(max_length=16)
+    name: constr(max_length=128)
+    invest_type: constr(max_length=32)
+    register_no: constr(max_length=8)
+    organization_code: constr(max_length=32)
+
+    @classmethod
+    def get_related_party(cls, data: list):
+        return cls(
+            related_manager_id=data[0],
+            number=data[1],
+            invest_type=data[2],
+            name=data[3],
+            register_no=data[4],
+            organization_code=data[5],
+        )
+
+
+class ManagementInvestorValidation(BaseModel):
+    """sync with ManagementInvestor"""
+    number: int
+    name: constr(max_length=128)
+    ratio: float
+
+    @classmethod
+    def get_investor(cls, data: list):
+        return cls(
+            number=data[0],
+            name=data[1],
+            ratio=data[2].replace('%', ''),
+        )
+
