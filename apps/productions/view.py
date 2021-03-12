@@ -39,7 +39,7 @@ class ProductionsAPI(ApiViewHandler):
     def post(self):
         data = {
             'fof_id': request.json.get('fof_id'),
-            'datetime': request.json.get('datetime'),
+            'datetime':  request.json.get('datetime'),
             'fof_name': request.json.get('fof_name'),
             'admin': request.json.get('admin'),
             'established_date': request.json.get('established_date'),
@@ -62,6 +62,7 @@ class ProductionsAPI(ApiViewHandler):
             'is_fof': request.json.get('is_fof'),
             'is_on_sale': request.json.get('is_on_sale'),
             'benchmark': request.json.get('benchmark'),
+            'manager_id': g.token.manager_id,
         }
         if FOFInfo.filter_by_query(fof_id=self.input.fof_id, show_deleted=True).one_or_none():
             raise VerifyError('ID 重复')

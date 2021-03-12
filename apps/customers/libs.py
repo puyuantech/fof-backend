@@ -2,7 +2,7 @@ import datetime
 import traceback
 import pandas as pd
 import io
-from flask import request, current_app
+from flask import request, current_app, g
 
 from models import User, FOFScaleAlteration, FOFInvestorData, InvestorTag, InvestorInfo
 from bases.exceptions import VerifyError
@@ -18,7 +18,7 @@ def get_user_by_mobile(mobile):
 
 
 def get_investor_info(unit):
-    data_dict = unit.to_cus_dict()
+    data_dict = unit.to_dict()
 
     tags = InvestorTag.filter_by_query(
         investor_id=unit.investor_id,
@@ -42,9 +42,6 @@ def get_investor_info(unit):
 
 def register_investor_user(mobile):
     investor = InvestorInfo.get_by_mobile(mobile)
-
-    if investor.check_manager_map(mobile):
-        raise VerifyError('此手机号已添加过')
 
     if not investor:
         user, investor = User.create_main_user_investor(mobile)

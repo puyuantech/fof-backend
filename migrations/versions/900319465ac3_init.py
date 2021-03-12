@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 158b3b76aed7
+Revision ID: 900319465ac3
 Revises: 
-Create Date: 2021-03-11 13:22:25.985655
+Create Date: 2021-03-11 17:11:31.047826
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '158b3b76aed7'
+revision = '900319465ac3'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -99,7 +99,9 @@ def upgrade():
     sa.Column('update_time', sa.DATETIME(), nullable=True),
     sa.Column('is_deleted', sa.Boolean(), nullable=False),
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('template_name', sa.String(length=63), nullable=True),
     sa.Column('content', sa.TEXT(), nullable=True),
+    sa.Column('manager_id', sa.String(length=32), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('info_to_production',
@@ -110,6 +112,135 @@ def upgrade():
     sa.Column('info_id', sa.Integer(), nullable=True),
     sa.Column('fof_id', sa.CHAR(length=16), nullable=True),
     sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('investor_certification',
+    sa.Column('create_time', sa.DATETIME(), nullable=True),
+    sa.Column('update_time', sa.DATETIME(), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
+    sa.Column('face_image_url_key', sa.String(length=128), nullable=True),
+    sa.Column('face_image_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('name', sa.String(length=10), nullable=True),
+    sa.Column('email', sa.String(length=64), nullable=True),
+    sa.Column('nationality', sa.String(length=32), nullable=True),
+    sa.Column('gender', sa.Integer(), nullable=True),
+    sa.Column('age', sa.Integer(), nullable=True),
+    sa.Column('mobile_phone', sa.String(length=20), nullable=True),
+    sa.Column('landline_phone', sa.String(length=20), nullable=True),
+    sa.Column('profession', sa.String(length=32), nullable=True),
+    sa.Column('job', sa.String(length=32), nullable=True),
+    sa.Column('postcode', sa.String(length=20), nullable=True),
+    sa.Column('address', sa.String(length=256), nullable=True),
+    sa.Column('cert_type', sa.String(length=10), nullable=True),
+    sa.Column('cert_num', sa.String(length=32), nullable=True),
+    sa.Column('cert_expire_date', sa.Date(), nullable=True),
+    sa.Column('cert_front_image_url_key', sa.String(length=128), nullable=True),
+    sa.Column('cert_back_image_url_key', sa.String(length=128), nullable=True),
+    sa.Column('cert_image_time', sa.DateTime(), nullable=True),
+    sa.Column('investor_answers', sa.JSON(), nullable=True),
+    sa.Column('investor_answers_time', sa.DateTime(), nullable=True),
+    sa.Column('real_name_verify', sa.Boolean(), nullable=True),
+    sa.Column('real_name_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('risk_level', sa.String(length=4), nullable=True),
+    sa.Column('risk_level_score', sa.Integer(), nullable=True),
+    sa.Column('risk_level_answers', sa.JSON(), nullable=True),
+    sa.Column('risk_level_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('risk_level_expire_time', sa.DateTime(), nullable=True),
+    sa.Column('asset_image_url_key', sa.String(length=128), nullable=True),
+    sa.Column('experience_image_url_key', sa.String(length=128), nullable=True),
+    sa.Column('experience_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('info_table_url_key', sa.String(length=128), nullable=True),
+    sa.Column('info_table_verify', sa.Boolean(), nullable=True),
+    sa.Column('info_table_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('commitment_url_key', sa.String(length=128), nullable=True),
+    sa.Column('commitment_verify', sa.Boolean(), nullable=True),
+    sa.Column('commitment_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('investor_id', sa.String(length=32), nullable=True),
+    sa.Column('manager_id', sa.String(length=32), nullable=True),
+    sa.Column('certification_status', sa.String(length=20), nullable=True),
+    sa.Column('certification_error_message', sa.String(length=128), nullable=True),
+    sa.Column('is_professional', sa.Boolean(), nullable=True),
+    sa.Column('is_effective', sa.Boolean(), nullable=True),
+    sa.Column('is_latest', sa.Boolean(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('investor_contract',
+    sa.Column('create_time', sa.DATETIME(), nullable=True),
+    sa.Column('update_time', sa.DATETIME(), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('investor_id', sa.String(length=32), nullable=True),
+    sa.Column('manager_id', sa.String(length=32), nullable=True),
+    sa.Column('fof_id', sa.String(length=16), nullable=True),
+    sa.Column('contract_status', sa.String(length=8), nullable=True),
+    sa.Column('order_id', sa.String(length=64), nullable=True),
+    sa.Column('book_amount', sa.Float(), nullable=True),
+    sa.Column('book_name', sa.String(length=10), nullable=True),
+    sa.Column('book_mobile', sa.String(length=20), nullable=True),
+    sa.Column('book_date', sa.DateTime(), nullable=True),
+    sa.Column('risk_disclose_url_key', sa.String(length=128), nullable=True),
+    sa.Column('risk_disclose_verify', sa.Boolean(), nullable=True),
+    sa.Column('risk_disclose_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('fund_contract_url_key', sa.String(length=128), nullable=True),
+    sa.Column('fund_contract_verify', sa.Boolean(), nullable=True),
+    sa.Column('fund_contract_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('protocol_url_key', sa.String(length=128), nullable=True),
+    sa.Column('protocol_verify', sa.Boolean(), nullable=True),
+    sa.Column('protocol_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('fund_matching_url_key', sa.String(length=128), nullable=True),
+    sa.Column('fund_matching_verify', sa.Boolean(), nullable=True),
+    sa.Column('fund_matching_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('video_url_key', sa.String(length=128), nullable=True),
+    sa.Column('video_verify', sa.Boolean(), nullable=True),
+    sa.Column('video_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('lookback_url_key', sa.String(length=128), nullable=True),
+    sa.Column('lookback_verify', sa.Boolean(), nullable=True),
+    sa.Column('lookback_verify_time', sa.DateTime(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('investor_information',
+    sa.Column('create_time', sa.DATETIME(), nullable=True),
+    sa.Column('update_time', sa.DATETIME(), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
+    sa.Column('face_image_url_key', sa.String(length=128), nullable=True),
+    sa.Column('face_image_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('name', sa.String(length=10), nullable=True),
+    sa.Column('email', sa.String(length=64), nullable=True),
+    sa.Column('nationality', sa.String(length=32), nullable=True),
+    sa.Column('gender', sa.Integer(), nullable=True),
+    sa.Column('age', sa.Integer(), nullable=True),
+    sa.Column('mobile_phone', sa.String(length=20), nullable=True),
+    sa.Column('landline_phone', sa.String(length=20), nullable=True),
+    sa.Column('profession', sa.String(length=32), nullable=True),
+    sa.Column('job', sa.String(length=32), nullable=True),
+    sa.Column('postcode', sa.String(length=20), nullable=True),
+    sa.Column('address', sa.String(length=256), nullable=True),
+    sa.Column('cert_type', sa.String(length=10), nullable=True),
+    sa.Column('cert_num', sa.String(length=32), nullable=True),
+    sa.Column('cert_expire_date', sa.Date(), nullable=True),
+    sa.Column('cert_front_image_url_key', sa.String(length=128), nullable=True),
+    sa.Column('cert_back_image_url_key', sa.String(length=128), nullable=True),
+    sa.Column('cert_image_time', sa.DateTime(), nullable=True),
+    sa.Column('investor_answers', sa.JSON(), nullable=True),
+    sa.Column('investor_answers_time', sa.DateTime(), nullable=True),
+    sa.Column('real_name_verify', sa.Boolean(), nullable=True),
+    sa.Column('real_name_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('risk_level', sa.String(length=4), nullable=True),
+    sa.Column('risk_level_score', sa.Integer(), nullable=True),
+    sa.Column('risk_level_answers', sa.JSON(), nullable=True),
+    sa.Column('risk_level_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('risk_level_expire_time', sa.DateTime(), nullable=True),
+    sa.Column('asset_image_url_key', sa.String(length=128), nullable=True),
+    sa.Column('experience_image_url_key', sa.String(length=128), nullable=True),
+    sa.Column('experience_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('info_table_url_key', sa.String(length=128), nullable=True),
+    sa.Column('info_table_verify', sa.Boolean(), nullable=True),
+    sa.Column('info_table_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('commitment_url_key', sa.String(length=128), nullable=True),
+    sa.Column('commitment_verify', sa.Boolean(), nullable=True),
+    sa.Column('commitment_verify_time', sa.DateTime(), nullable=True),
+    sa.Column('investor_id', sa.String(length=32), nullable=False),
+    sa.PrimaryKeyConstraint('investor_id')
     )
     op.create_table('investor_tags',
     sa.Column('create_time', sa.DATETIME(), nullable=True),
@@ -160,6 +291,29 @@ def upgrade():
     sa.Column('response_data', sa.TEXT(), nullable=True),
     sa.Column('response_status', sa.Integer(), nullable=True),
     sa.Column('manager_id', sa.String(length=32), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('risk_answers',
+    sa.Column('create_time', sa.DATETIME(), nullable=True),
+    sa.Column('update_time', sa.DATETIME(), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('investor_id', sa.String(length=32), nullable=True),
+    sa.Column('risk_level', sa.String(length=4), nullable=True),
+    sa.Column('risk_level_score', sa.Integer(), nullable=True),
+    sa.Column('risk_level_answers', sa.JSON(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('risk_questions',
+    sa.Column('create_time', sa.DATETIME(), nullable=True),
+    sa.Column('update_time', sa.DATETIME(), nullable=True),
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('order_num', sa.Integer(), nullable=True),
+    sa.Column('question', sa.String(length=128), nullable=True),
+    sa.Column('symbol', sa.JSON(), nullable=True),
+    sa.Column('answer', sa.JSON(), nullable=True),
+    sa.Column('score', sa.JSON(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('super_admin',
@@ -336,10 +490,15 @@ def downgrade():
     op.drop_table('user_investor_info')
     op.drop_table('tags')
     op.drop_table('super_admin')
+    op.drop_table('risk_questions')
+    op.drop_table('risk_answers')
     op.drop_table('operations')
     op.drop_table('mobile_code')
     op.drop_table('manager_user_map')
     op.drop_table('investor_tags')
+    op.drop_table('investor_information')
+    op.drop_table('investor_contract')
+    op.drop_table('investor_certification')
     op.drop_table('info_to_production')
     op.drop_table('info_templates')
     op.drop_table('info_detail')

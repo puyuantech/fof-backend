@@ -1,6 +1,6 @@
 import json
 from flask import request, g, current_app
-from models import User, Operation
+from models import User, Operation, Token
 
 
 def user_operation_log_middleware(app):
@@ -21,6 +21,9 @@ def user_operation_log_middleware(app):
         if not hasattr(g, 'user'):
             g.user = User()
             g.user.id = 0
+
+        if not hasattr(g, 'token'):
+            g.token = Token()
 
         remote_addr = request.headers.get('X-Real-Ip') if request.headers.get('X-Real-Ip') else '0.0.0.0'
 

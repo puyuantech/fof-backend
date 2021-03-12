@@ -9,7 +9,7 @@ from .libs import check_username_login
 
 
 class AdminLoginAPI(ApiViewHandler):
-    @params_required(*['username', 'password', 'verification_code', 'verification_key', 'manager_id'])
+    @params_required(*['username', 'password', 'verification_code', 'verification_key'])
     def post(self):
         g.user_operation = '登录-密码'
         check_img_captcha(
@@ -25,14 +25,13 @@ class AdminLoginAPI(ApiViewHandler):
 
         m = ManagerUserMap.filter_by_query(
             user_id=user.id,
-            manager_id=self.input.manager_id,
         ).first()
         if not m:
             raise VerifyError('未找到管理信息')
         user_dict = user.to_dict()
 
         token = Token.generate_token(user.id)
-        token.manager_id = self.input.manager_id
+        token.manager_id = m.manager_id
         token_dict = token.to_dict()
         token.save()
 

@@ -63,6 +63,14 @@ from .libs import *
 
 
 class InvestorMobileLoginAPI(ApiViewHandler):
+
+    def get(self):
+        mobile = request.args.get('mobile')
+        if not mobile:
+            raise VerifyError('内容不正确！')
+
+
+
     @params_required(*['mobile', 'code', 'manager_id'])
     def post(self):
         g.user_operation = '登录-手机号'
@@ -96,7 +104,7 @@ class InvestorMobileLoginAPI(ApiViewHandler):
         token.save()
 
         user.last_login_investor = investor_dict['investor_id']
-        g.user.last_login = datetime.datetime.now()
+        user.last_login = datetime.datetime.now()
         user.save()
 
         data = {
