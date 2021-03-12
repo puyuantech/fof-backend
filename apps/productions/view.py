@@ -9,7 +9,7 @@ from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from models import FOFInfo, FOFNav, FOFNavPublic, FOFAssetAllocation, FOFPosition, FOFInvestorPosition, User, \
-    FOFScaleAlteration
+    FOFScaleAlteration, UnitMap
 from utils.decorators import params_required, login_required, admin_login_required
 from utils.helper import generate_sql_pagination, replace_nan
 from utils.caches import get_fund_collection_caches, get_hedge_fund_cache, get_fund_cache
@@ -337,15 +337,16 @@ class ProductionInvestorTrades(ApiViewHandler):
     def get(self, fof_id):
         def fill_trade_info(obj):
             data_dict = obj.to_dict()
-            user = User.filter_by_query(
+            unit_map = UnitMap.filter_by_query(
                 investor_id=obj.investor_id,
+                manager_id=g.token.manager_id,
                 is_deleted=False,
             ).first()
 
-            data_dict['user_id'] = user.id if user else None
-            data_dict['name'] = user.name if user else None
-            data_dict['ins_name'] = user.ins_name if user else None
-            data_dict['is_institution'] = user.is_institution if user else None
+            data_dict['investor_id'] = unit_map.investor_id if unit_map else None
+            data_dict['unit_id'] = unit_map.id if unit_map else None
+            data_dict['name'] = unit_map.name if unit_map else None
+            data_dict['investor_type'] = unit_map.investor_type if unit_map else None
             return data_dict
 
         p = generate_sql_pagination()
@@ -385,6 +386,7 @@ class ProductionInvestorTrades(ApiViewHandler):
                 status=request.json.get('status'),
                 asset_type=request.json.get('asset_type', 2),
                 event_type=request.json.get('event_type'),
+                manager_id=g.token.manager_id,
             )
         except:
             current_app.logger.error(traceback.format_exc())
@@ -455,13 +457,14 @@ class ProductionInvestor(ApiViewHandler):
             for i in investor_positions
         }
 
-        users = db.session.query(User).filter(
-            User.investor_id.in_(investor_ids),
+        unit_maps = db.session.query(UnitMap).filter(
+            UnitMap.investor_id.in_(investor_ids),
+            UnitMap.manager_id == g.token.manager_id,
         ).all()
 
         data = []
-        for i in users:
-            d = i.to_cus_dict()
+        for i in unit_maps:
+            d = i.to_dict()
             d.update({
                 'user_amount': positions.get(i.investor_id)['amount'],
                 'user_shares': positions.get(i.investor_id)['shares'],
