@@ -49,6 +49,17 @@ def pub_fof(fof_id):
     update_public_fof(fof_id)
 
 
+@manager.option('-l', dest='manager_list', help='to update manager list', action='store_true', default=False)
+@manager.option('-m', dest='manager_info', help='to update manager info', action='store_true', default=False)
+@manager.option('-f', dest='fund_info', help='to update fund info', action='store_true', default=False)
+@manager.option('-s', '--start', dest='start', help='start index', type=int, default=0)
+def update_management(manager_list, manager_info, fund_info, start):
+    if not any((manager_list, manager_info, fund_info)):
+        manager_list = manager_info = fund_info = True
+    from scripts.refresh_managements import update_managements
+    update_managements(manager_list, manager_info, fund_info, start)
+
+
 if __name__ == '__main__':
     manager.run()
 
