@@ -60,7 +60,7 @@ class CustomerAPI(ApiViewHandler):
         instance = UnitMap.get_by_id(_id)
         if not instance:
             raise VerifyError('不存在！')
-        instance.update_columns(instance)
+        instance.update_columns(request)
         return get_investor_info(instance)
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])

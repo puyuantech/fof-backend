@@ -1,11 +1,11 @@
 from flask import request, g
-from models import User
+from models import User, ManagerUserMap
 from bases.viewhandler import ApiViewHandler
 from bases.globals import db
 from utils.helper import generate_sql_pagination
 from utils.decorators import params_required, super_admin_login_required, login_required
 from bases.constants import StuffEnum
-from .libs.staff import get_all_user_info_by_user, register_staff_user, update_user_info
+from .libs.staff import register_staff_user, update_user_info
 
 
 class StaffsAPI(ApiViewHandler):
@@ -17,15 +17,17 @@ class StaffsAPI(ApiViewHandler):
             User.is_staff == True,
             User.is_wx == False,
             User.is_deleted == False,
+            User.id == ManagerUserMap.user_id,
+            ManagerUserMap.manager_id == g.token.manager_id,
         )
-        data = p.paginate(query, call_back=lambda x: [get_all_user_info_by_user(i) for i in x])
+        data = p.paginate(query)
         return data
 
     @super_admin_login_required
     @params_required(*['username', 'password'])
     def post(self):
-        # 创建用户
-        user, user_login = register_staff_user(
+        # 创建员工
+        user = register_staff_user(
             self.input.username,
             self.input.password,
         )
@@ -40,7 +42,7 @@ class StaffAPI(ApiViewHandler):
     @super_admin_login_required
     def get(self, _id):
         instance = User.get_by_id(_id)
-        return get_all_user_info_by_user(instance)
+        return instance.to_dict()
 
     @super_admin_login_required
     def put(self, _id):
@@ -49,7 +51,7 @@ class StaffAPI(ApiViewHandler):
         if self.input.role_id:
             for i in user.token:
                 i.delete()
-        return get_all_user_info_by_user(user)
+        return user.to_dict()
 
     @super_admin_login_required
     def delete(self, _id):

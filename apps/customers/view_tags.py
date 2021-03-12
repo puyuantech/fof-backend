@@ -63,7 +63,7 @@ class TagAPI(ApiViewHandler):
 
         tag = InvestorTag.create(
             tag_name=self.input.tag_name,
-            invinvestor_id=self.input.investor_id,
+            investor_id=self.input.investor_id,
             manager_id=g.token.manager_id,
             add_user_id=g.user.id,
         )

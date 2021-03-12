@@ -1,6 +1,6 @@
 import datetime
-from flask import request
-from models import User
+from flask import request, g
+from models import User, ManagerUserMap
 from bases.exceptions import VerifyError
 
 
@@ -17,19 +17,18 @@ def get_all_user_info(user_login):
     return user_dict
 
 
-def get_all_user_info_by_user(user):
-    user_dict = user.to_normal_dict()
-    return user_dict
-
-
 def register_staff_user(username, password):
     if get_user_by_username(username):
         raise VerifyError('用户名已存在！')
     user = User.create(
-        nick_name=username,
+        staff_name=username,
         username=username,
         password=password,
         is_staff=True,
+    )
+    ManagerUserMap.create(
+        user_id=user.id,
+        manager_id=g.token.manager_id,
     )
     return user
 
@@ -45,4 +44,3 @@ def update_user_info(user):
             user.update(commit=False, **{i: request.json.get(i)})
     user.save()
     return user
-

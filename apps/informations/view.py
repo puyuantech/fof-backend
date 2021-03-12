@@ -19,7 +19,7 @@ class InformationAPI(ApiViewHandler, ViewList):
         data = p.paginate(
             query,
             call_back=lambda x: [get_info_production(i) for i in x],
-            equal_filter=[InfoDetail.title, InfoDetail.info_type],
+            equal_filter=[InfoDetail.title, InfoDetail.info_type, InfoDetail.is_effected],
             range_filter=[InfoDetail.create_time],
         )
         return data
@@ -60,7 +60,7 @@ class InformationDetailAPI(ApiViewHandler, ViewDetailGet, ViewDetailUpdate, View
         return data
 
     @login_required
-    def post(self, _id):
+    def put(self, _id):
         obj = self.model.get_by_id(_id)
 
         for i in self.update_columns:
@@ -74,10 +74,14 @@ class InformationDetailAPI(ApiViewHandler, ViewDetailGet, ViewDetailUpdate, View
 class TemplateAPI(ApiViewHandler, ViewList):
     model = InfoTemplate
 
+    def get_objects(self):
+        return self.model.filter_by_query(manager_id=g.token.manager_id)
+
     @params_required(*['template_name'])
     @login_required
     def post(self):
         InfoTemplate.create(
+            manager_id=g.token.manager_id,
             template_name=self.input.template_name,
             content=request.json.get('content'),
         )

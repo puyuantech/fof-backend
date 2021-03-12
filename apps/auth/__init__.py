@@ -12,5 +12,5 @@ api = Api(blu)
 api.add_resource(Logout, '/logout')
 api.add_resource(Logic, '/logic', endpoint='logic')
 api.add_resource(InvestorMobileLoginAPI, '/investor_mobile_login')
-api.add_resource(ChoseInvestor, '/investors')
+api.add_resource(ChoseInvestor, '/chose_investor')
 
