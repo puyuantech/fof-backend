@@ -115,10 +115,10 @@ class ProductionNavPublic(ApiViewHandler):
     def put(self, fof_id):
         df = parse_nav_file(fof_id)
         db.session.query(
-            FOFNav
+            FOFNavPublic
         ).filter(
-            FOFNav.fof_id == fof_id,
-            FOFNav.datetime.in_(df['datetime']),
+            FOFNavPublic.fof_id == fof_id,
+            FOFNavPublic.datetime.in_(df['datetime']),
         ).delete(synchronize_session=False)
 
         for d in df.to_dict(orient='records'):
