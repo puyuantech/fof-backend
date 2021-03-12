@@ -44,3 +44,10 @@ class ParamsError(BaseError):
         self.msg = msg
         self.status = 400
 
+
+class NotFoundError(BaseError):
+    def __init__(self, msg):
+        self.code = 1006
+        self.msg = msg
+        self.status = 404
+
