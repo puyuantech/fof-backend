@@ -1,9 +1,11 @@
 
+from sqlalchemy import distinct
+
 from bases.dbwrapper import db, BaseModel
 
 
 class Management(BaseModel):
-    """私募基金管理人"""
+    """私募管理人"""
     __tablename__ = 'managements'
 
     # from list
@@ -97,4 +99,79 @@ class ManagementFund(BaseModel):
     special_reminder = db.Column(db.Text)      # 基金业协会特别提示（针对基金）
     update_date = db.Column(db.Date)           # 基金信息最后更新时间
     manager_ids = db.Column(db.JSON)
+
+    @classmethod
+    def get_fund_ids(cls):
+        return {fund_id for fund_id, in db.session.query(cls.fund_id).filter_by(is_deleted=False).all()}
+
+    @classmethod
+    def get_funds(cls, fund_ids):
+        funds = cls.filter_by_query().filter(cls.fund_id.in_(fund_ids)).all()
+        return [fund.to_dict(remove_fields_list={'manager_ids'}) for fund in funds]
+
+
+class ManagementSenior(BaseModel):
+    """私募高管"""
+    __tablename__ = 'management_seniors'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    manager_id = db.Column(db.String(16))
+    job_title = db.Column(db.String(64))           # 职务
+    senior_name = db.Column(db.String(32))         # 姓名
+    has_qualification = db.Column(db.String(1))    # 是否有基金从业资格
+    qualification_source = db.Column(db.String(8)) # 资格获取方式
+    job_history = db.Column(db.JSON)               # 工作履历
+
+    @classmethod
+    def get_manager_ids(cls):
+        return {manager_id for manager_id, in db.session.query(distinct(cls.manager_id)).filter_by(is_deleted=False).all()}
+
+    @classmethod
+    def get_seniors(cls, manager_id):
+        seniors = cls.filter_by_query(manager_id=manager_id).all()
+        return [senior.to_dict() for senior in seniors]
+
+
+class ManagementRelatedParty(BaseModel):
+    """私募关联方"""
+    __tablename__ = 'management_related_parties'
+
+    manager_id = db.Column(db.String(16), primary_key=True)
+    number = db.Column(db.Integer, primary_key=True)
+
+    related_manager_id = db.Column(db.String(16))
+    name = db.Column(db.String(128))             # 关联方名称
+    invest_type = db.Column(db.String(32))       # 机构类型
+    register_no = db.Column(db.String(8))        # 登记编号
+    organization_code = db.Column(db.String(32)) # 组织机构代码
+
+    @classmethod
+    def get_manager_ids(cls):
+        return {manager_id for manager_id, in db.session.query(distinct(cls.manager_id)).filter_by(is_deleted=False).all()}
+
+    @classmethod
+    def get_related_parties(cls, manager_id):
+        related_parties = cls.filter_by_query(manager_id=manager_id).all()
+        return [related_party.to_dict() for related_party in related_parties]
+
+
+class ManagementInvestor(BaseModel):
+    """私募出资人"""
+    __tablename__ = 'management_investors'
+
+    manager_id = db.Column(db.String(16), primary_key=True)
+    number = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(128)) # 姓名/名称
+    ratio = db.Column(db.Float)      # 认缴比例
+
+    @classmethod
+    def get_manager_ids(cls):
+        return {manager_id for manager_id, in db.session.query(distinct(cls.manager_id)).filter_by(is_deleted=False).all()}
+
+    @classmethod
+    def get_investors(cls, manager_id):
+        investors = cls.filter_by_query(manager_id=manager_id).all()
+        return [investor.to_dict() for investor in investors]
 
