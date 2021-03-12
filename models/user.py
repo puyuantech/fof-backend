@@ -220,6 +220,8 @@ class ManagerInfo(BaseModel):
     name = db.Column(db.String(127))                                # 名称
     id_type = db.Column(db.Integer)                                 # 凭证类型
     id_number = db.Column(db.String(127))                           # 凭证编码
+    address = db.Column(db.String(255))                             # 地址
+    legal_person = db.Column(db.String(31))                         # 法人
 
 
 class ManagerUserMap(BaseModel):

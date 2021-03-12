@@ -112,6 +112,21 @@ class ProductionNavPublic(ApiViewHandler):
         return replace_nan(data)
 
     @login_required
+    def put(self, fof_id):
+        df = parse_nav_file(fof_id)
+        db.session.query(
+            FOFNavPublic
+        ).filter(
+            FOFNavPublic.fof_id == fof_id,
+            FOFNavPublic.datetime.in_(df['datetime']),
+        ).delete(synchronize_session=False)
+
+        for d in df.to_dict(orient='records'):
+            new = FOFNavPublic(**replace_nan(d))
+            db.session.add(new)
+        db.session.commit()
+
+    @login_required
     def delete(self, fof_id):
         FOFNavPublic.filter_by_query(fof_id=fof_id).delete()
 

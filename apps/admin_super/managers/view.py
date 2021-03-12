@@ -26,7 +26,7 @@ class ManagersAPI(ApiViewHandler):
             manager_id=self.input.manager_id,
             show_deleted=True,
         ).first():
-            raise VerifyError('管理编码已存在')
+            raise VerifyError('组织机构代码已存在')
 
         if User.filter_by_query(
             username=self.input.admin_username,
@@ -45,6 +45,8 @@ class ManagersAPI(ApiViewHandler):
                 name=self.input.name,
                 id_type=request.json.get('id_type'),
                 id_number=request.json.get('id_number'),
+                address=request.json.get('address'),
+                legal_person=request.json.get('legal_person'),
             )
             m_map = ManagerUserMap(
                 user_id=u.id,
@@ -66,6 +68,8 @@ class ManagerAPI(ApiViewHandler):
         'name',
         'id_type',
         'id_number',
+        'address',
+        'legal_person',
     ]
 
     def get_object(self, _id):

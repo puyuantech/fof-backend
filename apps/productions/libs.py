@@ -2,7 +2,7 @@ import pandas as pd
 import datetime
 import traceback
 import io
-from flask import request, current_app
+from flask import request, current_app, g
 
 from bases.exceptions import VerifyError, LogicError
 from models import FOFAssetAllocation, FOFNav
@@ -141,16 +141,15 @@ def parse_nav_file(fof_id):
         )
         df = df.dropna(how='all')
 
-        df = df[['日期', '净值', '总份额', '投资成本', '当前市值', '累计收益', '累计收益率']]
+        df = df[['日期', '单位净值', '净资产总额', '资产总份额', '累计净值', '累计收益率']]
         df['日期'] = df['日期'].apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date())
         df = df.rename(columns={
             '日期': 'datetime',
-            '净值': 'nav',
-            '总份额': 'volume',
-            '投资成本': 'cost',
-            '当前市值': 'mv',
-            '累计收益': 'income',
-            '累计收益率': 'income_rate',
+            '单位净值': 'nav',
+            '资产总份额': 'volume',
+            '净资产总额': 'mv',
+            '累计净值': 'acc_net_value',
+            '累计收益率': 'ret',
         })
         df['fof_id'] = fof_id
         print(df)
