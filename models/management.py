@@ -53,14 +53,10 @@ class Management(BaseModel):
     # 法律意见书信息
     legal_opinion_status = db.Column(db.String(8)) # 法律意见书状态
     law_firm_name = db.Column(db.String(32))       # 律师事务所名称
-    lawyer_name = db.Column(db.String(32))         # 律师事务所名称
+    lawyer_name = db.Column(db.String(64))         # 律师事务所名称
 
     # 实际控制人信息
     controller_name = db.Column(db.String(128))  # 实际控制人姓名 / 名称
-
-    # 高管信息
-    # 关联方信息（仅包含关联私募基金管理人）
-    # 出资人信息
 
     update_date = db.Column(db.Date)             # 机构信息最后更新时间
     fund_ids = db.Column(db.JSON)                # 产品信息

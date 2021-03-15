@@ -72,7 +72,7 @@ class ManagementInfoValidation(BaseModel):
     # 法律意见书信息
     legal_opinion_status: constr(max_length=8)
     law_firm_name: constr(max_length=32) = None
-    lawyer_name: constr(max_length=32) = None
+    lawyer_name: constr(max_length=64) = None
 
     # 实际控制人信息
     controller_name: constr(max_length=128)
@@ -123,7 +123,7 @@ class ManagementInfoValidation(BaseModel):
 class ManageFundValidation(BaseModel):
     """sync with ManagementFund"""
     fund_name: constr(max_length=128)
-    fund_no: constr(max_length=32)
+    fund_no: constr(max_length=32) = None
     establish_date: datetime.date
     filing_date: datetime.date
     filing_stage: constr(max_length=16) = None
