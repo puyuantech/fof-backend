@@ -1,4 +1,6 @@
 
+import datetime
+import pathlib
 import traceback
 
 from flask import current_app
@@ -11,6 +13,15 @@ from extensions.manager.validator import (ManagementBaseValidation, ManagementIn
                                           ManageFundValidation, ManagementSeniorValidation,
                                           ManagementRelatedPartyValidation, ManagementInvestorValidation)
 from models import Management, ManagementFund, ManagementSenior, ManagementRelatedParty, ManagementInvestor
+
+
+def now_time():
+    return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+
+def log_message(path, message):
+    with open(path, 'a') as f:
+        f.write(message + '\n')
 
 
 def update_manager_list(start=0):
@@ -38,12 +49,12 @@ def update_manager_list(start=0):
 
         try:
             db.session.commit()
-            current_app.logger.info(f'[update_manager_list] done! (manager_count){manager_count}')
+            current_app.logger.info(f'[update_manager_list][{now_time()}] done! (manager_count){manager_count}')
         except Exception:
-            current_app.logger.error(f'[update_manager_list] failed! (manager_count){manager_count} (err_msg){traceback.format_exc()}')
+            current_app.logger.error(f'[update_manager_list][{now_time()}] failed! (manager_count){manager_count} (err_msg){traceback.format_exc()}')
             return False
 
-    current_app.logger.info(f'[update_manager_list] all done! (manager_count){manager_count}')
+    current_app.logger.info(f'[update_manager_list][{now_time()}] all done! (manager_count){manager_count}')
     return True
 
 
@@ -74,18 +85,19 @@ def update_investors(manager_id, investors: list):
     db.session.commit()
 
 
-def update_manager_info(start=0):
+def update_manager_info(start, path):
+    error_exceptions_path = path / 'error_exceptions.log'
+    error_managers_path = path / 'error_managers.log'
+
     managers = Management.filter_by_query().all()
     funds = ManagementFund.get_fund_ids()
     senior_managers = ManagementSenior.get_manager_ids()
     related_party_managers = ManagementRelatedParty.get_manager_ids()
     investor_managers = ManagementInvestor.get_manager_ids()
 
-    manager_count = 0
-    for manager in managers:
+    manager_count = start
+    for manager in managers[start:]:
         manager_count += 1
-        if manager_count <= start:
-            continue
 
         try:
             manager_info = ManagementSpider.get_manager_info(manager.manager_id)
@@ -116,28 +128,33 @@ def update_manager_info(start=0):
             manager.logic_delete()
 
         except ValidationError:
-            current_app.logger.error(f'[update_manager_info] failed! (manager_id){manager.manager_id} (manager_info){manager_info} (err_msg){traceback.format_exc()}')
-            return False
+            err_msg = f'[update_manager_info][{now_time()}] failed! (manager_id){manager.manager_id} (manager_info){manager_info} (err_msg){traceback.format_exc()}'
+            current_app.logger.error(err_msg)
+            log_message(error_exceptions_path, err_msg)
+            log_message(error_managers_path, str(manager.manager_id))
 
         except Exception:
-            current_app.logger.error(f'[update_manager_info] failed! (manager_id){manager.manager_id} (err_msg){traceback.format_exc()}')
-            return False
+            err_msg = f'[update_manager_info][{now_time()}] failed! (manager_id){manager.manager_id} (err_msg){traceback.format_exc()}'
+            current_app.logger.error(err_msg)
+            log_message(error_exceptions_path, err_msg)
+            log_message(error_managers_path, str(manager.manager_id))
 
         if manager_count % 100 == 0:
-            current_app.logger.info(f'[update_manager_info] done! (manager_count){manager_count}')
+            current_app.logger.info(f'[update_manager_info][{now_time()}] done! (manager_count){manager_count}')
 
-    current_app.logger.info(f'[update_manager_info] all done! (manager_count){manager_count}')
+    current_app.logger.info(f'[update_manager_info][{now_time()}] all done! (manager_count){manager_count}')
     return True
 
 
-def update_fund_info(start=0):
+def update_fund_info(start, path):
+    error_exceptions_path = path / 'error_exceptions.log'
+    error_funds_path = path / 'error_funds.log'
+
     funds = ManagementFund.filter_by_query().all()
 
-    fund_count = 0
-    for fund in funds:
+    fund_count = start
+    for fund in funds[start:]:
         fund_count += 1
-        if fund_count <= start:
-            continue
 
         try:
             fund_info = ManagementSpider.get_fund_info(fund.fund_id)
@@ -150,27 +167,38 @@ def update_fund_info(start=0):
             fund.logic_delete()
 
         except ValidationError:
-            current_app.logger.error(f'[update_fund_info] failed! (fund_id){fund.fund_id} (fund_info){fund_info} (err_msg){traceback.format_exc()}')
-            return False
+            err_msg = f'[update_fund_info][{now_time()}] failed! (fund_id){fund.fund_id} (fund_info){fund_info} (err_msg){traceback.format_exc()}'
+            current_app.logger.error(err_msg)
+            log_message(error_exceptions_path, err_msg)
+            log_message(error_funds_path, str(fund.fund_id))
 
         except Exception:
-            current_app.logger.error(f'[update_fund_info] failed! (fund_id){fund.fund_id} (err_msg){traceback.format_exc()}')
-            return False
+            err_msg = f'[update_fund_info][{now_time()}] failed! (fund_id){fund.fund_id} (err_msg){traceback.format_exc()}'
+            current_app.logger.error(err_msg)
+            log_message(error_exceptions_path, err_msg)
+            log_message(error_funds_path, str(fund.fund_id))
 
         if fund_count % 100 == 0:
-            current_app.logger.info(f'[update_fund_info] done! (fund_count){fund_count}')
+            current_app.logger.info(f'[update_fund_info][{now_time()}] done! (fund_count){fund_count}')
 
-    current_app.logger.info(f'[update_fund_info] all done! (fund_count){fund_count}')
+    current_app.logger.info(f'[update_fund_info][{now_time()}] all done! (fund_count){fund_count}')
     return True
 
 
-def update_managements(manager_list=True, manager_info=True, fund_info=True, start=0):
+def update_managements(manager_list=True, manager_info=True, fund_info=True, start=0, path=None):
+    if path is not None:
+        path = pathlib.Path(path)
+        if not path.is_dir():
+            path = None
+    if path is None:
+        path = pathlib.Path(__file__).parent.absolute()
+
     if manager_list and not update_manager_list(start):
         return
 
-    if manager_info and not update_manager_info(start):
+    if manager_info and not update_manager_info(start, path):
         return
 
-    if fund_info and not update_fund_info(start):
+    if fund_info and not update_fund_info(start, path):
         return
 
