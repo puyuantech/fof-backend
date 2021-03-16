@@ -75,14 +75,14 @@ class ManagementInfoValidation(BaseModel):
     lawyer_name: constr(max_length=64) = None
 
     # 实际控制人信息
-    controller_name: constr(max_length=128)
+    controller_name: constr(max_length=256)
 
     update_date: datetime.date
     fund_ids: List[str]
 
     @staticmethod
     def get_capital_and_currency(data: dict, key: str):
-        for currency in ('人民币', '美元', '港元'):
+        for currency in ('人民币', '美元', '港元', '新加坡元', '欧元'):
             capital = f'{key}(万元)({currency})'
             if capital not in data:
                 continue
@@ -103,7 +103,7 @@ class ManagementInfoValidation(BaseModel):
             payment_ratio=data['注册资本实缴比例'].replace('%', '').replace(',', ''),
             enterprise_nature=data['企业性质'],
             business_type=[business.strip() for business in data['业务类型'].split('\n') if business.strip()],
-            employee_count=data['全职员工人数:'],
+            employee_count=data['全职员工人数'],
             practitioner_count=data['取得基金从业人数'],
             website=(data['机构网址'] or None),
             manager_size=data['管理规模区间'],
@@ -124,7 +124,7 @@ class ManageFundValidation(BaseModel):
     """sync with ManagementFund"""
     fund_name: constr(max_length=128)
     fund_no: constr(max_length=32) = None
-    establish_date: datetime.date
+    establish_date: datetime.date = None
     filing_date: datetime.date
     filing_stage: constr(max_length=16) = None
     fund_type: constr(max_length=16)
@@ -133,7 +133,7 @@ class ManageFundValidation(BaseModel):
     custodian_name: constr(max_length=128) = None
     fund_status: constr(max_length=16) = None
     special_reminder: str = None
-    update_date: datetime.date
+    update_date: datetime.date = None
     manager_ids: List[str]
 
     @classmethod

@@ -26,9 +26,9 @@ class ManagementSpider:
             return {'content': [], 'last': True}
 
     @classmethod
-    def get_html(cls, endpoint: str):
+    def get_html(cls, endpoint: str, proxies: dict):
         try:
-            response = requests.get(cls.host + endpoint, timeout=3, verify=False)
+            response = requests.get(cls.host + endpoint, timeout=3, verify=False, proxies=proxies)
             response.encoding = 'utf-8'
             return response
         except Exception as e:
@@ -53,7 +53,7 @@ class ManagementSpider:
         return ManagementParser.parse_manager(cls.get_html(endpoint))
 
     @classmethod
-    def get_fund_info(cls, fund_id: str):
+    def get_fund_info(cls, fund_id: str, proxies=None):
         endpoint = f'/res/pof/fund/{fund_id}.html'
-        return ManagementParser.parse_fund(cls.get_html(endpoint))
+        return ManagementParser.parse_fund(cls.get_html(endpoint, proxies))
 

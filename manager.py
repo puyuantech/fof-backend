@@ -60,6 +60,15 @@ def update_management(manager_list, manager_info, fund_info, start):
     update_managements(manager_list, manager_info, fund_info, start)
 
 
+@manager.option('--username', dest='username', help='proxy username')
+@manager.option('--password', dest='password', help='proxy password')
+def crawl_management(username, password):
+    from scripts.crawl_managements import ManagementCrawler
+    crawler = ManagementCrawler()
+    crawler.setup_proxy(username, password)
+    crawler.parallel_craw_funds()
+
+
 if __name__ == '__main__':
     manager.run()
 

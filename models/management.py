@@ -33,9 +33,9 @@ class Management(BaseModel):
     manager_name_en = db.Column(db.String(128))  # 基金管理人全称(英文)
     organization_code = db.Column(db.String(32)) # 组织机构代码
     register_capital = db.Column(db.Float)       # 注册资本(万元): 10,526.32
-    register_currency = db.Column(db.String(8))  # 注册资本币种: 人民币、美元、港元
+    register_currency = db.Column(db.String(8))  # 注册资本币种: 人民币、美元、港元、新加坡元、欧元
     payment_capital = db.Column(db.Float)        # 实缴资本(万元)
-    payment_currency = db.Column(db.String(8))   # 实缴资本币种: 人民币、美元、港元
+    payment_currency = db.Column(db.String(8))   # 实缴资本币种: 人民币、美元、港元、新加坡元、欧元
     payment_ratio = db.Column(db.Float)          # 注册资本实缴比例: 55.006%
     enterprise_nature = db.Column(db.String(16)) # 企业性质
     business_type = db.Column(db.JSON)           # 业务类型
@@ -56,7 +56,7 @@ class Management(BaseModel):
     lawyer_name = db.Column(db.String(64))         # 律师事务所名称
 
     # 实际控制人信息
-    controller_name = db.Column(db.String(128))  # 实际控制人姓名 / 名称
+    controller_name = db.Column(db.String(256))  # 实际控制人姓名 / 名称
 
     update_date = db.Column(db.Date)             # 机构信息最后更新时间
     fund_ids = db.Column(db.JSON)                # 产品信息
