@@ -18,6 +18,10 @@ class InvestorValidation(BaseValidation):
     investor_id: constr(max_length=32)
 
 
+class ManagerValidation(BaseValidation):
+    manager_id: constr(max_length=32)
+
+
 class UnitValidation(BaseValidation):
     investor_id: constr(max_length=32)
     manager_id: constr(max_length=32)
