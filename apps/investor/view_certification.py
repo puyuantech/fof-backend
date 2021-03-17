@@ -1,19 +1,9 @@
 
-from bases.validation import ManagerValidation
 from bases.viewhandler import ApiViewHandler
 from models import InvestorCertification
 from utils.decorators import login_required
 
 from .validators.certification import UnitValidation, ApproveValidation, UnapproveValidation
-
-
-class CertificationListAPI(ApiViewHandler):
-
-    @login_required
-    def get(self):
-        data = ManagerValidation.get_valid_data(self.input)
-        investors = InvestorCertification.filter_by_query(**data, is_latest=True).all()
-        return [investor.get_investor_certification() for investor in investors]
 
 
 class LatestAPI(ApiViewHandler):

@@ -11,3 +11,4 @@ from .super_admin import *
 from .investor import *
 from .risk_level import *
 from .management import *
+from .manager import *

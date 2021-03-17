@@ -1,8 +1,8 @@
 from flask import Blueprint
 from flask_restful import Api
 
-from .view_certification import (CertificationListAPI, LatestAPI, EffectiveAPI, ApplyAPI,
-                                 SubmitAPI, ApproveAPI, UnapproveAPI, ReapplyAPI)
+from .view_certification import (LatestAPI, EffectiveAPI, ApplyAPI, SubmitAPI,
+                                 ApproveAPI, UnapproveAPI, ReapplyAPI)
 from .view_contract import (ContractAPI, ContractListAPI, RiskDiscloseAPI, FundContractAPI,
                             ProtocolAPI, FundMatchingAPI, VideoAPI, LookbackAPI, BookAPI, SignAPI)
 from .view_information import (InformationAPI, FaceImageAPI, CertImageAPI, RealNameAPI,
@@ -11,7 +11,6 @@ from .view_information import (InformationAPI, FaceImageAPI, CertImageAPI, RealN
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/investor')
 api = Api(blu)
 
-api.add_resource(CertificationListAPI, '/certification/list')
 api.add_resource(LatestAPI, '/certification/latest')
 api.add_resource(EffectiveAPI, '/certification/effective')
 api.add_resource(ApplyAPI, '/certification/apply')
