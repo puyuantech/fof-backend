@@ -19,6 +19,7 @@ from apps.informations import blu as info_blu
 from apps.uploads import blu as upload_blu
 from apps.investor import blu as investor_blu
 from apps.management import blu as management_blu
+from apps.manager import blu as manager_blu
 
 routers = [
     auth_blu,
@@ -40,5 +41,6 @@ routers = [
     admin_blu,
     investor_blu,
     management_blu,
+    manager_blu,
 ]
 routers.extend(super_admin_router)
