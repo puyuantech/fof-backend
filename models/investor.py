@@ -260,6 +260,16 @@ class InvestorContract(BaseModel):
         return [instance.to_dict() for instance in instances]
 
     @classmethod
+    def get_manager_contracts(cls, manager_id):
+        fields_list = {
+            'id', 'investor_id', 'manager_id', 'fof_id',
+            'book_amount', 'book_name', 'book_mobile', 'book_date',
+            'contract_status', 'order_id', 'update_time',
+        }
+        instances = cls.filter_by_query(manager_id=manager_id).all()
+        return [instance.to_dict(fields_list=fields_list) for instance in instances]
+
+    @classmethod
     def check_contract(cls, investor_id, manager_id, fof_id):
         self = cls.filter_by_query(investor_id=investor_id, manager_id=manager_id, fof_id=fof_id).one_or_none()
         if self is None:
