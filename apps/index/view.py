@@ -9,7 +9,9 @@ from extensions.es.es_models import IndexSearchDoc
 from bases.viewhandler import ApiViewHandler
 from utils.decorators import login_required
 from utils.queries import SurfingQuery
-from utils.helper import replace_nan
+from utils.helper import replace_nan, select_periods
+from utils.ratios import draw_down_underwater, yearly_return
+from surfing.util.calculator import Calculator
 
 
 class IndexSearcherAPI(ApiViewHandler):
@@ -52,6 +54,50 @@ class IndexPointAPI(ApiViewHandler):
         return replace_nan(data)
 
 
+class IndexPeriodRetAPI(ApiViewHandler):
+
+    @login_required
+    def get(self, index_id):
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+
+        df = SurfingQuery.get_index_point(
+            index_id,
+            start_date,
+            end_date,
+            ('close',),
+        )
+        df = df.set_index('datetime')
+        data = Calculator.get_recent_ret(df.index, df['close']).__dict__
+        return replace_nan(data)
+
+
+class IndexPeriodRatiosAPI(ApiViewHandler):
+
+    @login_required
+    def get(self, index_id):
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+
+        df = SurfingQuery.get_index_point(
+            index_id,
+            start_date,
+            end_date,
+            ('close',),
+        )
+        df['datetime'] = pd.to_datetime(df['datetime'])
+        df = df.set_index('datetime')
+
+        period = select_periods()
+        if period:
+            arr = df['close'].resample(period).last().fillna(method='ffill')
+        else:
+            arr = df['close']
+
+        data = Calculator.get_stat_result(arr.index, arr.values).__dict__
+        return replace_nan(data)
+
+
 class IndexMonthlyRetAPI(ApiViewHandler):
 
     @login_required
@@ -75,5 +121,36 @@ class IndexMonthlyRetAPI(ApiViewHandler):
         data = {
             'ret': ret['ret'].to_list(),
             'month': ret.index,
+            'yearly': yearly_return(returns),
         }
+        return replace_nan(data)
+
+
+class IndexDrawDownWaterAPI(ApiViewHandler):
+
+    @login_required
+    def get(self, index_id):
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+
+        df = SurfingQuery.get_index_point(
+            index_id,
+            start_date,
+            end_date,
+        )
+        df['datetime'] = pd.to_datetime(df['datetime'])
+        df = df.set_index('datetime')
+        period = select_periods()
+        if period:
+            arr = df['close'].resample(period).apply(lambda x: x[-1] if len(x) > 0 else None).fillna(method='ffill')
+        else:
+            arr = df['close']
+
+        dff = draw_down_underwater(arr)
+
+        data = {
+            'values': dff.values,
+            'dates': dff.index,
+        }
+
         return replace_nan(data)

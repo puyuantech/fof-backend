@@ -25,11 +25,15 @@ class ProductionsAPI(ApiViewHandler):
 
     @login_required
     def get(self):
+        manager_id = g.token.manager_id if request.args.get('is_private') else 1
+
         p = generate_sql_pagination()
-        query = FOFInfo.filter_by_query(manager_id=g.token.manager_id)
+        query = FOFInfo.filter_by_query(
+            manager_id=manager_id,
+        )
         data = p.paginate(
             query,
-            equal_filter=[FOFInfo.fof_name, FOFInfo.fof_id, FOFInfo.strategy_type, FOFInfo.fof_status],
+            equal_filter=[FOFInfo.fof_name, FOFInfo.fof_id, FOFInfo.strategy_type, FOFInfo.fof_status, FOFInfo.asset_type],
             range_filter=[FOFInfo.established_date]
         )
         return data
@@ -62,7 +66,9 @@ class ProductionsAPI(ApiViewHandler):
             'is_fof': request.json.get('is_fof'),
             'is_on_sale': request.json.get('is_on_sale'),
             'benchmark': request.json.get('benchmark'),
-            'manager_id': g.token.manager_id,
+            'manager_id': g.token.manager_id if request.json.get('is_private') else '1',
+            'asset_type': request.json.get('asset_type'),
+            'nav_freq': request.json.get('nav_freq'),
         }
         if FOFInfo.filter_by_query(fof_id=self.input.fof_id, show_deleted=True).one_or_none():
             raise VerifyError('ID 重复')

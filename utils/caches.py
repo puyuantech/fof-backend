@@ -47,3 +47,19 @@ def get_fund_cache():
 
     return data
 
+
+@cache.memoize(timeout=1800, make_name='cache_trading_days')
+def cache_trading_days():
+    import pandas as pd
+    from surfing.data.view.basic_models import TradingDayList
+    from surfing.data.wrapper.mysql import BasicDatabaseConnector
+
+    with BasicDatabaseConnector().managed_session() as mn_session:
+        query = mn_session.query(
+            TradingDayList
+        )
+        df = pd.read_sql(query.statement, query.session.bind)
+        print(df)
+
+        return df
+

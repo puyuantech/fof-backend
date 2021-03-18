@@ -16,6 +16,7 @@ from surfing.data.view.basic_models import FOFRealAccountStatement as SurfingFOF
 from surfing.data.view.basic_models import FOFRealTransitMoney as SurfingFOFRealTransitMoney
 from surfing.data.view.basic_models import FOFRealEstimateInterest as SurfingFOFRealEstimateInterest
 from surfing.data.view.basic_models import FOFRealEstimateFee as SurfingFOFRealEstimateFee
+from surfing.data.view.basic_models import FOFInvestorPositionSummary as SurfingFOFInvestorPositionSummary
 
 from surfing.data.view.derived_models import FOFPosition as SurfingFOFPosition
 from surfing.data.view.derived_models import FOFNav as SurfingFOFNav
@@ -135,6 +136,11 @@ class FOFRealEstimateFee(SurfingFOFRealEstimateFee, BaseModel):
 
 
 class FOFOtherRecord(SurfingFOFOtherRecord, BaseModel):
+    __bind_key__ = 'basic'
+    __table_args__ = {'extend_existing': True}
+
+
+class FOFInvestorPositionSummary(SurfingFOFInvestorPositionSummary, BaseModel):
     __bind_key__ = 'basic'
     __table_args__ = {'extend_existing': True}
 

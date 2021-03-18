@@ -35,6 +35,7 @@ def update_production_info(obj):
         'is_on_sale',
         'benchmark',
         'is_fof',
+        'nav_freq',
     ]
     for i in columns:
         if request.json.get(i) is not None:

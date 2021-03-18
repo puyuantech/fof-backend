@@ -8,6 +8,7 @@ from bases.exceptions import VerifyError
 from utils.decorators import login_required
 from utils.helper import replace_nan
 from utils.queries import SurfingQuery
+from utils.ratios import yearly_return
 from models import FOFNavPublic
 from surfing.util.calculator import Calculator
 
@@ -94,6 +95,7 @@ class ProductionMonthlyRet(ApiViewHandler):
         data = {
             'ret': ret['daily_ret'].to_list(),
             'month': ret.index,
+            'yearly': yearly_return(returns),
         }
         return replace_nan(data)
 

@@ -9,6 +9,7 @@ from .view_subsidiary import *
 from .view_subsidiary2 import *
 from .view_refresh import ProductionRefresh, ProductionPublicRefresh
 from .view_profit import ProductionRet, ProductionMonthlyRet, ProductionWinRate, ProductionRatio
+from .view_ratios import *
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/production')
 api = Api(blu)
@@ -66,4 +67,13 @@ api.add_resource(
     ProductionPublicRefresh,
     '/pub_refresh/<string:fof_id>'
 )
+
+# ratios
+api.add_resource(ProInfoAPI, '/ratios/info/<string:fof_id>')
+api.add_resource(ProNavAPI, '/ratios/nav/<string:fof_id>')
+api.add_resource(ProMonthlyRetAPI, '/ratios/monthly_ret/<string:fof_id>')
+api.add_resource(ProPeriodRetAPI, '/ratios/period_ret/<string:fof_id>')
+api.add_resource(ProRatioAPI, '/ratios/ratio/<string:fof_id>')
+api.add_resource(ProRollingProfitAPI, '/ratios/rolling_profit/<string:fof_id>')
+api.add_resource(ProDrawDownWaterAPI, '/ratios/mdd_water/<string:fof_id>')
 
