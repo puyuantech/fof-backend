@@ -4,6 +4,7 @@ import requests
 from flask import current_app
 
 from bases.constants import HaiFengTemplateType
+from bases.exceptions import LogicError
 from bases.globals import db, settings
 from models import ContractTemplate
 from utils.helper import Singleton
@@ -37,6 +38,11 @@ class FOFTemplate(metaclass=Singleton):
         params = {'contractTemplateId': template_id}
         return self._request(endpoint, params, manager_id)
 
+    def get_contract_detail(self, contract_id, manager_id) -> 'dict | None':
+        endpoint = '/v2/contract/getContractInfo'
+        params = {'contractId': contract_id}
+        return self._request(endpoint, params, manager_id)
+
     def save_fof_template(self, fof_id, manager_id):
         templates = self.get_templates(fof_id, manager_id)
         if not templates:
@@ -62,4 +68,10 @@ class FOFTemplate(metaclass=Singleton):
         if not template_detail:
             return
         return template_detail['downloadUrl']
+
+    def get_contract_download_url(self, contract_id, manager_id) -> str:
+        contract_detail = self.get_contract_detail(contract_id, manager_id)
+        if not contract_detail:
+            raise LogicError('获取合同文件失败!')
+        return contract_detail['contractFileUrl']
 

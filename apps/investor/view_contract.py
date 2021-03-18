@@ -5,6 +5,7 @@ from bases.viewhandler import ApiViewHandler
 from models import InvestorCertification, InvestorContract, FOFInfo, ContractTemplate
 from utils.decorators import login_required
 
+from .libs import get_contract_url_key
 from .validators.contract import (RiskDiscloseValidation, FundContractValidation, ProtocolValidation,
                                   FundMatchingValidation, VideoValidation, LookbackValidation, BookValidation)
 
@@ -69,7 +70,7 @@ class RiskDiscloseAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = RiskDiscloseValidation.get_valid_data(self.input)
-        data['risk_disclose_url_key'] = data.pop('risk_disclose')
+        data['risk_disclose_url_key'] = get_contract_url_key(data.pop('risk_disclose'), data['manager_id'])
         return InvestorContract.update_investor_contract(**data)
 
 
@@ -78,7 +79,7 @@ class FundContractAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = FundContractValidation.get_valid_data(self.input)
-        data['fund_contract_url_key'] = data.pop('fund_contract')
+        data['fund_contract_url_key'] = get_contract_url_key(data.pop('fund_contract'), data['manager_id'])
         return InvestorContract.update_investor_contract(**data)
 
 
@@ -87,7 +88,7 @@ class ProtocolAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = ProtocolValidation.get_valid_data(self.input)
-        data['protocol_url_key'] = data.pop('protocol')
+        data['protocol_url_key'] = get_contract_url_key(data.pop('protocol'), data['manager_id'])
         return InvestorContract.update_investor_contract(**data)
 
 
@@ -96,7 +97,7 @@ class FundMatchingAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = FundMatchingValidation.get_valid_data(self.input)
-        data['fund_matching_url_key'] = data.pop('fund_matching')
+        data['fund_matching_url_key'] = get_contract_url_key(data.pop('fund_matching'), data['manager_id'])
         return InvestorContract.update_investor_contract(**data)
 
 
@@ -105,7 +106,7 @@ class VideoAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = VideoValidation.get_valid_data(self.input)
-        data['video_url_key'] = data.pop('video')
+        data['video_url_key'] = get_contract_url_key(data.pop('video'), data['manager_id'])
         return InvestorContract.update_investor_contract(**data)
 
 
@@ -114,7 +115,7 @@ class LookbackAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = LookbackValidation.get_valid_data(self.input)
-        data['lookback_url_key'] = data.pop('lookback')
+        data['lookback_url_key'] = get_contract_url_key(data.pop('lookback'), data['manager_id'])
         return InvestorContract.update_investor_contract(**data)
 
 

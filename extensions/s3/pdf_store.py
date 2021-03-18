@@ -1,9 +1,12 @@
 
 import os
+import requests
 import traceback
 import uuid
-from botocore.exceptions import ClientError
+
+from bases.exceptions import LogicError
 from bases.globals import settings
+from botocore.exceptions import ClientError
 from extensions.s3.s3_client import S3Connector
 
 
@@ -11,6 +14,12 @@ class PdfStore:
     def __init__(self):
         self.store_path = settings['TEMP_PATH']
         self.private_bucket_name = settings['AWS_PRIVATE_BUCKET_NAME']
+
+    @staticmethod
+    def save_response_content(url, file_path):
+        r = requests.get(url)
+        with open(file_path, 'wb') as f:
+            f.write(r.content)
 
     @classmethod
     def load_from_user(cls, file_obj, file_path):
@@ -45,6 +54,21 @@ class PdfStore:
 
         except:
             return False, traceback.format_exc()
+
+    def store_contract_pdf(self, user_id, url, contract_id, suffix=''):
+        try:
+            image_id = uuid.uuid1().hex
+            file_path = os.path.join(self.store_path, f'pdf_from_user_{user_id}{suffix}')
+            file_key = f'fof_info/{user_id}_{contract_id}_{image_id}{suffix}'
+
+            self.save_response_content(url, file_path)
+            self.upload_to_s3(file_path, file_key)
+            self.clear_temp_file(file_path)
+
+            return file_key
+
+        except:
+            raise LogicError(f'保存合同失败！(err_msg){traceback.format_exc()}')
 
     def create_pre_signed_url(self,  object_name, bucket_name=settings['AWS_PRIVATE_BUCKET_NAME'], expiration=3600):
         """Generate a presigned URL to share an S3 object
