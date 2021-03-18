@@ -67,9 +67,18 @@ class InvestorMobileLoginAPI(ApiViewHandler):
     def get(self):
         mobile = request.args.get('mobile')
         if not mobile:
-            raise VerifyError('内容不正确！')
+            raise VerifyError('参数不正确！')
 
-
+        results = db.session.query(
+            ManagerInfo
+        ).filter(
+            User.mobile == mobile,
+            UserInvestorMap.user_id == User.id,
+            UserInvestorMap.investor_id == InvestorInfo.investor_id,
+            UnitMap.investor_id == InvestorInfo.investor_id,
+            UnitMap.manager_id == ManagerInfo.manager_id,
+        ).all()
+        return [i.to_dict() for i in results]
 
     @params_required(*['mobile', 'code', 'manager_id'])
     def post(self):
@@ -84,7 +93,7 @@ class InvestorMobileLoginAPI(ApiViewHandler):
 
         if not user:
             user, investor = User.create_main_user_investor(mobile=self.input.mobile)
-            investor.create_manager_map(manager.manager_id)
+            investor.create_manager_map(manager.manager_id, mobile=self.input.mobile)
             user = User.get_by_id(user.id)
             user_dict = user.to_dict()
             investor_dict = chose_investor(user, manager, investor_id=investor.investor_id)
@@ -92,7 +101,7 @@ class InvestorMobileLoginAPI(ApiViewHandler):
             user_dict = user.to_dict()
             investor = user.get_main_investor()
             if not investor.check_manager_map(manager_id=manager.manager_id):
-                investor.create_manager_map(manager_id=manager.manager_id)
+                investor.create_manager_map(manager_id=manager.manager_id, mobile=self.input.mobile)
                 user.last_login_investor = None
             investor_dict = chose_investor(user, manager)
 

@@ -11,8 +11,8 @@ from utils.helper import generate_hash_char
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-TOKEN_EXPIRATION_IN_MINUTES = settings.get('TOKEN_EXPIRATION_IN_MINUTES', 60 * 24)
-TOKEN_MAX_NUM = settings.get('TOKEN_MAX_NUM', 2)
+TOKEN_EXPIRATION_IN_MINUTES = settings.get('TOKEN_EXPIRATION_IN_MINUTES', 60 * 24 * 30)
+TOKEN_MAX_NUM = settings.get('TOKEN_MAX_NUM', 10)
 
 
 class User(BaseModel):
@@ -118,10 +118,11 @@ class InvestorInfo(BaseModel):
     postcode = db.Column(db.String(20))  # 邮编
     address = db.Column(db.String(256))  # 住址
 
-    def create_manager_map(self, manager_id):
+    def create_manager_map(self, manager_id, mobile=None):
         unit_map = UnitMap.create(
             investor_id=self.investor_id,
             manager_id=manager_id,
+            mobile=mobile,
         )
         return unit_map
 
@@ -261,6 +262,7 @@ class Token(BaseModel):
 
     def refresh(self, refresh_key):
         if self.refresh_key == refresh_key:
+            print(self.refresh_key)
             self.key = self.generate_key()
             self.manager_id = None
             self.investor_id = None

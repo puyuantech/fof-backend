@@ -159,3 +159,14 @@ def generate_hash_char(num: int) -> str:
 
     return temp(num)
 
+
+def select_periods():
+    from flask import request
+    period = request.args.get('period')
+    if period == 'weekly':
+        return 'W'
+
+    if period == 'monthly':
+        return 'M'
+
+    return
