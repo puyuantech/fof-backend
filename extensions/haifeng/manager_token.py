@@ -25,7 +25,7 @@ class ManagerToken(metaclass=Singleton):
         response = requests.post(self.host + endpoint, json={'userId': user_id, 'secret': secret}, timeout=5)
         data = response.json()
         if data['success'] != 1:
-            current_app.logger.error(f'[ManagerToken] Failed to get get token! (data){data}')
+            current_app.logger.error(f'[ManagerToken] Failed to get token! (data){data}')
             return
 
         token = data['data']['token']
@@ -43,10 +43,10 @@ class ManagerToken(metaclass=Singleton):
             self.tokens[manager_id] = new_token
         return self.tokens[manager_id].token
 
-    def get_uid_and_token(self, manager_id):
+    def get_headers(self, manager_id):
         manager_secret = ManagerSecret.get_by_query(manager_id=manager_id)
         return {
-            'user_id': manager_secret.user_id,
-            'token': self.get_token(manager_id, manager_secret),
+            'userId': str(manager_secret.user_id),
+            'authorization': str(self.get_token(manager_id, manager_secret)),
         }
 

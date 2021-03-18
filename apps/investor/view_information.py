@@ -1,5 +1,6 @@
 
 from bases.viewhandler import ApiViewHandler
+from extensions.haifeng.investor_token import InvestorToken
 from models import InvestorInformation, RiskQuestion, RiskAnswer
 from utils.decorators import login_required
 
@@ -14,6 +15,14 @@ class InformationAPI(ApiViewHandler):
     def get(self):
         data = InvestorValidation.get_valid_data(self.input)
         return InvestorInformation.get_investor_information(**data)
+
+
+class InvestorTokenAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        data = InvestorValidation.get_valid_data(self.input)
+        return InvestorToken().get_token(**data)
 
 
 class FaceImageAPI(ApiViewHandler):

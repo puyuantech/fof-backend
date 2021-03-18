@@ -40,6 +40,7 @@ class RealNameValidation(InvestorValidation):
 
     investor_answers: List[str]                     # 合格投资者测评结果
 
+    secret: constr(max_length=128) = None           # 海峰用户密钥
     real_name_verify: bool                          # 实名认证结果
     real_name_verify_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
 

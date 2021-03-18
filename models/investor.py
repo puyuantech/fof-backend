@@ -62,8 +62,11 @@ class InvestorInformation(BaseModel, InvestorMixin):
 
     investor_id = db.Column(db.String(32), primary_key=True)
 
+    secret = db.Column(db.String(128)) # 海峰用户密钥
+
     @classmethod
     def get_investor_information(cls, investor_id, remove_fields_list=None):
+        remove_fields_list = ['secret', *(remove_fields_list or [])]
         self = cls.filter_by_query(investor_id=investor_id).one_or_none()
         if self is None:
             self = cls.create(investor_id=investor_id)

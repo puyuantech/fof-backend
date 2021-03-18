@@ -3,10 +3,11 @@ from flask_restful import Api
 
 from .view_certification import (LatestAPI, EffectiveAPI, ApplyAPI, SubmitAPI,
                                  ApproveAPI, UnapproveAPI, ReapplyAPI)
-from .view_contract import (ContractAPI, ContractListAPI, RiskDiscloseAPI, FundContractAPI,
-                            ProtocolAPI, FundMatchingAPI, VideoAPI, LookbackAPI, BookAPI, SignAPI)
-from .view_information import (InformationAPI, FaceImageAPI, CertImageAPI, RealNameAPI,
-                               RiskLevelAPI, ExperienceAPI, InfoTableAPI, CommitmentAPI)
+from .view_contract import (ContractAPI, ContractListAPI, ContractTemplateAPI, RiskDiscloseAPI,
+                            FundContractAPI, ProtocolAPI, FundMatchingAPI, VideoAPI, LookbackAPI,
+                            BookAPI, SignAPI)
+from .view_information import (InformationAPI, InvestorTokenAPI, FaceImageAPI, CertImageAPI,
+                               RealNameAPI, RiskLevelAPI, ExperienceAPI, InfoTableAPI, CommitmentAPI)
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/investor')
 api = Api(blu)
@@ -21,6 +22,7 @@ api.add_resource(ReapplyAPI, '/certification/reapply')
 
 api.add_resource(ContractAPI, '/contract')
 api.add_resource(ContractListAPI, '/contract/list')
+api.add_resource(ContractTemplateAPI, '/contract/template')
 api.add_resource(RiskDiscloseAPI, '/contract/risk_disclose')
 api.add_resource(FundContractAPI, '/contract/fund_contract')
 api.add_resource(ProtocolAPI, '/contract/protocol')
@@ -31,6 +33,7 @@ api.add_resource(BookAPI, '/contract/book')
 api.add_resource(SignAPI, '/contract/sign')
 
 api.add_resource(InformationAPI, '/information')
+api.add_resource(InvestorTokenAPI, '/information/token')
 api.add_resource(FaceImageAPI, '/information/face_image')
 api.add_resource(CertImageAPI, '/information/cert_image')
 api.add_resource(RealNameAPI, '/information/real_name')
