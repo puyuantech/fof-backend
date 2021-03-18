@@ -34,7 +34,7 @@ class CertificationStatus(EnumBase):
 
 
 class ContractStatus(EnumBase):
-    # UNBOOKED = 'unbooked'
+    UNBOOKED = 'unbooked'
     BOOKED = 'booked'
     SIGNING = 'signing'
     SIGNED = 'signed'
@@ -54,4 +54,30 @@ class UserRiskLevelExplanation(EnumBase):
     平衡型 = '您的风险意识很高，但同时也期望有一定的增值能力'
     成长型 = '您期望获得较高收益，同时也能接受资产的波动性，可考虑进行证券等组合投资'
     进取型 = '您已充分了解高风险高收益的信息，可考虑进行PE类等高回报性的投资'
+
+
+class ContractTemplateType(EnumBase):
+    风险揭示书 = 'risk_disclose'
+    基金合同 = 'fund_contract'
+    补充协议 = 'protocol'
+    风险告知书 = 'fund_matching'
+    回访确认书 = 'lookback'
+
+
+class HaiFengTemplateType(EnumBase):
+    fund_contract = 0
+    # '托管协议' = 1
+    # '代销合同' = 2
+    protocol = 3
+    # '征询意见函' = 4
+    # '公告告知' = 5
+    risk_disclose = 6
+    # '其他预留' = 7
+    # '有限合伙协议' = 21
+    # '基金运营服务协议' = 22
+
+    @classmethod
+    def read(cls, code):
+        cls._init_cache()
+        return cls._code_2_name_cache.get(code)
 

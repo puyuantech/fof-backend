@@ -1,7 +1,8 @@
 
-from bases.validation import UnitValidation, ContractValidation
+from bases.constants import ContractStatus
+from bases.validation import FOFValidation, UnitValidation, ContractValidation
 from bases.viewhandler import ApiViewHandler
-from models import InvestorCertification, InvestorContract, FOFInfo
+from models import InvestorCertification, InvestorContract, FOFInfo, ContractTemplate
 from utils.decorators import login_required
 
 from .validators.contract import (RiskDiscloseValidation, FundContractValidation, ProtocolValidation,
@@ -32,7 +33,35 @@ class ContractListAPI(ApiViewHandler):
     @login_required
     def get(self):
         data = UnitValidation.get_valid_data(self.input)
-        return InvestorContract.get_investor_contracts(**data)
+        investor_contracts = InvestorContract.get_investor_contracts(**data)
+
+        fofs = FOFInfo.filter_by_query(manager_id=data['manager_id']).all()
+        fofs = {
+            fof.fof_id: {
+                'fof_name': fof.fof_name,
+                'risk_type': fof.risk_type,
+            } for fof in fofs
+        }
+
+        for investor_contract in investor_contracts:
+            investor_contract.update(fofs.pop(investor_contract['fof_id']))
+
+        for fof_id, fof_info in fofs.items():
+            investor_contracts.append({
+                'contract_status': ContractStatus.UNBOOKED,
+                'fof_id': fof_id,
+                **fof_info,
+            })
+
+        return investor_contracts
+
+
+class ContractTemplateAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        data = FOFValidation.get_valid_data(self.input)
+        return ContractTemplate.get_template_ids(**data)
 
 
 class RiskDiscloseAPI(ApiViewHandler):
