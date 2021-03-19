@@ -1,5 +1,6 @@
 import pandas as pd
 import datetime
+import json
 from flask import request, g
 from bases.viewhandler import ApiViewHandler
 from bases.globals import db
@@ -8,7 +9,7 @@ from utils.decorators import login_required
 from utils.helper import replace_nan
 from utils.ratios import draw_down_underwater, monthly_return, yearly_return
 from utils.helper import select_periods
-from models import FOFNavPublic, FOFInfo, FOFNav
+from models import FOFNavPublic, FOFInfo, FOFNav, Management
 from surfing.util.calculator import Calculator
 
 
@@ -82,6 +83,28 @@ class ProInfoAPI(ApiViewHandler, ProMixin):
         if not obj:
             return {}
         return obj.to_dict()
+
+
+class ProManagementAPI(ApiViewHandler, ProMixin):
+
+    @login_required
+    def get(self, fof_id):
+        """详情"""
+        obj = self.select_model(fof_id)
+        if not obj:
+            return {}
+
+        management_ids = json.loads(obj.management_ids) if obj.management_ids else []
+        if not management_ids:
+            return {}
+
+        m = Management.filter_by_query(
+            manager_id=management_ids,
+        ).first()
+        if not m:
+            return {}
+
+        return m.to_dict()
 
 
 class ProNavAPI(ApiViewHandler, ProMixin):

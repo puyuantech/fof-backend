@@ -50,16 +50,13 @@ class GetMobileCaptcha(ApiViewHandler):
     @params_required(*['mobile', 'action'])
     def post(self):
         if not self.is_valid_mobile(self.input.mobile):
-            raise VerifyError('手机号输入错误！')
+            raise VerifyError('手机号格式错误！')
 
         mobile = self.input.mobile
-        user = User.filter_by_query(mobile=mobile).first()
-        if not user:
-            raise VerifyError('此账户不存在！')
-
         code = '%(code)06d' % {
             'code': random.randint(1, 999999),
         }
+
         if self.input.action == 'login':
             print(mobile, code)
             action = SMS.LOGIN
