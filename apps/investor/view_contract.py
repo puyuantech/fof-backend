@@ -24,7 +24,7 @@ class ContractListAPI(ApiViewHandler):
     def get(self):
         data = UnitValidation.get_valid_data(self.input)
         investor_contracts = InvestorContract.get_investor_contracts(**data)
-        return fill_investor_contracts(investor_contracts)
+        return fill_investor_contracts(data['manager_id'], investor_contracts)
 
 
 class ContractTemplateAPI(ApiViewHandler):
