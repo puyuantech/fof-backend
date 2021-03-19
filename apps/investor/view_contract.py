@@ -2,10 +2,10 @@
 from bases.constants import ContractStatus
 from bases.validation import FOFValidation, UnitValidation, ContractValidation
 from bases.viewhandler import ApiViewHandler
-from models import InvestorCertification, InvestorContract, FOFInfo, ContractTemplate
+from models import InvestorContract, FOFInfo, ContractTemplate
 from utils.decorators import login_required
 
-from .libs import get_contract_url_key
+from .libs import fill_investor_contract, get_contract_url_key
 from .validators.contract import (RiskDiscloseValidation, FundContractValidation, ProtocolValidation,
                                   FundMatchingValidation, VideoValidation, LookbackValidation, BookValidation)
 
@@ -16,17 +16,7 @@ class ContractAPI(ApiViewHandler):
     def get(self):
         data = ContractValidation.get_valid_data(self.input)
         investor_contract = InvestorContract.get_investor_contract(**data)
-        if investor_contract:
-            cert_num = InvestorCertification.get_effective_certification(
-                data['investor_id'], data['manager_id']
-            )['cert_num']
-            fof_info = FOFInfo.get_by_query(fof_id=investor_contract['fof_id'])
-
-            investor_contract.update({
-                'cert_num': cert_num[:4] + '************' + cert_num[-2:],
-                'fof_name': fof_info.fof_name,
-            })
-        return investor_contract
+        return fill_investor_contract(investor_contract)
 
 
 class ContractListAPI(ApiViewHandler):
@@ -71,7 +61,8 @@ class RiskDiscloseAPI(ApiViewHandler):
     def post(self):
         data = RiskDiscloseValidation.get_valid_data(self.input)
         data['risk_disclose_url_key'] = get_contract_url_key(data.pop('risk_disclose'), data['manager_id'])
-        return InvestorContract.update_investor_contract(**data)
+        investor_contract = InvestorContract.update_investor_contract(**data)
+        return fill_investor_contract(investor_contract)
 
 
 class FundContractAPI(ApiViewHandler):
@@ -80,7 +71,8 @@ class FundContractAPI(ApiViewHandler):
     def post(self):
         data = FundContractValidation.get_valid_data(self.input)
         data['fund_contract_url_key'] = get_contract_url_key(data.pop('fund_contract'), data['manager_id'])
-        return InvestorContract.update_investor_contract(**data)
+        investor_contract = InvestorContract.update_investor_contract(**data)
+        return fill_investor_contract(investor_contract)
 
 
 class ProtocolAPI(ApiViewHandler):
@@ -89,7 +81,8 @@ class ProtocolAPI(ApiViewHandler):
     def post(self):
         data = ProtocolValidation.get_valid_data(self.input)
         data['protocol_url_key'] = get_contract_url_key(data.pop('protocol'), data['manager_id'])
-        return InvestorContract.update_investor_contract(**data)
+        investor_contract = InvestorContract.update_investor_contract(**data)
+        return fill_investor_contract(investor_contract)
 
 
 class FundMatchingAPI(ApiViewHandler):
@@ -98,7 +91,8 @@ class FundMatchingAPI(ApiViewHandler):
     def post(self):
         data = FundMatchingValidation.get_valid_data(self.input)
         data['fund_matching_url_key'] = get_contract_url_key(data.pop('fund_matching'), data['manager_id'])
-        return InvestorContract.update_investor_contract(**data)
+        investor_contract = InvestorContract.update_investor_contract(**data)
+        return fill_investor_contract(investor_contract)
 
 
 class VideoAPI(ApiViewHandler):
@@ -107,7 +101,8 @@ class VideoAPI(ApiViewHandler):
     def post(self):
         data = VideoValidation.get_valid_data(self.input)
         data['video_url_key'] = get_contract_url_key(data.pop('video'), data['manager_id'])
-        return InvestorContract.update_investor_contract(**data)
+        investor_contract = InvestorContract.update_investor_contract(**data)
+        return fill_investor_contract(investor_contract)
 
 
 class LookbackAPI(ApiViewHandler):
@@ -116,7 +111,8 @@ class LookbackAPI(ApiViewHandler):
     def post(self):
         data = LookbackValidation.get_valid_data(self.input)
         data['lookback_url_key'] = get_contract_url_key(data.pop('lookback'), data['manager_id'])
-        return InvestorContract.update_investor_contract(**data)
+        investor_contract = InvestorContract.update_investor_contract(**data)
+        return fill_investor_contract(investor_contract)
 
 
 class BookAPI(ApiViewHandler):
