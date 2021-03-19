@@ -214,7 +214,7 @@ class ProRollingProfitAPI(ApiViewHandler, ProMixin):
             return {}
 
         period = period if period else 'W'
-        period_size = period_size if period == 'W' else period_size * self.period_rule[period_size]
+        period_size = period_size if period == 'M' else period_size * self.period_rule[period_size]
         arr = df['adjusted_nav'].resample(period).last().fillna(method='ffill')
         print(arr)
         ret = arr.pct_change(periods=period_size)
