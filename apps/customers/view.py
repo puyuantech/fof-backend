@@ -71,6 +71,34 @@ class CustomerAPI(ApiViewHandler):
         instance.logic_delete()
 
 
+class CustomerPositionSingle(ApiViewHandler):
+
+    @login_required
+    def get(self, investor_id):
+        fof_id = request.args.get('fof_id')
+        if not fof_id:
+            raise VerifyError('No fof id')
+
+        r = db.session.query(FOFInvestorPosition, FOFInfo).filter(
+            FOFInvestorPosition.investor_id == investor_id,
+            FOFInvestorPosition.manager_id == g.token.manager_id,
+            FOFInfo.fof_id == FOFInvestorPosition.fof_id,
+            FOFInvestorPosition.fof_id == fof_id,
+        ).first()
+
+        if not r:
+            return {}
+
+        d = r[0].to_dict()
+        d['fof_name'] = r[1].fof_name
+        d['net_asset_value'] = r[1].net_asset_value
+        d['acc_unit_value'] = r[1].acc_unit_value
+        d['ret_year_to_now'] = r[1].ret_year_to_now
+        d['ret_total'] = r[1].ret_total
+
+        return replace_nan(d)
+
+
 class CustomerPosition(ApiViewHandler):
 
     @login_required
