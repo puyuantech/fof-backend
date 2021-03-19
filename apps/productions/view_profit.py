@@ -30,6 +30,9 @@ def calc_fof_ret(fof_id):
         FOFNavPublic.datetime.asc()
     ).all()
 
+    if len(results) < 1:
+        return []
+
     df = pd.DataFrame([{
         'datetime': i[0],
         'acc_ret': i[1],
