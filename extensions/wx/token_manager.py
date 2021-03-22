@@ -7,10 +7,10 @@ from models import WeChatToken
 
 class TokenManager:
 
-    def __init__(self):
-        wx_config = settings['WX']['apps']['fof']
+    def __init__(self, app_id, app_sec, manager_id):
+        self.manager_id = manager_id
         self._access_token_url = 'https://api.weixin.qq.com/cgi-bin/token?' \
-            'grant_type=client_credential&appid={}&secret={}'.format(wx_config['app_id'], wx_config['app_secret'])
+            'grant_type=client_credential&appid={}&secret={}'.format(app_id, app_sec)
 
     def generate_new_access_token(self):
         now = datetime.datetime.now()
@@ -38,7 +38,8 @@ class TokenManager:
 
     def get_wechat_token_from_db(self, token_type='access_token'):
         wechat_token = db.session.query(WeChatToken).with_for_update().filter(
-            WeChatToken.token_type == token_type
+            WeChatToken.token_type == token_type,
+            WeChatToken.manager_id == self.manager_id,
         ).one_or_none()
 
         if wechat_token and datetime.datetime.now() < wechat_token.expires_at:
@@ -74,5 +75,8 @@ class TokenManager:
 if __name__ == "__main__":
     from apps import create_app
     create_app().app_context().push()
-    print(f'AccessToken: {TokenManager().get_wechat_token_from_db()}')
-    print(f'JsApiTicket: {TokenManager().get_wechat_token_from_db("jsapi_ticket")}')
+    app_id = settings['WX']['apps']['fof']['app_id']
+    app_sec = settings['WX']['apps']['fof']['app_secret']
+    manager_id = '1'
+    print(f'AccessToken: {TokenManager(app_id=app_id, app_sec=app_sec, manager_id=manager_id).get_wechat_token_from_db()}')
+    # print(f'JsApiTicket: {TokenManager().get_wechat_token_from_db("jsapi_ticket")}')

@@ -19,3 +19,26 @@ class Operation(BaseModel):
     response_data = db.Column(db.TEXT)                                          # 返回数据
     response_status = db.Column(db.Integer)                                     # 返回状态码
     manager_id = db.Column(db.String(32))                                       # 管理者ID
+
+
+class CeleryTaskLogs(BaseModel):
+    """
+    Celery 任务记录
+    """
+    __tablename__ = 'celery_task_logs'
+
+    success_status = 1
+    fail_status = 0
+
+    id = db.Column(db.Integer, primary_key=True)
+    task_name = db.Column(db.String(128))
+    task_id = db.Column(db.String(64), index=True, unique=True)
+    retval = db.Column(db.Text)
+    done = db.Column(db.Boolean)
+    task_status = db.Column(db.Boolean)
+    exc = db.Column(db.Text)
+    einfo = db.Column(db.Text)
+    args = db.Column(db.Text)
+    kwargs = db.Column(db.Text)
+    available = db.Column(db.Boolean, default=1)
+    time_done = db.Column(db.DateTime)

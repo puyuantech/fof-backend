@@ -13,3 +13,4 @@ from .risk_level import *
 from .management import *
 from .manager import *
 from .contract import *
+from .message import *

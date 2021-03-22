@@ -54,6 +54,14 @@ class WXUnionManager:
         return content
 
     @classmethod
+    def get_open_id_by_token(cls, app_id, app_secret, code):
+        content = cls.request(cls.ACCESS_TOKEN_URL.format(app_id, app_secret, code))
+        if content.get('errcode'):
+            raise Exception('[get_union_id_by_token] failed to get access_token (errcode){} (errmsg){}'.format(
+                content.get('errcode'), content.get('errmsg')))
+        return content
+
+    @classmethod
     def get_union_id(cls, app_name, *params):
         assert 'WX' in settings, f'could not find "WX" setting in wechat apps config'
         config = settings['WX']['apps']
@@ -67,4 +75,3 @@ class WXUnionManager:
             return WXUnionManager.get_union_id_by_mini(app_id, app_secret, *params)
         else:
             return WXUnionManager.get_union_id_by_token(app_id, app_secret, *params)
-

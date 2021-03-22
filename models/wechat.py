@@ -20,4 +20,5 @@ class WeChatToken(BaseModel):
     key = db.Column(db.CHAR(255))                                               # token 值
     expires_at = db.Column(db.DATETIME, nullable=False)                         # 过期时间
     token_type = db.Column(db.CHAR(32))                                         # access_token | jsapi_ticket
+    manager_id = db.Column(db.String(32), unique=True)
 
