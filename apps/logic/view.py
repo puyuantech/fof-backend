@@ -3,21 +3,20 @@ import traceback
 import datetime
 from flask import request, current_app
 
-from bases.globals import db
+from bases.globals import db, celery
+from utils.celery_tasks import print_1
 from bases.viewhandler import ApiViewHandler
 from utils.decorators import params_required, login_required
-from models.from_surfing import MngInfo, HedgeFundNAV, HedgeFundInfo
+from models import MessageTaskSub, MessageTask
 
 
 class LogicAPI(ApiViewHandler):
 
     def get(self):
-        # a = db.session.query(MngInfo).first()
-        a = db.session.query(HedgeFundNAV).first()
-        # a = db.session.query(HedgeFundInfo).first()
-
-
-
-        print(a)
+        obj = MessageTaskSub.create(
+            task_id=1,
+            task_type=1,
+        )
+        print_1.delay(obj.id)
         return
 
