@@ -1,7 +1,6 @@
 
-from pydantic import conlist
-
 from surfing.data.api.basic import BasicDataApi
+from surfing.util.calculator import Calculator
 
 from bases.viewhandler import ApiViewHandler
 from utils.decorators import login_required
@@ -33,7 +32,11 @@ class MacroRetAPI(ApiViewHandler):
         df = BasicDataApi().get_asset_price(data['asset_list'])
         if df is None:
             return
-        return replace_nan(df.reset_index().rename(columns={'index':'datetime'}).to_dict('list'))
+        data = Calculator.get_asset_stats(df['_input_asset_nav'], df['_input_asset_info'])
+        return {
+            'rets': replace_nan(df['data'].reset_index().rename(columns={'index':'datetime'}).to_dict('list')),
+            'stats': [row.to_dict() for _, row in data.iterrows()]
+        }
 
 
 class MacroRecentAPI(ApiViewHandler):
