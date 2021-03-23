@@ -1,10 +1,13 @@
 
-from bases.validation import BaseValidation
-from bases.viewhandler import ApiViewHandler
 from pydantic import conlist
+
 from surfing.data.api.basic import BasicDataApi
+
+from bases.viewhandler import ApiViewHandler
 from utils.decorators import login_required
 from utils.helper import replace_nan
+
+from .validators import RetValidation, RecentValidation
 
 
 class MacroMenuAPI(ApiViewHandler):
@@ -22,10 +25,6 @@ class MacroMenuAPI(ApiViewHandler):
         return data
 
 
-class RetValidation(BaseValidation):
-    asset_list: conlist(str, min_items=1)
-
-
 class MacroRetAPI(ApiViewHandler):
 
     @login_required
@@ -35,4 +34,17 @@ class MacroRetAPI(ApiViewHandler):
         if df is None:
             return
         return replace_nan(df.reset_index().rename(columns={'index':'datetime'}).to_dict('list'))
+
+
+class MacroRecentAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        data = RecentValidation.get_valid_data(self.input)
+        df = BasicDataApi().asset_recent_rate(**data)
+        df = df.reset_index().to_dict('list')
+        return {
+            'title': df.pop('index_id'),
+            'items': [{'key': k, 'value': v} for k, v in df.items()],
+        }
 
