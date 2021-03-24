@@ -11,7 +11,7 @@ from models import MessageTaskSub, MessageTask
 
 class LogicAPI(ApiViewHandler):
 
-    def get(self):
+    def get(self, _file):
 
         return make_response('1')
 
