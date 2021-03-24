@@ -1,5 +1,6 @@
 
 from surfing.data.api.basic import BasicDataApi
+from surfing.data.api.derived import DerivedDataApi
 from surfing.data.api.raw import RawDataApi
 from surfing.util.calculator import Calculator
 
@@ -8,7 +9,7 @@ from bases.viewhandler import ApiViewHandler
 from utils.decorators import login_required
 from utils.helper import replace_nan
 
-from .validators import RetValidation, RecentValidation, FutureDiffValidation
+from .validators import RetValidation, RecentValidation, DateValidation, TimeValidation
 
 
 class MacroMenuAPI(ApiViewHandler):
@@ -58,10 +59,46 @@ class FutureDiffAPI(ApiViewHandler):
 
     @login_required
     def get(self):
-        data = FutureDiffValidation.get_valid_data(self.input)
+        data = TimeValidation.get_valid_data(self.input)
         if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
             raise LogicError('缺少参数')
 
         df = RawDataApi().get_stock_index_future_diff(**data)
+        return replace_nan(df.reset_index().to_dict('list'))
+
+
+class MarketSizeAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        data = TimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().market_size_df(**data)
+        return replace_nan(df.reset_index().to_dict('list'))
+
+
+class MainIndexAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        data = TimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_main_index_future_diff_yearly(**data)
+        return replace_nan(df.reset_index().to_dict('list'))
+
+
+class StyleFactorAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        data = DateValidation.get_valid_data(self.input)
+        if not data['start_date'] or not data['end_date']:
+            raise LogicError('缺少参数')
+
+        df = DerivedDataApi().get_style_factor_ret(**data)
         return replace_nan(df.reset_index().to_dict('list'))
 
