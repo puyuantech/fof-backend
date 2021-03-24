@@ -83,7 +83,7 @@ class WxLoginAPI(ApiViewHandler):
 
         open_id = info.get('openid')
         is_exists, wx_user = check_we_chat_user_exist(open_id, manager_id)
-        manager = ManagerInfo.get_by_query(manager_id=self.input.manager_id)
+        manager = ManagerInfo.get_by_query(manager_id=manager_id)
 
         try:
             if is_exists:
@@ -93,12 +93,15 @@ class WxLoginAPI(ApiViewHandler):
                     investor.create_manager_map(manager_id=manager.manager_id, mobile=self.input.mobile)
                     user.last_login_investor = None
                 investor_dict = chose_investor(user, manager)
-                return refresh_token(user, investor_dict)
+                return refresh_token(user, investor_dict, manager_id)
 
-            user = User.create(
+            user = User(
+                password='',
                 is_staff=False,
                 is_wx=True,
             )
+            db.session.add(user)
+            db.session.commit()
             user_dict = user.to_dict()
 
             WeChatUnionID.create(
@@ -110,7 +113,7 @@ class WxLoginAPI(ApiViewHandler):
             )
 
             token = Token.generate_token(user.id)
-            token.manager_id = self.input.manager_id
+            token.manager_id = manager_id
             token_dict = token.to_dict()
             token.save()
 
@@ -138,7 +141,7 @@ class WXBindMobile(ApiViewHandler):
             verification_code=self.input.mobile_code,
             verification_key=self.input.mobile,
         )
-        manager = ManagerInfo.filter_by_query(manager_id=g.token.manager_id)
+        manager = ManagerInfo.get_by_query(manager_id=g.token.manager_id)
         target_user = get_user_by_mobile(mobile=self.input.mobile)
         if not target_user:
             user, investor = User.create_main_user_investor(mobile=self.input.mobile)
@@ -147,7 +150,7 @@ class WXBindMobile(ApiViewHandler):
             investor_dict = chose_investor(user, manager, investor_id=investor.investor_id)
             g.user.mobile = self.input.mobile
             db.session.commit()
-            return refresh_token(user, investor_dict)
+            return refresh_token(user, investor_dict, manager_id=g.token.manager_id)
 
         if target_user.we_chat:
             raise VerifyError('目标账户已绑定别的微信号！')
@@ -163,7 +166,7 @@ class WXBindMobile(ApiViewHandler):
             investor.create_manager_map(manager_id=manager.manager_id, mobile=self.input.mobile)
             target_user.last_login_investor = None
         investor_dict = chose_investor(target_user, manager)
-        return refresh_token(target_user, investor_dict)
+        return refresh_token(target_user, investor_dict, manager_id=g.token.manager_id)
 
 
 class OfficeAPPID(ApiViewHandler):

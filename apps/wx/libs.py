@@ -16,11 +16,11 @@ wx_msg_crypt = WXBizMsgCrypt(
 )
 
 
-def refresh_token(user, investor_dict):
+def refresh_token(user, investor_dict, manager_id):
     user = User.get_by_id(user.id)
     user_dict = user.to_dict()
     token = Token.generate_token(user.id)
-    token.manager_id = g.token.manager_id
+    token.manager_id = manager_id
     token.investor_id = investor_dict['investor_id']
     token_dict = token.to_dict()
     token.save()
