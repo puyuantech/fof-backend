@@ -480,15 +480,15 @@ class ProductionInvestor(ApiViewHandler):
             ).first()
             if wx:
                 d['wx_nick_name'] = wx.nick_name
-                d['avatar_url'] = wx.avatar_url
-                d['open_id'] = wx.open_id
-
+                d['wx_avatar_url'] = wx.avatar_url
+                d['wx_open_id'] = wx.open_id
             d.update({
                 'user_amount': positions.get(i.investor_id)['amount'],
                 'user_shares': positions.get(i.investor_id)['shares'],
             })
             try:
                 d.update({
+                    'user_latest_mv': investor_return.loc[i.investor_id, 'latest_mv'],
                     'user_total_rr': investor_return.loc[i.investor_id, 'total_rr'],
                     'user_v_nav': investor_return.loc[i.investor_id, 'v_nav'],
                     'user_shares_weight': investor_return.loc[i.investor_id, 'shares_weight'],

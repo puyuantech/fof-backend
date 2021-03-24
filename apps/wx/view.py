@@ -88,7 +88,21 @@ class WxLoginAPI(ApiViewHandler):
         try:
             if is_exists:
                 user = wx_user.user
+                user_dict = user.to_dict()
                 investor = user.get_main_investor()
+                if not investor:
+                    token = Token.generate_token(user.id)
+                    token.manager_id = manager_id
+                    token_dict = token.to_dict()
+                    token.save()
+
+                    user.last_login = datetime.datetime.now()
+                    user.save()
+                    return {
+                        'user': user_dict,
+                        'token': token_dict,
+                    }
+
                 if not investor.check_manager_map(manager_id=manager.manager_id):
                     investor.create_manager_map(manager_id=manager.manager_id, mobile=self.input.mobile)
                     user.last_login_investor = None
@@ -144,11 +158,11 @@ class WXBindMobile(ApiViewHandler):
         manager = ManagerInfo.get_by_query(manager_id=g.token.manager_id)
         target_user = get_user_by_mobile(mobile=self.input.mobile)
         if not target_user:
+            wx_user = g.user.we_chat[0]
             user, investor = User.create_main_user_investor(mobile=self.input.mobile)
             investor.create_manager_map(manager.manager_id, mobile=self.input.mobile)
-            user = User.get_by_id(user.id)
             investor_dict = chose_investor(user, manager, investor_id=investor.investor_id)
-            g.user.mobile = self.input.mobile
+            wx_user.user_id = user.id
             db.session.commit()
             return refresh_token(user, investor_dict, manager_id=g.token.manager_id)
 
