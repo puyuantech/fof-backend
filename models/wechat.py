@@ -8,6 +8,9 @@ class WeChatUnionID(BaseModel):
     id = db.Column(db.Integer, primary_key=True)                        # 编号
     union_id = db.Column(db.CHAR(128))                                  # 微信开放平台
     open_id = db.Column(db.CHAR(128), default='')                       # 公众号(服务号)
+    manager_id = db.Column(db.String(32))                               # 管理ID
+    nick_name = db.Column(db.String(127))
+    avatar_url = db.Column(db.String(255))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship('User', backref='we_chat')
 

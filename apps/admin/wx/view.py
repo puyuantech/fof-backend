@@ -3,7 +3,7 @@ from flask import g, request, current_app, make_response
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from models import ManagerWeChatAccount
-from utils.decorators import params_required
+from utils.decorators import params_required, login_required
 
 
 class ManagerWxAPI(ApiViewHandler):
@@ -31,3 +31,47 @@ class ManagerWxAPI(ApiViewHandler):
             ret = ""
 
         return make_response(ret)
+
+
+class WeChatSettingAPI(ApiViewHandler):
+    update_columns = [
+        'app_id',
+        'app_sec',
+        'token',
+    ]
+
+    @login_required
+    def get(self):
+        obj = ManagerWeChatAccount.filter_by_query(
+            manager_id=g.token.manager_id,
+        ).first()
+        if not obj:
+            return {}
+        return obj.to_dict()
+
+    @login_required
+    def post(self):
+        obj = ManagerWeChatAccount.filter_by_query(
+            manager_id=g.token.manager_id,
+        ).first()
+        if not obj:
+            ManagerWeChatAccount.create(
+                manager_id=g.token.manager_id,
+                app_id=request.json.get('app_id'),
+                app_sec=request.json.get('app_sec'),
+                token=request.json.get('token'),
+            )
+            return 'success'
+        for i in self.update_columns:
+            if request.json.get(i) is not None:
+                obj.update(commit=False, **{i: request.json.get(i)})
+        obj.save()
+
+    @login_required
+    def delete(self):
+        obj = ManagerWeChatAccount.filter_by_query(
+            manager_id=g.token.manager_id,
+        ).first()
+        if not obj:
+            return {}
+        obj.delete()

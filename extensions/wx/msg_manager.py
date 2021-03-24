@@ -11,8 +11,10 @@ class WXMsgManager:
     LIST_TEMPLATE = 'https://api.weixin.qq.com/cgi-bin/template/get_all_private_template?access_token={}'
     SEND_TEMPLATE = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={}'
 
-    def __init__(self):
-        pass
+    def __init__(self, app_id, app_sec, manager_id):
+        self.app_id = app_id
+        self.app_sec = app_sec
+        self.manager_id = manager_id
 
     @classmethod
     def send(cls, url, data):
@@ -39,7 +41,11 @@ class WXMsgManager:
         )
 
     def get_access_token(self):
-        token = TokenManager().get_wechat_token_from_db()
+        token = TokenManager(
+            app_id=self.app_id,
+            app_sec=self.app_sec,
+            manager_id=self.manager_id
+        ).get_wechat_token_from_db()
         if token:
             return token[0]
         raise Exception('Access token wrong!')
