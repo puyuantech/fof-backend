@@ -99,3 +99,15 @@ class StyleFactorAPI(ApiViewHandler):
         df = DerivedDataApi().get_style_factor_ret(**data)
         return replace_nan(df.reset_index().to_dict('list'))
 
+
+class AssetCorrAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = RetValidation.get_valid_data(self.input)
+        df = BasicDataApi().get_asset_price(data['asset_list'])
+        if df is None:
+            return
+        res = Calculator.get_asset_corr(df['data'])
+        return replace_nan(res.reset_index().to_dict('list'))
+
