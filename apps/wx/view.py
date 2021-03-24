@@ -121,6 +121,7 @@ class WxLoginAPI(ApiViewHandler):
                 'token': token_dict,
             }
         except Exception as e:
+            print(traceback.format_exc())
             current_app.logger.error('[wx_login] 查询用户数据库失败 (err_msg){}'.format(traceback.format_exc()))
             raise VerifyError('查询用户数据库失败，(err_msg){}'.format(traceback.format_exc()))
 
