@@ -37,5 +37,7 @@ class MessageTaskSub(BaseModel):
     name = db.Column(db.String(127))
     task_type = db.Column(db.Integer, nullable=False)                           # 消息类型
     task_content = db.Column(db.TEXT)                                           # 消息内容
+    task_to = db.Column(db.TEXT)
+    task_from = db.Column(db.TEXT)
     task_status = db.Column(db.Integer, default=TaskStatus.PENDING)
     err_msg = db.Column(db.String(255))

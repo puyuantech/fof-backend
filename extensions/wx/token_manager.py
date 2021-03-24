@@ -61,7 +61,8 @@ class TokenManager:
             wechat_token = WeChatToken(
                 key=token,
                 expires_at=expires_at,
-                token_type=token_type
+                token_type=token_type,
+                manager_id=self.manager_id,
             )
             db.session.add(wechat_token)
         else:
@@ -77,6 +78,6 @@ if __name__ == "__main__":
     create_app().app_context().push()
     app_id = settings['WX']['apps']['fof']['app_id']
     app_sec = settings['WX']['apps']['fof']['app_secret']
-    manager_id = '1'
+    manager_id = 'py1'
     print(f'AccessToken: {TokenManager(app_id=app_id, app_sec=app_sec, manager_id=manager_id).get_wechat_token_from_db()}')
     # print(f'JsApiTicket: {TokenManager().get_wechat_token_from_db("jsapi_ticket")}')

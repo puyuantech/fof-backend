@@ -25,8 +25,10 @@ class WXMsgManager:
             print(data)
             if data.get('errcode'):
                 cls.logger.error('[Wxwork] unknown rsp (rsp){}'.format(data))
+            return True, None
         except Exception as e:
             cls.logger.error('[Wxwork] exception (err_msg){}'.format(e))
+            return False, data
 
     def get_all_private_template(self):
         self.send(
@@ -35,7 +37,7 @@ class WXMsgManager:
         )
 
     def send_template_msg(self, data):
-        self.send(
+        return self.send(
             self.SEND_TEMPLATE.format(self.get_access_token()),
             data=json.dumps(data),
         )
@@ -51,13 +53,14 @@ class WXMsgManager:
         raise Exception('Access token wrong!')
 
 
-if __name__ == '__main__':
-    from apps import create_app
-    create_app().app_context().push()
-    # WXMsgManager().get_all_private_template()
-    m = WXMsgManager()
+def wx_nav_template(app_id, app_sec, manager_id, open_id, pro_name, nav, acc_nav, date):
+    m = WXMsgManager(
+        app_id=app_id,
+        app_sec=app_sec,
+        manager_id=manager_id
+    )
     msg = init_template(
-        'oKViz1D2P95Soq9viF424MkApnzE',
+        open_id,
         'c3ADcbl-eShFi5xQJioDNFUXCcq36A75IZHrZsjFuuo',
         {
             "first": {
@@ -65,19 +68,19 @@ if __name__ == '__main__':
                 "color": "#173177"
             },
             "keyword1": {
-                "value": "测试名称",
+                "value": pro_name,
                 "color": "#173177"
             },
             "keyword2": {
-                "value": "测试净单位净值",
+                "value": nav,
                 "color": "#173177"
             },
             "keyword3": {
-                "value": "测试累计净值",
+                "value": acc_nav,
                 "color": "#173177"
             },
             "keyword4": {
-                "value": "2020-01-27",
+                "value": date,
                 "color": "#173177"
             },
             "remark": {
@@ -86,6 +89,13 @@ if __name__ == '__main__':
             }
         },
     )
-    print(msg)
-    m.send_template_msg(msg)
+    return m.send_template_msg(msg)
+
+
+if __name__ == '__main__':
+    from apps import create_app
+    create_app().app_context().push()
+    # WXMsgManager().get_all_private_template()
+
+
 
