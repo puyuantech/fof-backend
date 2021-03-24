@@ -1,12 +1,14 @@
 
 from surfing.data.api.basic import BasicDataApi
+from surfing.data.api.raw import RawDataApi
 from surfing.util.calculator import Calculator
 
+from bases.exceptions import LogicError
 from bases.viewhandler import ApiViewHandler
 from utils.decorators import login_required
 from utils.helper import replace_nan
 
-from .validators import RetValidation, RecentValidation
+from .validators import RetValidation, RecentValidation, FutureDiffValidation
 
 
 class MacroMenuAPI(ApiViewHandler):
@@ -50,4 +52,16 @@ class MacroRecentAPI(ApiViewHandler):
             'title': df.pop('index_id'),
             'items': [{'key': k, 'value': v} for k, v in df.items()],
         }
+
+
+class FutureDiffAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        data = FutureDiffValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = RawDataApi().get_stock_index_future_diff(**data)
+        return replace_nan(df.reset_index().to_dict('list'))
 

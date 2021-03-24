@@ -1,5 +1,8 @@
 
+import datetime
+
 from pydantic import conlist
+from typing_extensions import Literal
 
 from bases.validation import BaseValidation
 
@@ -10,4 +13,10 @@ class RetValidation(BaseValidation):
 
 class RecentValidation(BaseValidation):
     year: int = None
+
+
+class FutureDiffValidation(BaseValidation):
+    time_para: Literal['ALL','1M','3M','6M','1Y','YTD'] = None
+    begin_date: datetime.date = None
+    end_date: datetime.date = None
 
