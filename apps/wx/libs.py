@@ -1,3 +1,5 @@
+import datetime
+
 from flask import g, current_app, request
 from models import WeChatUnionID, Token, User
 from bases.exceptions import VerifyError
@@ -14,21 +16,33 @@ wx_msg_crypt = WXBizMsgCrypt(
 )
 
 
-def refresh_token(user):
+def refresh_token(user, investor_dict):
     user = User.get_by_id(user.id)
-    token_dict = Token.generate_token(user.id)
+    user_dict = user.to_dict()
+    token = Token.generate_token(user.id)
+    token.manager_id = g.token.manager_id
+    token.investor_id = investor_dict['investor_id']
+    token_dict = token.to_dict()
+    token.save()
+
+    user.last_login_investor = investor_dict['investor_id']
+    user.last_login = datetime.datetime.now()
+    user.save()
 
     data = {
-        'user': user.to_dict(),
+        'user': user_dict,
         'token': token_dict,
+        'investor': investor_dict,
     }
+
     g.user = user
     return data
 
 
-def check_we_chat_user_exist(union_id):
+def check_we_chat_user_exist(open_id, manager_id):
     wx = WeChatUnionID.filter_by_query(
-        union_id=union_id,
+        open_id=open_id,
+        manager_id=manager_id,
     ).first()
     if wx:
         return True, wx

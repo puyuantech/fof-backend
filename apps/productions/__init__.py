@@ -11,6 +11,7 @@ from .view_refresh import ProductionRefresh, ProductionPublicRefresh
 from .view_profit import ProductionRet, ProductionMonthlyRet, ProductionWinRate, ProductionRatio
 from .view_ratios import *
 from .view_trades import *
+from .view_nav import *
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/production')
 api = Api(blu)
@@ -84,3 +85,9 @@ api.add_resource(TradesPurRedeemAPI, '/trades/pur_redeem')
 api.add_resource(TradesDivAndCarryAPI, '/trades/dividend')
 api.add_resource(TradesCarryEventAPI, '/trades/carry_event')
 api.add_resource(TradesDividendEventAPI, '/trades/dividend_event')
+
+# manage nav
+api.add_resource(NavTemplateFile, '/manage_nav/template_file')
+api.add_resource(NavParseFile, '/manage_nav/parse')
+api.add_resource(NavUpdateAPI, '/manage_nav/update/<string:fof_id>')
+api.add_resource(NavByDateAPI, '/manage_nav/by_date/<string:fof_id>')

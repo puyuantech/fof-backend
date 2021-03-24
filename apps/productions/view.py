@@ -9,7 +9,7 @@ from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from models import FOFInfo, FOFNav, FOFNavPublic, FOFAssetAllocation, FOFPosition, FOFInvestorPosition, User, \
-    FOFScaleAlteration, UnitMap
+    FOFScaleAlteration, UnitMap, WeChatUnionID, UserInvestorMap
 from utils.decorators import params_required, login_required, admin_login_required
 from utils.helper import generate_sql_pagination, replace_nan
 from utils.caches import get_fund_collection_caches, get_hedge_fund_cache, get_fund_cache
@@ -471,6 +471,18 @@ class ProductionInvestor(ApiViewHandler):
         data = []
         for i in unit_maps:
             d = i.to_dict()
+            wx = db.session.query(WeChatUnionID).filter(
+                UserInvestorMap.investor_id == d['investor_id'],
+                UserInvestorMap.map_type == UserInvestorMap.MapType.MAIN,
+                UserInvestorMap.user_id == User.id,
+                User.id == WeChatUnionID.user_id,
+                WeChatUnionID.manager_id == g.token.manager_id,
+            ).first()
+            if wx:
+                d['wx_nick_name'] = wx.nick_name
+                d['avatar_url'] = wx.avatar_url
+                d['open_id'] = wx.open_id
+
             d.update({
                 'user_amount': positions.get(i.investor_id)['amount'],
                 'user_shares': positions.get(i.investor_id)['shares'],

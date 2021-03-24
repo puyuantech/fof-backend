@@ -21,3 +21,16 @@ class ManagerWeChatAccount(BaseModel):
     app_id = db.Column(db.String(127))
     app_sec = db.Column(db.String(127))
     token = db.Column(db.String(127))
+
+
+class ManagerEmailAccount(BaseModel):
+    """管理者邮箱转发设置"""
+    __tablename__ = 'manager_email_account'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    manager_id = db.Column(db.String(32), unique=True)
+
+    app_id = db.Column(db.String(127))
+    app_sec = db.Column(db.String(127))
+    token = db.Column(db.String(127))
+

@@ -1,5 +1,6 @@
 import hashlib
 import traceback
+import datetime
 from xml.etree import ElementTree as ET
 
 from flask import g, make_response, request, current_app
@@ -9,7 +10,8 @@ from bases.exceptions import VerifyError
 from utils.decorators import params_required, login_required
 from extensions.wx.union_manager import WXUnionManager
 from extensions.wx.receive import Msg
-from models import User, WeChatUnionID, Token
+from models import User, WeChatUnionID, Token, ManagerWeChatAccount, ManagerInfo
+from apps.auth.libs import chose_investor
 from apps.captchas.libs import check_sms_captcha
 from apps.auth.libs import get_user_by_mobile
 
@@ -67,34 +69,53 @@ class WX(ApiViewHandler):
 class WxLoginAPI(ApiViewHandler):
 
     @params_required(*['code'])
-    def post(self):
+    def post(self, manager_id):
+        acc = ManagerWeChatAccount.filter_by_query(
+            manager_id=manager_id,
+        ).one_or_none()
+        if not acc:
+            raise VerifyError('平台不存在')
+
         try:
-            union_info = WXUnionManager.get_union_id('fof', self.input.code)
+            info = WXUnionManager.get_open_id_by_token(acc.app_id, acc.app_sec, self.input.code)
         except Exception:
             raise VerifyError(traceback.format_exc())
 
-        union_id, open_id = union_info['unionid'], union_info.get('openid')
-        is_exists, wx_user = check_we_chat_user_exist(union_id)
+        open_id = info.get('openid')
+        is_exists, wx_user = check_we_chat_user_exist(open_id, manager_id)
+        manager = ManagerInfo.get_by_query(manager_id=self.input.manager_id)
 
         try:
             if is_exists:
                 user = wx_user.user
-            else:
-                user = User.create(
-                    nick_name=union_info.get('nickname', ''),
-                    is_staff=False,
-                    is_wx=True,
-                )
-                user.avatar_url = union_info.get('headimgurl')
-                WeChatUnionID.create(
-                    union_id=union_id,
-                    user_id=user.id,
-                    open_id=open_id,
-                )
-                db.session.commit()
+                investor = user.get_main_investor()
+                if not investor.check_manager_map(manager_id=manager.manager_id):
+                    investor.create_manager_map(manager_id=manager.manager_id, mobile=self.input.mobile)
+                    user.last_login_investor = None
+                investor_dict = chose_investor(user, manager)
+                return refresh_token(user, investor_dict)
 
+            user = User.create(
+                is_staff=False,
+                is_wx=True,
+            )
             user_dict = user.to_dict()
-            token_dict = Token.generate_token(user.id)
+
+            WeChatUnionID.create(
+                user_id=user.id,
+                open_id=open_id,
+                nick_name=info.get('nickname'),
+                avatar_url=info.get('headimgurl'),
+                manager_id=manager_id,
+            )
+
+            token = Token.generate_token(user.id)
+            token.manager_id = self.input.manager_id
+            token_dict = token.to_dict()
+            token.save()
+
+            user.last_login = datetime.datetime.now()
+            user.save()
             return {
                 'user': user_dict,
                 'token': token_dict,
@@ -102,27 +123,6 @@ class WxLoginAPI(ApiViewHandler):
         except Exception as e:
             current_app.logger.error('[wx_login] 查询用户数据库失败 (err_msg){}'.format(traceback.format_exc()))
             raise VerifyError('查询用户数据库失败，(err_msg){}'.format(traceback.format_exc()))
-
-
-class WXBindUser(ApiViewHandler):
-
-    @login_required
-    @params_required(*['code'])
-    def post(self):
-        if g.user.we_chat:
-            raise VerifyError('请先解绑！')
-
-        union_info = WXUnionManager.get_union_id('fof', self.input.code)
-        union_id, open_id = union_info['unionid'], union_info.get('openid')
-
-        check_we_chat_user_exist(union_id)
-        bind_we_chat_user(union_id, open_id)
-
-    @login_required
-    def delete(self):
-        wx = g.user.we_chat
-        for i in wx:
-            i.logic_delete()
 
 
 class WXBindMobile(ApiViewHandler):
@@ -137,20 +137,32 @@ class WXBindMobile(ApiViewHandler):
             verification_code=self.input.mobile_code,
             verification_key=self.input.mobile,
         )
+        manager = ManagerInfo.filter_by_query(manager_id=g.token.manager_id)
         target_user = get_user_by_mobile(mobile=self.input.mobile)
         if not target_user:
+            user, investor = User.create_main_user_investor(mobile=self.input.mobile)
+            investor.create_manager_map(manager.manager_id, mobile=self.input.mobile)
+            user = User.get_by_id(user.id)
+            investor_dict = chose_investor(user, manager, investor_id=investor.investor_id)
             g.user.mobile = self.input.mobile
             db.session.commit()
-            return refresh_token(g.user)
+            return refresh_token(user, investor_dict)
 
         if target_user.we_chat:
             raise VerifyError('目标账户已绑定别的微信号！')
 
+        # 绑定新的 User 对象，并删除原虚拟对象
         wx_user = g.user.we_chat[0]
         wx_user.user_id = target_user.id
         g.user.is_deleted = True
         db.session.commit()
-        return refresh_token(target_user)
+
+        investor = target_user.get_main_investor()
+        if not investor.check_manager_map(manager_id=manager.manager_id):
+            investor.create_manager_map(manager_id=manager.manager_id, mobile=self.input.mobile)
+            target_user.last_login_investor = None
+        investor_dict = chose_investor(target_user, manager)
+        return refresh_token(target_user, investor_dict)
 
 
 class OfficeAPPID(ApiViewHandler):

@@ -10,6 +10,7 @@ class MessageTask(BaseModel):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)            # 编号
     manager_id = db.Column(db.String(32))
+    fof_id = db.Column(db.String(63))
     name = db.Column(db.String(127))
 
 

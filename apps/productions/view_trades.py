@@ -1,9 +1,8 @@
 from flask import request, g
 from bases.viewhandler import ApiViewHandler
-from bases.globals import db
 from bases.exceptions import VerifyError
 from utils.decorators import login_required
-from utils.helper import generate_sql_pagination
+from utils.helper import generate_sql_pagination, replace_nan
 from models import InvestorInfo
 from models.from_surfing import HedgeFundInvestorPurAndRedemp, HedgeFundInvestorDivAndCarry, \
     HedgeFundInvestorPurAndRedempSub
@@ -22,6 +21,14 @@ class TradesPurRedeemAPI(ApiViewHandler):
         ).first()
         if not investor:
             return data_dict
+
+        sub = HedgeFundInvestorPurAndRedempSub.filter_by_query(
+            main_id=data_dict.get('id'),
+        ).first()
+        if sub:
+            data_dict['trade_confirm_url'] = sub.trade_confirm_url
+            data_dict['trade_apply_url'] = sub.trade_apply_url
+            data_dict['remark'] = sub.remark
 
         data_dict['investor_name'] = investor.name
         return data_dict
@@ -43,7 +50,11 @@ class TradesPurRedeemAPI(ApiViewHandler):
             query = HedgeFundInvestorPurAndRedemp.filter_by_query(
                 fof_id=fof_id,
             )
-        data = p.paginate(query, call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x])
+        data = p.paginate(
+            query,
+            call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x],
+            equal_filter=[HedgeFundInvestorPurAndRedemp.event_type]
+        )
         return data
 
     @login_required
@@ -63,7 +74,7 @@ class TradesPurRedeemAPI(ApiViewHandler):
         ]
         data = {i: request.json.get(i) for i in allow_columns}
         HedgeFundDataManager().investor_pur_redemp_update(data)
-        obj = HedgeFundInvestorPurAndRedempSub.get_by_query(
+        obj = HedgeFundInvestorPurAndRedempSub.filter_by_query(
             main_id=request.json.get('id'),
         ).first()
         if not obj:
@@ -116,7 +127,14 @@ class TradesCarryEventAPI(ApiViewHandler):
     @login_required
     def post(self):
         df = HedgeFundDataManager().calc_carry_event(request.json)
-        return df.to_dict(orient='r')
+        data = replace_nan(df.to_dict(orient='records'))
+        for i in data:
+            investor = InvestorInfo.filter_by_query(
+                investor_id=i.get('investor_id'),
+            ).first()
+            if investor:
+                i['investor_name'] = investor.name
+        return data
 
 
 class TradesDividendEventAPI(ApiViewHandler):
@@ -127,7 +145,14 @@ class TradesDividendEventAPI(ApiViewHandler):
     @login_required
     def post(self):
         df = HedgeFundDataManager().calc_dividend_event(request.json)
-        return df.to_dict(orient='r')
+        data = replace_nan(df.to_dict(orient='records'))
+        for i in data:
+            investor = InvestorInfo.filter_by_query(
+                investor_id=i.get('investor_id'),
+            ).first()
+            if investor:
+                i['investor_name'] = investor.name
+        return data
 
 
 class TradesDivAndCarryAPI(ApiViewHandler):
@@ -163,7 +188,11 @@ class TradesDivAndCarryAPI(ApiViewHandler):
             query = HedgeFundInvestorDivAndCarry.filter_by_query(
                 fof_id=fof_id,
             )
-        data = p.paginate(query, call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x])
+        data = p.paginate(
+            query,
+            call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x],
+            equal_filter=[HedgeFundInvestorDivAndCarry.event_type],
+        )
         return data
 
     @login_required

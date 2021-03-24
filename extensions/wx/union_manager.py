@@ -59,6 +59,12 @@ class WXUnionManager:
         if content.get('errcode'):
             raise Exception('[get_union_id_by_token] failed to get access_token (errcode){} (errmsg){}'.format(
                 content.get('errcode'), content.get('errmsg')))
+
+        content = cls.request(cls.USER_INFO_URL.format(content['access_token'], content['openid']))
+        if content.get('errcode'):
+            raise Exception(
+                '[get_union_id_by_token] failed to get user_info (errcode){} (errmsg){}'.format(content.get('errcode'),
+                                                                                                content.get('errmsg')))
         return content
 
     @classmethod
