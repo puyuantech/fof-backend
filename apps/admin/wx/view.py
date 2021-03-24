@@ -1,4 +1,5 @@
 import hashlib
+import re
 from flask import g, request, current_app, make_response
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
@@ -31,6 +32,16 @@ class ManagerWxAPI(ApiViewHandler):
             ret = ""
 
         return make_response(ret)
+
+
+class MWeChatSettingFileAPI(ApiViewHandler):
+
+    def get(self, file_name):
+        value = re.findall('^MP_verify_(.*).txt$', file_name)[0]
+        response = make_response(value)
+        response.headers["Content-Disposition"] = "attachment; filename=%s" % file_name
+        response.headers["Content-type"] = "text/plain"
+        return response
 
 
 class WeChatSettingAPI(ApiViewHandler):
