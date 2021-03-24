@@ -16,12 +16,10 @@ class RecentValidation(BaseValidation):
 
 
 class DateValidation(BaseValidation):
-    start_date: datetime.date = None
-    end_date: datetime.date = None
-
-
-class TimeValidation(BaseValidation):
     begin_date: datetime.date = None
     end_date: datetime.date = None
+
+
+class TimeValidation(DateValidation):
     time_para: Literal['ALL','1M','3M','6M','1Y','YTD'] = None
 
