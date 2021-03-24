@@ -96,9 +96,6 @@ class StyleFactorAPI(ApiViewHandler):
     @login_required
     def get(self):
         data = DateValidation.get_valid_data(self.input)
-        if not data['start_date'] or not data['end_date']:
-            raise LogicError('缺少参数')
-
         df = DerivedDataApi().get_style_factor_ret(**data)
         return replace_nan(df.reset_index().to_dict('list'))
 
