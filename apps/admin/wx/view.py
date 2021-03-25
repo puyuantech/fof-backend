@@ -5,6 +5,7 @@ from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from models import ManagerWeChatAccount
 from utils.decorators import params_required, login_required
+from extensions.wx.token_manager import TokenManager
 
 
 class ManagerWxAPI(ApiViewHandler):
@@ -42,6 +43,22 @@ class MWeChatSettingFileAPI(ApiViewHandler):
         response.headers["Content-Disposition"] = "attachment; filename=%s" % file_name
         response.headers["Content-type"] = "text/plain"
         return response
+
+
+class WeChatVerifyAPI(ApiViewHandler):
+
+    @params_required(*['app_id', 'app_sec'])
+    @login_required
+    def post(self):
+        t = TokenManager(
+            app_id=self.input.app_id,
+            app_sec=self.input.app_sec,
+            manager_id=g.token.manager_id,
+        )
+        status = t.generate_new_access_token()
+        if not status:
+            raise VerifyError('验证失败，请检查配置！')
+        return 'success'
 
 
 class WeChatSettingAPI(ApiViewHandler):

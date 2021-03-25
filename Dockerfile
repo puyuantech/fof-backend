@@ -3,10 +3,11 @@ LABEL name="fof-backend"
 LABEL maintainer="puyuan<github@puyuan.tech>"
 
 ENV TZ=Asia/Shanghai
-COPY . /app
-WORKDIR /app
+COPY ./requirements.txt /app/requirements.txt
 RUN python -m pip install --upgrade pip -i https://pypi.douban.com/simple
 RUN pip install -r requirements.txt -i https://pypi.douban.com/simple
+COPY . /app
+WORKDIR /app
 RUN pip install surfing --upgrade
 
 CMD ["gunicorn", "-w", "1", "-k", "gevent", "-b", "0.0.0.0:8005", "manager:app"]

@@ -4,6 +4,7 @@ from apps.admin_super import super_admin_router
 
 from apps.admin.auth import blu as admin_blu
 from apps.admin.wx import blu as admin_wx_blu
+from apps.admin.email import blu as admin_email_blu
 
 from apps.captchas import blu as captcha_blu
 from apps.stuff import blu as stuff_blu
@@ -25,6 +26,10 @@ from apps.manager import blu as manager_blu
 from apps.messages import blu as message_blu
 
 routers = [
+    admin_blu,
+    admin_wx_blu,
+    admin_email_blu,
+
     auth_blu,
     accounts_blu,
     captcha_blu,
@@ -41,8 +46,6 @@ routers = [
     index_blu,
     info_blu,
     upload_blu,
-    admin_blu,
-    admin_wx_blu,
     investor_blu,
     management_blu,
     manager_blu,

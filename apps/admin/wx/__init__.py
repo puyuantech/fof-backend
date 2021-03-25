@@ -8,3 +8,5 @@ api = Api(blu)
 api.add_resource(ManagerWxAPI, '/check/<string:manager_id>')
 api.add_resource(WeChatSettingAPI, '/setting')
 api.add_resource(MWeChatSettingFileAPI, '/file_match/<string:file_name>')
+api.add_resource(WeChatVerifyAPI, '/verify')
+
