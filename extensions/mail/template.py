@@ -16,14 +16,15 @@ def mail_nav_template(server, username, password, port, use_ssl, sender, title, 
         recipients=[send_to],
         sender=(sender, username)
     )
-    current_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M%S')
-    msg.html = f'''<h4 style="text-align:center">{pro_name}</h4>
+    current_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    msg.html = f'''
+        <div>产品名称: <span style="color: black;font-size:120%;font-weight:bold;">{pro_name}</span></div>
         <br>
-        <div>单位净值: <span style="color: black;font-size:120%;font-weight:bold;">{nav}</span></div>
+        <div>单位净值: <span style="color: #173177;font-size:120%;font-weight:bold;">{nav}</span></div>
         <br>
-        <div>累计净值: <span style="color: black;font-size:120%;font-weight:bold;">{acc_nav}</span></div>
+        <div>累计净值: <span style="color: #173177;font-size:120%;font-weight:bold;">{acc_nav}</span></div>
         <br>
-        <div>估值日期: <span style="color: black;font-size:120%;font-weight:bold;">{date}</span></div>
+        <div>估值日期: <span style="color: black;font-size:100%;font-weight:bold;">{date}</span></div>
         <br>
         <hr>
         <div>来自: {sender} </div>

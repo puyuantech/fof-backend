@@ -91,7 +91,7 @@ def wx_bind_mobile_news(to_user, from_user):
         'https://fof.prism-advisor.com/img/logo-small.d3ee3c36.png',
         WX_REDIRECT_URL.format(
             settings['WX']['apps']['fof']['app_id'],
-            'https://fof.prism-advisor.com/wx-bind-mobile'
+            'https://wealth.prism-advisor.com/wx-login/py1'
         ),
     )
     return new.results()
