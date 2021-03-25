@@ -66,6 +66,7 @@ class WeChatSettingAPI(ApiViewHandler):
         'app_id',
         'app_sec',
         'token',
+        'encoding_aes_key',
     ]
 
     @login_required
@@ -88,6 +89,7 @@ class WeChatSettingAPI(ApiViewHandler):
                 app_id=request.json.get('app_id'),
                 app_sec=request.json.get('app_sec'),
                 token=request.json.get('token'),
+                encoding_aes_key=request.json.get('encoding_aes_key'),
             )
             return 'success'
         for i in self.update_columns:
