@@ -9,10 +9,12 @@ from bases.viewhandler import ApiViewHandler
 from utils.decorators import login_required
 from utils.helper import replace_nan
 
-from .validators import CorrValidation, DateValidation, ProductRetValidation, RecentValidation, RetValidation, TimeValidation
+from .validators import (DateValidation, TimeValidation, AssetRetValidation, AssetRecentValidation,
+                         IndustryRetValidation, IndustryRecentValidation,
+                         ProductRetValidation, ProductRecentValidation, ProductCorrValidation)
 
 
-class MacroMenuAPI(ApiViewHandler):
+class AssetMenuAPI(ApiViewHandler):
 
     @login_required
     def get(self):
@@ -26,14 +28,18 @@ class MacroMenuAPI(ApiViewHandler):
         return data
 
 
-class MacroRetAPI(ApiViewHandler):
+class AssetRetAPI(ApiViewHandler):
 
     @login_required
     def post(self):
-        data = RetValidation.get_valid_data(self.input)
-        df = BasicDataApi().get_asset_price(data['asset_list'])
-        if df is None:
+        data = AssetRetValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_asset_price(**data)
+        if not df:
             return
+
         data = Calculator.get_asset_stats(df['_input_asset_nav'], df['_input_asset_info'])
         return {
             'rets': replace_nan(df['data'].reset_index().rename(columns={'index':'datetime'}).to_dict('list')),
@@ -41,12 +47,112 @@ class MacroRetAPI(ApiViewHandler):
         }
 
 
-class MacroRecentAPI(ApiViewHandler):
+class AssetRecentAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = AssetRecentValidation.get_valid_data(self.input)
+        df = BasicDataApi().asset_recent_rate(**data)
+        df = df.reset_index().to_dict('list')
+        return {
+            'title': df.pop('index_id'),
+            'items': [{'key': k, 'value': v} for k, v in df.items()],
+        }
+
+
+class IndustryMenuAPI(ApiViewHandler):
 
     @login_required
     def get(self):
-        data = RecentValidation.get_valid_data(self.input)
-        df = BasicDataApi().asset_recent_rate(**data)
+        details = BasicDataApi().get_industry_list()
+        return [{'id': industry_id, 'name': industry_name} for industry_id, industry_name in details]
+
+
+class IndustryRetAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = IndustryRetValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_industry_price(**data)
+        if not df:
+            return
+
+        return replace_nan(df.reset_index().to_dict('list'))
+
+
+class IndustryRecentAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = IndustryRecentValidation.get_valid_data(self.input)
+        df = BasicDataApi().industry_recent_rate(**data)
+        df = df.reset_index().to_dict('list')
+        return {
+            'title': df.pop('index_id'),
+            'items': [{'key': k, 'value': v} for k, v in df.items()],
+        }
+
+
+class ProductMenuAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        data = []
+        details = BasicDataApi().get_product_details()
+        for key, value in details.items():
+            data.append({
+                'title': key,
+                'items': [{'id': product_id, 'name': product_name} for product_id, product_name in value],
+            })
+        return data
+
+
+class ProductRetAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ProductRetValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_product_price(**data)
+        if not df:
+            return
+
+        data = Calculator.get_product_stats(df['_input_asset_nav'], df['_input_asset_info'])
+        return {
+            'rets': replace_nan(df['data'].reset_index().rename(columns={'index':'datetime'}).to_dict('list')),
+            'stats': [row.to_dict() for _, row in data.iterrows()]
+        }
+
+
+class ProductRecentAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ProductRecentValidation.get_valid_data(self.input)
+        df = BasicDataApi().product_recent_rate(**data)
+        df = df.reset_index().to_dict('list')
+        return {
+            'title': df.pop('index_id'),
+            'items': [{'key': k, 'value': v} for k, v in df.items()],
+        }
+
+
+class ProductCorrAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ProductCorrValidation.get_valid_data(self.input)
+        period = data.pop('period')
+        df = BasicDataApi().get_product_price(**data)
+        if not df:
+            return
+
+        df = Calculator.get_asset_corr(df['data'], period)
         df = df.reset_index().to_dict('list')
         return {
             'title': df.pop('index_id'),
@@ -97,45 +203,4 @@ class StyleFactorAPI(ApiViewHandler):
         data = DateValidation.get_valid_data(self.input)
         df = DerivedDataApi().get_style_factor_ret(**data)
         return replace_nan(df.reset_index().to_dict('list'))
-
-
-class AssetCorrAPI(ApiViewHandler):
-
-    @login_required
-    def post(self):
-        data = CorrValidation.get_valid_data(self.input)
-        df = BasicDataApi().get_asset_price(data['asset_list'])
-        if df is None:
-            return
-        res = Calculator.get_asset_corr(df['data'], data['period'])
-        return replace_nan(res.reset_index().to_dict('list'))
-
-
-class MacroProductMenuAPI(ApiViewHandler):
-
-    @login_required
-    def get(self):
-        data = []
-        asset_details = BasicDataApi().get_product_details()
-        for key, value in asset_details.items():
-            data.append({
-                'title': key,
-                'items': [{'id': asset_id, 'name': asset_name} for asset_id, asset_name in value],
-            })
-        return data
-
-
-class MacroProductRetAPI(ApiViewHandler):
-
-    @login_required
-    def post(self):
-        data = ProductRetValidation.get_valid_data(self.input)
-        df = BasicDataApi().get_product_price(data['product_list'])
-        if df is None:
-            return
-        data = Calculator.get_asset_stats(df['_input_asset_nav'], df['_input_asset_info'])
-        return {
-            'rets': replace_nan(df['data'].reset_index().rename(columns={'index':'datetime'}).to_dict('list')),
-            'stats': [row.to_dict() for _, row in data.iterrows()]
-        }
 
