@@ -4,6 +4,7 @@ flask_sqlalchemy==2.4.4
 flask_migrate==2.5.3
 flask_restful==0.3.8
 celery==5.0.5
+redis==3.5.3
 flask_celery==2.4.3
 flask_caching
 pycrypto
