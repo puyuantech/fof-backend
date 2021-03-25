@@ -37,7 +37,7 @@ class AssetRetAPI(ApiViewHandler):
             raise LogicError('缺少参数')
 
         df = BasicDataApi().get_asset_price(**data)
-        if not df:
+        if df is None:
             return
 
         data = Calculator.get_asset_stats(df['_input_asset_nav'], df['_input_asset_info'])
@@ -77,7 +77,7 @@ class IndustryRetAPI(ApiViewHandler):
             raise LogicError('缺少参数')
 
         df = BasicDataApi().get_industry_price(**data)
-        if not df:
+        if df is None:
             return
 
         return replace_nan(df.reset_index().to_dict('list'))
@@ -119,7 +119,7 @@ class ProductRetAPI(ApiViewHandler):
             raise LogicError('缺少参数')
 
         df = BasicDataApi().get_product_price(**data)
-        if not df:
+        if df is None:
             return
 
         data = Calculator.get_product_stats(df['_input_asset_nav'], df['_input_asset_info'])
@@ -149,7 +149,7 @@ class ProductCorrAPI(ApiViewHandler):
         data = ProductCorrValidation.get_valid_data(self.input)
         period = data.pop('period')
         df = BasicDataApi().get_product_price(**data)
-        if not df:
+        if df is None:
             return
 
         df = Calculator.get_asset_corr(df['data'], period)
