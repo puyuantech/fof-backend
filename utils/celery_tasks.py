@@ -1,9 +1,9 @@
 import datetime
 import json
-from flask import current_app
 from models import CeleryTaskLogs, MessageTaskSub
 from bases.globals import celery
 from extensions.wx.msg_manager import wx_nav_template
+from extensions.mail.template import mail_nav_template
 
 
 @celery.task()
@@ -26,7 +26,7 @@ def send_nav_msg(sub_task_id):
                 app_sec=task_from.get('app_sec'),
                 manager_id=task_from.get('manager_id'),
                 open_id=investor.get('wx_open_id'),
-                pro_name=nav_data.get('pro_name'),
+                pro_name=nav_data.get('fof_name'),
                 nav=nav_data.get('nav'),
                 acc_nav=nav_data.get('acc_nav'),
                 date=nav_data.get('date'),
@@ -36,6 +36,27 @@ def send_nav_msg(sub_task_id):
                 return
             t.task_status = MessageTaskSub.TaskStatus.FAILED
             t.err_msg = str(msg)
+            return
+
+        if t.task_type == MessageTaskSub.TaskType.MAIL:
+            if not investor.get('email'):
+                raise Exception('No email')
+
+            mail_nav_template(
+                server=task_from.get('server'),
+                username=task_from.get('username'),
+                password=task_from.get('password'),
+                port=task_from.get('port'),
+                sender=task_from.get('sender'),
+                use_ssl=task_from.get('use_ssl'),
+                title='净值提醒',
+                send_to=investor.get('email'),
+                pro_name=nav_data.get('fof_name'),
+                nav=nav_data.get('nav'),
+                acc_nav=nav_data.get('acc_nav'),
+                date=nav_data.get('date'),
+            )
+            t.task_status = MessageTaskSub.TaskStatus.SUCCESS
             return
     except Exception as e:
         t.err_msg = str(e)

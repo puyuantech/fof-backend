@@ -30,7 +30,9 @@ class ManagerEmailAccount(BaseModel):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     manager_id = db.Column(db.String(32), unique=True)
 
-    app_id = db.Column(db.String(127))
-    app_sec = db.Column(db.String(127))
-    token = db.Column(db.String(127))
-
+    server = db.Column(db.String(127))                      # 邮箱服务器
+    port = db.Column(db.Integer)                            # 端口
+    is_ssl = db.Column(db.BOOLEAN, default=True)            # 是否使用ssl
+    username = db.Column(db.String(63))                     # 账号名称
+    secret = db.Column(db.String(63))                       # 授权码
+    sender = db.Column(db.String(127))                      # 机构名称
