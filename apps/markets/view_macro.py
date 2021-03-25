@@ -9,7 +9,7 @@ from bases.viewhandler import ApiViewHandler
 from utils.decorators import login_required
 from utils.helper import replace_nan
 
-from .validators import RetValidation, RecentValidation, DateValidation, TimeValidation
+from .validators import CorrValidation, DateValidation, ProductRetValidation, RecentValidation, RetValidation, TimeValidation
 
 
 class MacroMenuAPI(ApiViewHandler):
@@ -19,7 +19,6 @@ class MacroMenuAPI(ApiViewHandler):
         data = []
         asset_details = BasicDataApi().get_asset_details()
         for key in ('大类资产', '股票指数', '期货指数', '典型产品', '策略指数'):
-
             data.append({
                 'title': key,
                 'items': [{'id': asset_id, 'name': asset_name} for asset_id, asset_name in asset_details[key]],
@@ -104,10 +103,39 @@ class AssetCorrAPI(ApiViewHandler):
 
     @login_required
     def post(self):
-        data = RetValidation.get_valid_data(self.input)
+        data = CorrValidation.get_valid_data(self.input)
         df = BasicDataApi().get_asset_price(data['asset_list'])
         if df is None:
             return
-        res = Calculator.get_asset_corr(df['data'])
+        res = Calculator.get_asset_corr(df['data'], data['period'])
         return replace_nan(res.reset_index().to_dict('list'))
+
+
+class MacroProductMenuAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        data = []
+        asset_details = BasicDataApi().get_product_details()
+        for key, value in asset_details.items():
+            data.append({
+                'title': key,
+                'items': [{'id': asset_id, 'name': asset_name} for asset_id, asset_name in value],
+            })
+        return data
+
+
+class MacroProductRetAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ProductRetValidation.get_valid_data(self.input)
+        df = BasicDataApi().get_product_price(data['product_list'])
+        if df is None:
+            return
+        data = Calculator.get_asset_stats(df['_input_asset_nav'], df['_input_asset_info'])
+        return {
+            'rets': replace_nan(df['data'].reset_index().rename(columns={'index':'datetime'}).to_dict('list')),
+            'stats': [row.to_dict() for _, row in data.iterrows()]
+        }
 

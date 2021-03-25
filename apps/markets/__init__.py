@@ -2,7 +2,8 @@ from flask import Blueprint
 from flask_restful import Api
 from .view import IndexListAPI, IndexAPI, IndexDetailAPI, IndexSingleChangeAPI
 from .view_macro import (MacroMenuAPI, MacroRetAPI, MacroRecentAPI, FutureDiffAPI,
-                         MarketSizeAPI, MainIndexAPI, StyleFactorAPI, AssetCorrAPI)
+                         MarketSizeAPI, MainIndexAPI, StyleFactorAPI, AssetCorrAPI,
+                         MacroProductMenuAPI, MacroProductRetAPI)
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/market')
 api = Api(blu)
@@ -20,3 +21,5 @@ api.add_resource(MarketSizeAPI, '/macro/market_size')
 api.add_resource(MainIndexAPI, '/macro/main_index')
 api.add_resource(StyleFactorAPI, '/macro/style_factor')
 api.add_resource(AssetCorrAPI, '/macro/asset_corr')
+api.add_resource(MacroProductMenuAPI, '/macro/product/menu')
+api.add_resource(MacroProductRetAPI, '/macro/product/ret')
