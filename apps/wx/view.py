@@ -14,6 +14,7 @@ from models import User, WeChatUnionID, Token, ManagerWeChatAccount, ManagerInfo
 from apps.auth.libs import chose_investor
 from apps.captchas.libs import check_sms_captcha
 from apps.auth.libs import get_user_by_mobile
+from extensions.wx.msg_crypt.msg_crypt import WXBizMsgCrypt
 
 from .libs import check_we_chat_user_exist, bind_we_chat_user, decode_wx_msg, encode_wx_msg, \
     wx_text, wx_event, refresh_token
@@ -21,29 +22,23 @@ from .libs import check_we_chat_user_exist, bind_we_chat_user, decode_wx_msg, en
 
 class WX(ApiViewHandler):
 
-    @params_required(*['signature', 'timestamp', 'nonce', 'echostr'])
-    def get(self):
-        """绑定后台验证时使用"""
-        token = settings['WX']['apps']['fof']['token']
-
-        access_list = [token, self.input.timestamp, self.input.nonce]
-        access_list.sort()
-        sha1 = hashlib.sha1()
-        sha1.update(access_list[0].encode("utf-8"))
-        sha1.update(access_list[1].encode("utf-8"))
-        sha1.update(access_list[2].encode("utf-8"))
-        hashcode = sha1.hexdigest()
-
-        if hashcode == self.input.signature:
-            ret = str(self.input.echostr)
-        else:
-            ret = ""
-
-        return make_response(ret)
-
     @params_required(*['signature', 'timestamp', 'nonce'])
-    def post(self):
+    def post(self, manager_id):
         """处理用户消息"""
+        acc = ManagerWeChatAccount.filter_by_query(
+            manager_id=manager_id,
+        ).one_or_none()
+        if not acc:
+            current_app.logger.error(f'{manager_id} verify error')
+            ret = encode_wx_msg('success', self.input.nonce)
+            return make_response(ret)
+
+        g.wx_account = acc
+        g.wx_msg_crypt = WXBizMsgCrypt(
+            acc.token,
+            acc.encoding_aes_key,
+            acc.app_id,
+        )
         xml_text = decode_wx_msg(
             self.input.signature,
             self.input.timestamp,
