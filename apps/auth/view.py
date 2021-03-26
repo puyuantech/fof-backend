@@ -116,10 +116,17 @@ class InvestorMobileLoginAPI(ApiViewHandler):
         user.last_login = datetime.datetime.now()
         user.save()
 
+        wx_user = user.we_chat
+        if wx_user:
+            wx_user_dict = wx_user[0].to_doc_dict()
+        else:
+            wx_user_dict = {}
+
         data = {
             'user': user_dict,
             'token': token_dict,
             'investor': investor_dict,
+            'wx_user_dict': wx_user_dict
         }
         g.user = user
         return data
