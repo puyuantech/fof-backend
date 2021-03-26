@@ -247,17 +247,17 @@ class CustomerTradesSingle(ApiViewHandler):
 
     @login_required
     def get(self, trade_id):
-        obj = FOFScaleAlteration.get_by_id(trade_id)
+        obj = HedgeFundInvestorPurAndRedemp.get_by_id(trade_id)
         return obj.to_dict()
 
     @login_required
     def put(self, trade_id):
-        obj = FOFScaleAlteration.get_by_id(trade_id)
+        obj = HedgeFundInvestorPurAndRedemp.get_by_id(trade_id)
         update_trade(obj)
 
     @login_required
     def delete(self, trade_id):
-        obj = FOFScaleAlteration.get_by_id(trade_id)
+        obj = HedgeFundInvestorPurAndRedemp.get_by_id(trade_id)
         obj.delete()
 
 
