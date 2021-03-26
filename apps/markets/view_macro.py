@@ -9,7 +9,8 @@ from bases.viewhandler import ApiViewHandler
 from utils.decorators import login_required
 from utils.helper import replace_nan
 
-from .validators import (DateValidation, TimeValidation, AssetRetValidation, AssetRecentValidation,
+from .libs import get_title_and_items
+from .validators import (TimeValidation, AssetRetValidation, AssetRecentValidation,
                          IndustryRetValidation, IndustryRecentValidation,
                          ProductRetValidation, ProductRecentValidation, ProductCorrValidation)
 
@@ -42,7 +43,7 @@ class AssetRetAPI(ApiViewHandler):
 
         data = Calculator.get_asset_stats(df['_input_asset_nav'], df['_input_asset_info'])
         return {
-            'rets': replace_nan(df['data'].reset_index().rename(columns={'index':'datetime'}).to_dict('list')),
+            'rets': replace_nan(df['data'].reset_index().to_dict('list')),
             'stats': [row.to_dict() for _, row in data.iterrows()]
         }
 
@@ -53,11 +54,7 @@ class AssetRecentAPI(ApiViewHandler):
     def post(self):
         data = AssetRecentValidation.get_valid_data(self.input)
         df = BasicDataApi().asset_recent_rate(**data)
-        df = df.reset_index().to_dict('list')
-        return {
-            'title': df.pop('index_id'),
-            'items': [{'key': k, 'value': v} for k, v in df.items()],
-        }
+        return get_title_and_items(df)
 
 
 class IndustryMenuAPI(ApiViewHandler):
@@ -89,11 +86,7 @@ class IndustryRecentAPI(ApiViewHandler):
     def post(self):
         data = IndustryRecentValidation.get_valid_data(self.input)
         df = BasicDataApi().industry_recent_rate(**data)
-        df = df.reset_index().to_dict('list')
-        return {
-            'title': df.pop('index_id'),
-            'items': [{'key': k, 'value': v} for k, v in df.items()],
-        }
+        return get_title_and_items(df)
 
 
 class ProductMenuAPI(ApiViewHandler):
@@ -124,7 +117,7 @@ class ProductRetAPI(ApiViewHandler):
 
         data = Calculator.get_product_stats(df['_input_asset_nav'], df['_input_asset_info'])
         return {
-            'rets': replace_nan(df['data'].reset_index().rename(columns={'index':'datetime'}).to_dict('list')),
+            'rets': replace_nan(df['data'].reset_index().to_dict('list')),
             'stats': [row.to_dict() for _, row in data.iterrows()]
         }
 
@@ -135,11 +128,7 @@ class ProductRecentAPI(ApiViewHandler):
     def post(self):
         data = ProductRecentValidation.get_valid_data(self.input)
         df = BasicDataApi().product_recent_rate(**data)
-        df = df.reset_index().to_dict('list')
-        return {
-            'title': df.pop('index_id'),
-            'items': [{'key': k, 'value': v} for k, v in df.items()],
-        }
+        return get_title_and_items(df)
 
 
 class ProductCorrAPI(ApiViewHandler):
@@ -153,11 +142,7 @@ class ProductCorrAPI(ApiViewHandler):
             return
 
         df = Calculator.get_asset_corr(df['data'], period)
-        df = df.reset_index().to_dict('list')
-        return {
-            'title': df.pop('index_id'),
-            'items': [{'key': k, 'value': v} for k, v in df.items()],
-        }
+        return get_title_and_items(df)
 
 
 class FutureDiffAPI(ApiViewHandler):
@@ -200,7 +185,10 @@ class StyleFactorAPI(ApiViewHandler):
 
     @login_required
     def get(self):
-        data = DateValidation.get_valid_data(self.input)
+        data = TimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
         df = DerivedDataApi().get_style_factor_ret(**data)
         return replace_nan(df.reset_index().to_dict('list'))
 
