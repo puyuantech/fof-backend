@@ -1,4 +1,8 @@
+
 from flask import request
+from pandas import DataFrame
+
+from utils.helper import replace_nan
 
 
 def update_custom_index_info(obj):
@@ -28,4 +32,12 @@ def update_custom_index_ratios(obj, ratios):
     obj.start_date = ratios.start_date
     obj.end_date = ratios.end_date
     return obj
+
+
+def get_title_and_items(df: DataFrame):
+    df = df.reset_index().to_dict('list')
+    return {
+        'title': df.pop('index_id'),
+        'items': [{'key': k, 'value': replace_nan(v)} for k, v in df.items()],
+    }
 
