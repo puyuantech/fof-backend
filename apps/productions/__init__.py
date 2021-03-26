@@ -32,6 +32,7 @@ api.add_resource(ProductionInvestorTradesSingle, '/investor_trade_single/<int:tr
 api.add_resource(ProductionPosition, '/cur_position/<string:fof_id>')
 api.add_resource(ProductionInvestor, '/cur_investors/<string:fof_id>')
 
+api.add_resource(NavCalcAPI, '/nav_calc/<string:fof_id>')
 api.add_resource(AccountStatementAPI, '/account_statement/<string:fof_id>')
 api.add_resource(AccountStatementDetailAPI, '/account_statement/detail/<int:_id>')
 api.add_resource(EstimateFeeAPI, '/estimate_fee/<string:fof_id>')
