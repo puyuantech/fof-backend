@@ -442,7 +442,8 @@ class ProductionInvestor(ApiViewHandler):
             investor_return['shares_weight'] = investor_return['shares'] / investor_return['shares_sum']
 
         info = FOFInfo.filter_by_query(
-            fof_id=fof_id
+            fof_id=fof_id,
+            manager_id=g.token.manager_id,
         ).one_or_none()
         if not info:
             raise VerifyError('产品不存在！')
