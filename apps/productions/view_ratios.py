@@ -130,7 +130,7 @@ class ProNavAPI(ApiViewHandler, ProMixin):
             'nav',
             'acc_net_value',
         ]]
-        df['ret'] = df['adjusted_nav'] / df['adjusted_nav'][0] - 1
+        df['ret'] = df['adjusted_nav'] / df['adjusted_nav'].shift(1) - 1
         data = df.to_dict(orient='list')
         return replace_nan(data)
 
