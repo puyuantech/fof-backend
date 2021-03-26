@@ -3,7 +3,8 @@ import io
 import datetime
 from flask import request, g, views, make_response
 
-from models import User, FOFInvestorPosition, FOFScaleAlteration, FOFInfo, UnitMap, InvestorInfo
+from models import User, FOFInvestorPosition, FOFScaleAlteration, FOFInfo, UnitMap, \
+    HedgeFundInvestorDivAndCarry, HedgeFundInvestorPurAndRedempSub, HedgeFundInvestorPurAndRedemp
 from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
@@ -176,6 +177,70 @@ class CustomerTrades(ApiViewHandler):
     @login_required
     def delete(self, investor_id):
         FOFScaleAlteration.filter_by_query(investor_id=investor_id).delete()
+
+
+class CustomerTradesPurRed(ApiViewHandler):
+
+    def add_investor_info(self, data_dict: dict):
+        fof_id = data_dict.get('fof_id')
+        fof = FOFInfo.filter_by_query(
+            fof_id=fof_id,
+            manager_id=g.token.manager_id,
+        ).first()
+        if not fof:
+            return data_dict
+
+        sub = HedgeFundInvestorPurAndRedempSub.filter_by_query(
+            main_id=data_dict.get('id'),
+        ).first()
+        if sub:
+            data_dict['trade_confirm_url'] = sub.trade_confirm_url
+            data_dict['trade_apply_url'] = sub.trade_apply_url
+            data_dict['remark'] = sub.remark
+
+        data_dict['fof_name'] = fof.fof_name
+        return data_dict
+
+    @login_required
+    def get(self, investor_id):
+        p = generate_sql_pagination()
+        query = HedgeFundInvestorPurAndRedemp.filter_by_query(
+            investor_id=investor_id,
+        )
+        data = p.paginate(
+            query,
+            call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x],
+            equal_filter=[HedgeFundInvestorPurAndRedemp.event_type],
+        )
+        return data
+
+
+class CustomerTradesDivCar(ApiViewHandler):
+
+    def add_investor_info(self, data_dict: dict):
+        fof_id = data_dict.get('fof_id')
+        fof = FOFInfo.filter_by_query(
+            fof_id=fof_id,
+            manager_id=g.token.manager_id,
+        ).first()
+        if not fof:
+            return data_dict
+
+        data_dict['fof_name'] = fof.fof_name
+        return data_dict
+
+    @login_required
+    def get(self, investor_id):
+        p = generate_sql_pagination()
+        query = HedgeFundInvestorDivAndCarry.filter_by_query(
+            investor_id=investor_id,
+        )
+        data = p.paginate(
+            query,
+            call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x],
+            equal_filter=[HedgeFundInvestorDivAndCarry.event_type],
+        )
+        return data
 
 
 class CustomerTradesSingle(ApiViewHandler):
