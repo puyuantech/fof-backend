@@ -8,6 +8,7 @@ from bases.globals import db
 from models import FOFNav
 from utils.decorators import login_required
 from utils.helper import replace_nan
+from surfing.data.manager.manager_hedge_fund import HedgeFundDataManager
 
 
 class NavTemplateFile(ApiViewHandler):
@@ -90,6 +91,21 @@ class NavUpdateAPI(ApiViewHandler):
                 db.session.add(new)
             db.session.commit()
 
+        results = db.session.query(
+            FOFNav
+        ).filter(
+            FOFNav.fof_id == fof_id,
+        ).all()
+        df = pd.DataFrame([i.to_dict() for i in results])
+        df = df.rename(columns={
+            'nav': 'net_asset_value',
+            'acc_net_value': 'acc_unit_value'
+        })
+
+        dff = HedgeFundDataManager.calc_whole_adjusted_net_value(df)
+        for i, j in enumerate(results):
+            j.adjusted_nav = float(dff.loc[i, 'adj_nav']) if dff.loc[i, 'adj_nav'] else None
+        db.session.commit()
         return
 
 

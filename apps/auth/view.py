@@ -126,7 +126,7 @@ class InvestorMobileLoginAPI(ApiViewHandler):
             'user': user_dict,
             'token': token_dict,
             'investor': investor_dict,
-            'wx_user_dict': wx_user_dict
+            'wx_user': wx_user_dict
         }
         g.user = user
         return data
