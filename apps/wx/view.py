@@ -203,10 +203,17 @@ class WXBindMobile(ApiViewHandler):
         return refresh_token(target_user, investor_dict, manager_id=g.token.manager_id)
 
 
-class OfficeAPPID(ApiViewHandler):
+class WxLoginUrlAPPID(ApiViewHandler):
 
-    def get(self):
-        return {
-            'app_id': settings['WX']['apps']['fof']['app_id'],
-        }
+    def get(self, manager_id):
+        acc = ManagerWeChatAccount.filter_by_query(
+            manager_id=manager_id,
+        ).one_or_none()
+        if not acc:
+            raise VerifyError('平台不存在')
 
+        return f"""
+        https://open.weixin.qq.com/connect/oauth2/authorize?appid={acc.app_id}&
+        redirect_uri=https://wealth.prism-advisor.com/wx-login/{manager_id}&
+        response_type=code&scope=snsapi_userinfo&state=1
+        """
