@@ -63,5 +63,5 @@ class ProNavSubMessageAPI(ApiViewHandler):
     def get(self, task_id):
         p = generate_sql_pagination()
         query = self.model.filter_by_query(task_id=task_id)
-        data = p.paginate(query)
+        data = p.paginate(query, call_back=lambda x: [i.to_dict(remove_fields_list=['task_from']) for i in x])
         return data

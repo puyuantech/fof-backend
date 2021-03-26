@@ -96,6 +96,7 @@ if __name__ == '__main__':
     from apps import create_app
     create_app().app_context().push()
     # WXMsgManager().get_all_private_template()
+    media = 'jRQIxy6E9L86qmtq0q4Rins1ZLAnGpVd8LrCnFJESQ5jrRrTMvvsa2oVPBWxXaGm'
 
 
 

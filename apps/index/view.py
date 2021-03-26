@@ -47,6 +47,8 @@ class IndexPointAPI(ApiViewHandler):
         )
         df['datetime'] = pd.to_datetime(df['datetime'])
         df = df.set_index('datetime')
+        if len(df) < 1:
+            return {}
 
         period = select_periods()
         if period:
