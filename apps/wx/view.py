@@ -212,8 +212,4 @@ class WxLoginUrlAPPID(ApiViewHandler):
         if not acc:
             raise VerifyError('平台不存在')
 
-        return f"""
-        https://open.weixin.qq.com/connect/oauth2/authorize?appid={acc.app_id}&
-        redirect_uri=https://wealth.prism-advisor.com/wx-login/{manager_id}&
-        response_type=code&scope=snsapi_userinfo&state=1
-        """
+        return f"""https://open.weixin.qq.com/connect/oauth2/authorize?appid={acc.app_id}&redirect_uri=https://wealth.prism-advisor.com/wx-login/{manager_id}&response_type=code&scope=snsapi_userinfo&state=1"""
