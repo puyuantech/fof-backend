@@ -14,6 +14,14 @@ class WeChatUnionID(BaseModel):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship('User', backref='we_chat')
 
+    def to_doc_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'nick_name': self.nick_name,
+            'avatar_url': self.avatar_url,
+        }
+
 
 class WeChatToken(BaseModel):
     """微信 access token 和 jsapi_ticket"""

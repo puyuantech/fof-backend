@@ -45,10 +45,18 @@ class IndexPointAPI(ApiViewHandler):
             start_date,
             end_date,
         )
+        df['datetime'] = pd.to_datetime(df['datetime'])
+        df = df.set_index('datetime')
+
+        period = select_periods()
+        if period:
+            arr = df['close'].resample(period).last().fillna(method='ffill')
+        else:
+            arr = df['close']
 
         data = {
-            'point': df['close'].to_list(),
-            'dates': df['datetime'].to_list(),
+            'point': arr.values,
+            'dates': arr.index,
         }
 
         return replace_nan(data)
