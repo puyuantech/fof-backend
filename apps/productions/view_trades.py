@@ -3,7 +3,7 @@ from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from utils.decorators import login_required
 from utils.helper import generate_sql_pagination, replace_nan
-from models import InvestorInfo
+from models import UnitMap
 from models.from_surfing import HedgeFundInvestorPurAndRedemp, HedgeFundInvestorDivAndCarry, \
     HedgeFundInvestorPurAndRedempSub
 from surfing.data.manager.manager_hedge_fund import HedgeFundDataManager
@@ -16,10 +16,11 @@ class TradesPurRedeemAPI(ApiViewHandler):
 
     def add_investor_info(self, data_dict: dict):
         investor_id = data_dict.get('investor_id')
-        investor = InvestorInfo.filter_by_query(
+        unit_map = UnitMap.filter_by_query(
             investor_id=investor_id,
+            manager_id=g.token.manager_id,
         ).first()
-        if not investor:
+        if not unit_map:
             return data_dict
 
         sub = HedgeFundInvestorPurAndRedempSub.filter_by_query(
@@ -30,7 +31,7 @@ class TradesPurRedeemAPI(ApiViewHandler):
             data_dict['trade_apply_url'] = sub.trade_apply_url
             data_dict['remark'] = sub.remark
 
-        data_dict['investor_name'] = investor.name
+        data_dict['investor_name'] = unit_map.name
         return data_dict
 
     @login_required
@@ -129,11 +130,12 @@ class TradesCarryEventAPI(ApiViewHandler):
         df = HedgeFundDataManager().calc_carry_event(request.json)
         data = replace_nan(df.to_dict(orient='records'))
         for i in data:
-            investor = InvestorInfo.filter_by_query(
+            unit_map = UnitMap.filter_by_query(
                 investor_id=i.get('investor_id'),
+                manager_id=g.token.manager_id,
             ).first()
-            if investor:
-                i['investor_name'] = investor.name
+            if unit_map:
+                i['investor_name'] = unit_map.name
         return data
 
 
@@ -147,11 +149,12 @@ class TradesDividendEventAPI(ApiViewHandler):
         df = HedgeFundDataManager().calc_dividend_event(request.json)
         data = replace_nan(df.to_dict(orient='records'))
         for i in data:
-            investor = InvestorInfo.filter_by_query(
+            unit_map = UnitMap.filter_by_query(
                 investor_id=i.get('investor_id'),
+                manager_id=g.token.manager_id,
             ).first()
-            if investor:
-                i['investor_name'] = investor.name
+            if unit_map:
+                i['investor_name'] = unit_map.name
         return data
 
 
@@ -162,13 +165,14 @@ class TradesDivAndCarryAPI(ApiViewHandler):
 
     def add_investor_info(self, data_dict: dict):
         investor_id = data_dict.get('investor_id')
-        investor = InvestorInfo.filter_by_query(
+        unit_map = UnitMap.filter_by_query(
             investor_id=investor_id,
+            manager_id=g.token.manager_id,
         ).first()
-        if not investor:
+        if not unit_map:
             return data_dict
 
-        data_dict['investor_name'] = investor.name
+        data_dict['investor_name'] = unit_map.name
         return data_dict
 
     @login_required
