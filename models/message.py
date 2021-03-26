@@ -41,3 +41,4 @@ class MessageTaskSub(BaseModel):
     task_from = db.Column(db.TEXT)
     task_status = db.Column(db.Integer, default=TaskStatus.PENDING)
     err_msg = db.Column(db.String(255))
+

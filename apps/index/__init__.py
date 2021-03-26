@@ -12,4 +12,3 @@ api.add_resource(IndexMonthlyRetAPI, '/monthly_ret/<string:index_id>')
 api.add_resource(IndexDrawDownWaterAPI, '/mdd_water/<string:index_id>')
 api.add_resource(IndexPeriodRetAPI, '/period_ret/<string:index_id>')
 api.add_resource(IndexPeriodRatiosAPI, '/period_ratio/<string:index_id>')
-
