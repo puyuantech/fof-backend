@@ -20,6 +20,7 @@ from surfing.data.view.basic_models import FOFInvestorPositionSummary as Surfing
 
 from surfing.data.view.derived_models import FOFPosition as SurfingFOFPosition
 from surfing.data.view.derived_models import FOFNav as SurfingFOFNav
+from surfing.data.view.derived_models import FOFNavCalc as SurfingFOFNavCalc
 from surfing.data.view.derived_models import FOFNavPublic as SurfingFOFNavPublic
 from surfing.data.view.derived_models import FOFPositionDetail as SurfingFOFPositionDetail
 from surfing.data.view.derived_models import FOFInvestorData as SurfingFOFInvestorData
@@ -86,6 +87,11 @@ class FOFNav(SurfingFOFNav, BaseModel):
 
 
 class FOFNavPublic(SurfingFOFNavPublic, BaseModel):
+    __bind_key__ = 'derived'
+    __table_args__ = {'extend_existing': True}
+
+
+class FOFNavCalc(SurfingFOFNavCalc, BaseModel):
     __bind_key__ = 'derived'
     __table_args__ = {'extend_existing': True}
 

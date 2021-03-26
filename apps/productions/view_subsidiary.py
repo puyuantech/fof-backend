@@ -1,9 +1,14 @@
 from bases.viewhandler import ApiViewHandler
-from models import FOFAccountStatement, FOFTransitMoney, FOFEstimateFee, FOFEstimateInterest, FOFOtherRecord, FOFIncidentalStatement
+from models import FOFAccountStatement, FOFTransitMoney, FOFEstimateFee, FOFEstimateInterest, FOFOtherRecord, \
+    FOFIncidentalStatement, FOFNavCalc
 from utils.caches import get_fund_cache
 from .mixin import ViewDetailMixin, ViewAllMixin
 from .libs import update_account_statement, update_transit_money, update_estimate_fee, update_estimate_interest, \
     update_other_record, parse_account_statement, parse_transit_money, update_incidental_statement
+
+
+class NavCalcAPI(ApiViewHandler, ViewAllMixin):
+    model = FOFNavCalc
 
 
 class AccountStatementAPI(ApiViewHandler, ViewAllMixin):
