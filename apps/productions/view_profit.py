@@ -11,6 +11,7 @@ from utils.queries import SurfingQuery
 from utils.ratios import yearly_return
 from models import FOFNavPublic
 from surfing.util.calculator import Calculator
+from .mixin import ProMixin
 
 
 def calc_fof_ret(fof_id):
