@@ -22,6 +22,7 @@ class ManagerWeChatAccount(BaseModel):
     app_sec = db.Column(db.String(127))
     token = db.Column(db.String(127))
     encoding_aes_key = db.Column(db.String(127))
+    nav_template_id = db.Column(db.String(127))
 
 
 class ManagerEmailAccount(BaseModel):

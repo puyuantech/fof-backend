@@ -53,7 +53,7 @@ class WXMsgManager:
         raise Exception('Access token wrong!')
 
 
-def wx_nav_template(app_id, app_sec, manager_id, open_id, pro_name, nav, acc_nav, date):
+def wx_nav_template(app_id, app_sec, manager_id, open_id, pro_name, nav, acc_nav, date, nav_template_id):
     m = WXMsgManager(
         app_id=app_id,
         app_sec=app_sec,
@@ -61,7 +61,7 @@ def wx_nav_template(app_id, app_sec, manager_id, open_id, pro_name, nav, acc_nav
     )
     msg = init_template(
         open_id,
-        '8-dIC5myXhGvtWFcgpdzoAkSMKW0gJ4tYBWDk1yKIQ8',
+        nav_template_id,
         {
             "first": {
                 "value": "尊敬的用户您好:",

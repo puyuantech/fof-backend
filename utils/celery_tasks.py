@@ -30,6 +30,7 @@ def send_nav_msg(sub_task_id):
                 nav=nav_data.get('nav'),
                 acc_nav=nav_data.get('acc_nav'),
                 date=nav_data.get('date'),
+                nav_template_id=task_from.get('nav_template_id'),
             )
             if status:
                 t.task_status = MessageTaskSub.TaskStatus.SUCCESS
