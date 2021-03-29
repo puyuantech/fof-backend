@@ -109,6 +109,7 @@ class CustomerPosition(ApiViewHandler):
             FOFInvestorPosition.investor_id == investor_id,
             FOFInvestorPosition.manager_id == g.token.manager_id,
             FOFInfo.fof_id == FOFInvestorPosition.fof_id,
+            FOFInfo.manager_id == g.token.manager_id,
         ).all()
 
         df_data = []
@@ -145,12 +146,14 @@ class CustomerTrades(ApiViewHandler):
                 FOFScaleAlteration.manager_id == g.token.manager_id,
                 FOFScaleAlteration.event_type.in_(event_type),
                 FOFInfo.fof_id == FOFScaleAlteration.fof_id,
+                FOFInfo.manager_id == g.token.manager_id,
             )
         else:
             results = db.session.query(FOFScaleAlteration, FOFInfo.fof_name).filter(
                 FOFScaleAlteration.investor_id == investor_id,
                 FOFScaleAlteration.manager_id == g.token.manager_id,
                 FOFInfo.fof_id == FOFScaleAlteration.fof_id,
+                FOFInfo.manager_id == g.token.manager_id,
             )
         df_list = []
         for i in results:
@@ -206,6 +209,7 @@ class CustomerTradesPurRed(ApiViewHandler):
         p = generate_sql_pagination()
         query = HedgeFundInvestorPurAndRedemp.filter_by_query(
             investor_id=investor_id,
+            manager_id=g.token.manager_id,
         )
         data = p.paginate(
             query,
@@ -234,6 +238,7 @@ class CustomerTradesDivCar(ApiViewHandler):
         p = generate_sql_pagination()
         query = HedgeFundInvestorDivAndCarry.filter_by_query(
             investor_id=investor_id,
+            manager_id=g.token.manager_id,
         )
         data = p.paginate(
             query,

@@ -19,6 +19,7 @@ from surfing.data.manager.manager_fof import FOFDataManager
 from bases.constants import StuffEnum
 from .libs import update_production_info, parse_trade_file, create_single_trade, update_trade, parse_nav_file, \
     create_single_nav, update_nav, parse_investor_trade_file
+from .mixin import ProMixin
 
 
 class ProductionsAPI(ApiViewHandler):
@@ -76,22 +77,22 @@ class ProductionsAPI(ApiViewHandler):
         return
 
 
-class ProductionAPI(ApiViewHandler):
+class ProductionAPI(ApiViewHandler, ProMixin):
 
     @login_required
     def get(self, _id):
-        obj = FOFInfo.get_by_query(fof_id=_id)
+        obj = self.select_model(fof_id=_id)
         return obj.to_dict()
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.OPE_MANAGER])
     def put(self, _id):
-        obj = FOFInfo.get_by_query(fof_id=_id)
+        obj = self.select_model(fof_id=_id)
         update_production_info(obj)
         return
 
     @login_required
     def delete(self, _id):
-        obj = FOFInfo.get_by_query(fof_id=_id)
+        obj = self.select_model(fof_id=_id)
         obj.logic_delete()
 
 
