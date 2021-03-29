@@ -15,6 +15,7 @@ def select_task_from():
             'app_id': acc.app_id,
             'app_sec': acc.app_sec,
             'manager_id': g.token.manager_id,
+            'nav_template_id': acc.nav_template_id,
         }
     elif task_type == MessageTaskSub.TaskType.MAIL:
         acc = ManagerEmailAccount.filter_by_query(
