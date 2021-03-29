@@ -61,7 +61,7 @@ def wx_nav_template(app_id, app_sec, manager_id, open_id, pro_name, nav, acc_nav
     )
     msg = init_template(
         open_id,
-        'c3ADcbl-eShFi5xQJioDNFUXCcq36A75IZHrZsjFuuo',
+        '8-dIC5myXhGvtWFcgpdzoAkSMKW0gJ4tYBWDk1yKIQ8',
         {
             "first": {
                 "value": "尊敬的用户您好:",
