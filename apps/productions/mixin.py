@@ -2,7 +2,7 @@
 import pandas as pd
 import datetime
 
-from flask import request
+from flask import request, g
 from utils.helper import generate_sql_pagination, replace_nan
 from utils.decorators import login_required
 from bases.globals import db
