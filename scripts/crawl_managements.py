@@ -12,6 +12,8 @@ from bases.exceptions import NotFoundError
 from bases.globals import db
 from extensions.manager.spider import ManagementSpider
 from extensions.manager.validator import ManageFundValidation
+from extensions.s3.log_store import LogStore
+from extensions.wx.management_notification import ManagementNotification
 from models import ManagementFund
 
 
@@ -97,7 +99,13 @@ class ManagementCrawler:
         self.load_funds()
 
         p = mp.Pool(5)
-        p.map(partial(self.crawl_fund, app=current_app._get_current_object()), self.funds)
+        results = p.map(partial(self.crawl_fund, app=current_app._get_current_object()), self.funds)
         p.close()
         p.join()
 
+        failed_count = results.count(False)
+        exceptions_log = funds_log = None
+        if failed_count > 0:
+            exceptions_log = LogStore.store_management_log(self.error_exceptions_path, suffix='_f_exceptions')
+            funds_log = LogStore.store_management_log(self.error_funds_path, suffix='_funds')
+        ManagementNotification.send_fund_update(failed_count, funds_log, exceptions_log)
