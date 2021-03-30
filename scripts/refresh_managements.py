@@ -12,6 +12,8 @@ from extensions.manager.spider import ManagementSpider
 from extensions.manager.validator import (ManagementBaseValidation, ManagementInfoValidation,
                                           ManageFundValidation, ManagementSeniorValidation,
                                           ManagementRelatedPartyValidation, ManagementInvestorValidation)
+from extensions.s3.log_store import LogStore
+from extensions.wx.management_notification import ManagementNotification
 from models import Management, ManagementFund, ManagementSenior, ManagementRelatedParty, ManagementInvestor
 
 
@@ -86,7 +88,7 @@ def update_investors(manager_id, investors: list):
 
 
 def update_manager_info(start, path):
-    error_exceptions_path = path / 'error_exceptions.log'
+    error_exceptions_path = path / 'manager_exceptions.log'
     error_managers_path = path / 'error_managers.log'
 
     managers = Management.filter_by_query().all()
@@ -96,6 +98,7 @@ def update_manager_info(start, path):
     investor_managers = ManagementInvestor.get_manager_ids()
 
     manager_count = start
+    failed_count = 0
     for manager in managers[start:]:
         manager_count += 1
 
@@ -128,26 +131,33 @@ def update_manager_info(start, path):
             manager.logic_delete()
 
         except ValidationError:
+            failed_count += 1
             err_msg = f'[update_manager_info][{now_time()}] failed! (manager_id){manager.manager_id} (manager_info){manager_info} (err_msg){traceback.format_exc()}'
             current_app.logger.error(err_msg)
             log_message(error_exceptions_path, err_msg)
             log_message(error_managers_path, str(manager.manager_id))
 
         except Exception:
+            failed_count += 1
             err_msg = f'[update_manager_info][{now_time()}] failed! (manager_id){manager.manager_id} (err_msg){traceback.format_exc()}'
             current_app.logger.error(err_msg)
             log_message(error_exceptions_path, err_msg)
             log_message(error_managers_path, str(manager.manager_id))
 
         if manager_count % 100 == 0:
-            current_app.logger.info(f'[update_manager_info][{now_time()}] done! (manager_count){manager_count}')
+            current_app.logger.info(f'[update_manager_info][{now_time()}] done! (manager_count){manager_count} (failed_count){failed_count}')
 
-    current_app.logger.info(f'[update_manager_info][{now_time()}] all done! (manager_count){manager_count}')
+    current_app.logger.info(f'[update_manager_info][{now_time()}] all done! (manager_count){manager_count} (failed_count){failed_count}')
+    exceptions_log = managers_log = None
+    if failed_count > 0:
+        exceptions_log = LogStore.store_management_log(error_exceptions_path, suffix='_m_exceptions')
+        managers_log = LogStore.store_management_log(error_managers_path, suffix='_managers')
+    ManagementNotification.send_manager_update(failed_count, managers_log, exceptions_log)
     return True
 
 
 def update_fund_info(start, path):
-    error_exceptions_path = path / 'error_exceptions.log'
+    error_exceptions_path = path / 'fund_exceptions.log'
     error_funds_path = path / 'error_funds.log'
 
     funds = ManagementFund.filter_by_query().all()

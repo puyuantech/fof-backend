@@ -50,7 +50,7 @@ class ManagementSpider:
     @classmethod
     def get_manager_info(cls, manager_id: str):
         endpoint = f'/res/pof/manager/{manager_id}.html'
-        return ManagementParser.parse_manager(cls.get_html(endpoint))
+        return ManagementParser.parse_manager(cls.get_html(endpoint, None))
 
     @classmethod
     def get_fund_info(cls, fund_id: str, proxies=None):
