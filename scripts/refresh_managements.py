@@ -201,7 +201,8 @@ def update_managements(manager_list=True, manager_info=True, fund_info=True, sta
         if not path.is_dir():
             path = None
     if path is None:
-        path = pathlib.Path(__file__).parent.absolute()
+        # path = pathlib.Path(__file__).parent.absolute()
+        path = pathlib.Path('/shared/fof/managements')
 
     if manager_list and not update_manager_list(start):
         return

@@ -69,6 +69,12 @@ def crawl_management(username, password):
     crawler.parallel_craw_funds()
 
 
+@manager.command
+def extend_fof_info():
+    from scripts.extend_fof_info import extend_fof_info_from_management
+    extend_fof_info_from_management()
+
+
 if __name__ == '__main__':
     manager.run()
 
