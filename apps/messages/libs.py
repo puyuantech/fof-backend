@@ -32,6 +32,8 @@ def select_task_from():
             'sender': acc.sender,
             'use_ssl': acc.is_ssl,
         }
+    elif task_type == MessageTaskSub.TaskType.MOBILE:
+        task_from = {}
     else:
         raise VerifyError('信息类型错误')
 
