@@ -80,18 +80,14 @@ class ViewAllMixin:
 
 
 class ProMixin:
-    nav_model = None
-
     def select_model(self, fof_id):
         obj = FOFInfo.filter_by_query(
             fof_id=fof_id,
             manager_id=g.token.manager_id,
         ).first()
         if obj:
-            self.nav_model = FOFNav
             return obj
         else:
-            self.nav_model = FOFNavPublic
             return FOFInfo.get_by_query(
                 fof_id=fof_id,
                 manager_id='1',
@@ -103,20 +99,43 @@ class ProMixin:
         end_date = None if not request.args.get('end_date') else \
             datetime.datetime.strptime(request.args.get('end_date'), '%Y-%m-%d')
 
+        df_pub = self.get_public_nav(fof_id)
+        df_pri = self.get_private_nav(fof_id)
+
+        df = df_pub.copy()
+        for i in df_pri.index:
+            df.append(df_pri.loc[i, :])
+
+        df = df.drop_duplicates(subset=['datetime'], keep='last')
+        df = df.set_index('datetime')
+        df['all_nav'] = df['adjusted_nav'] / df['adjusted_nav'][0]
+        df['daily_ret'] = df['all_nav'] / df['all_nav'].shift(1) - 1
+        df = df.sort_values('datetime')
+
+        if start_date:
+            df = df[df.index >= start_date]
+
+        if end_date:
+            df = df[df.index <= end_date]
+
+        return df
+
+    def get_public_nav(self, fof_id):
+
         results = db.session.query(
-            self.nav_model.datetime,
-            self.nav_model.ret,
-            self.nav_model.nav,
-            self.nav_model.acc_net_value,
-            self.nav_model.adjusted_nav,
+            FOFNavPublic.datetime,
+            FOFNavPublic.ret,
+            FOFNavPublic.nav,
+            FOFNavPublic.acc_net_value,
+            FOFNavPublic.adjusted_nav,
         ).filter(
-            self.nav_model.fof_id == fof_id,
+            FOFNavPublic.fof_id == fof_id,
         ).order_by(
-            self.nav_model.datetime.asc()
+            FOFNavPublic.datetime.asc()
         ).all()
 
         if len(results) < 1:
-            return []
+            return pd.DataFrame([])
 
         df = pd.DataFrame([{
             'datetime': i[0],
@@ -127,14 +146,31 @@ class ProMixin:
         } for i in results])
 
         df['datetime'] = pd.to_datetime(df['datetime'])
-        df = df.set_index('datetime')
-        df['all_nav'] = df['adjusted_nav'] / df['adjusted_nav'][0]
-        df['daily_ret'] = df['all_nav'] / df['all_nav'].shift(1) - 1
+        return df
 
-        if start_date:
-            df = df[df.index >= start_date]
+    def get_private_nav(self, fof_id):
+        results = db.session.query(
+            FOFNav.datetime,
+            FOFNav.ret,
+            FOFNav.nav,
+            FOFNav.acc_net_value,
+            FOFNav.adjusted_nav,
+        ).filter(
+            FOFNav.fof_id == fof_id,
+        ).order_by(
+            FOFNav.datetime.asc()
+        ).all()
 
-        if end_date:
-            df = df[df.index <= end_date]
+        if len(results) < 1:
+            return pd.DataFrame([])
 
+        df = pd.DataFrame([{
+            'datetime': i[0],
+            'acc_ret': i[1],
+            'nav': i[2],
+            'acc_net_value': i[3],
+            'adjusted_nav': i[4],
+        } for i in results])
+
+        df['datetime'] = pd.to_datetime(df['datetime'])
         return df

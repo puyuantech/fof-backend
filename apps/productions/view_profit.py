@@ -67,26 +67,26 @@ def calc_index_ret(index_id):
     return df
 
 
-class ProductionRet(ApiViewHandler):
+class ProductionRet(ApiViewHandler, ProMixin):
 
     @login_required
     def get(self, fof_id):
-        df = calc_fof_ret(fof_id)
+        df = self.calc_fof_ret(fof_id).reset_index()
         if len(df) < 1:
             return {}
 
         data = {
-            'acc_net_value': df['temp'],
+            'acc_net_value': df['all_nav'],
             'dates': df['datetime'],
         }
         return replace_nan(data)
 
 
-class ProductionMonthlyRet(ApiViewHandler):
+class ProductionMonthlyRet(ApiViewHandler, ProMixin):
 
     @login_required
     def get(self, fof_id):
-        df = calc_fof_ret(fof_id)
+        df = self.calc_fof_ret(fof_id).reset_index()
         if len(df) < 1:
             return {}
 
@@ -104,7 +104,7 @@ class ProductionMonthlyRet(ApiViewHandler):
         return replace_nan(data)
 
 
-class ProductionRatio(ApiViewHandler):
+class ProductionRatio(ApiViewHandler, ProMixin):
 
     @login_required
     def get(self, fof_id):
@@ -120,28 +120,20 @@ class ProductionRatio(ApiViewHandler):
             夏普比率
         }
         """
-        df = calc_fof_ret(fof_id)
+        df = self.calc_fof_ret(fof_id).reset_index()
         if len(df) < 1:
             return {}
-        ratios = Calculator.get_stat_result_from_df(df, 'datetime', 'temp')
-        # year_to_now = df.iloc[0]['temp'] / \
-        #     df[df['datetime'] < datetime.date(df.iloc[0]['datetime'].year, 1, 1)].iloc[0]['temp'] - 1 \
-        #     if len(df[df['datetime'] < datetime.date(df.iloc[0]['datetime'].year, 1, 1)]) > 0 else None
-        # ret = df.iloc[0]['temp'] / df.iloc[-1]['temp'] - 1 if df.iloc[-1]['temp'] else None
-
-        data = {
+        ratios = Calculator.get_stat_result_from_df(df, 'datetime', 'adjusted_nav').__dict__
+        ratios.update({
             'acc_net_value': df.iloc[0]['acc_net_value'],
             'nav': df.iloc[0]['nav'],
             'datetime': df.iloc[0]['datetime'],
-            'mdd': ratios.mdd,
-            'sharpe': ratios.sharpe,
-            'ret': df.iloc[-1]['temp'] / df.iloc[0]['temp'] - 1 if df.iloc[0]['temp'] else None,
-            # 'year_to_now': year_to_now if year_to_now else ret,
-        }
-        return replace_nan(data)
+            'ret': df.iloc[-1]['all_nav'] / df.iloc[0]['all_nav'] - 1 if df.iloc[0]['all_nav'] else None,
+        })
+        return replace_nan(ratios)
 
 
-class ProductionWinRate(ApiViewHandler):
+class ProductionWinRate(ApiViewHandler, ProMixin):
 
     @login_required
     def get(self, fof_id):
@@ -149,7 +141,7 @@ class ProductionWinRate(ApiViewHandler):
         if not index_id:
             raise VerifyError('No index id')
 
-        df = calc_fof_ret(fof_id)
+        df = self.calc_fof_ret(fof_id).reset_index()
         if len(df) < 1:
             return {}
 

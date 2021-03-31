@@ -24,13 +24,17 @@ class InformationAPI(ApiViewHandler, ViewList):
         )
         return data
 
-    @params_required(*['title', 'info_type', 'content_type'])
+    @params_required(*['title', 'info_type'])
     @login_required
     def post(self):
         obj = InfoDetail.create(
             title=self.input.title,
+            author=request.json.get('author'),
+            thumbnail=request.json.get('thumbnail'),
+            summary=request.json.get('summary'),
+            sub_file=request.json.get('sub_file'),
             info_type=self.input.info_type,
-            content_type=self.input.content_type,
+            content_type=request.json.get('content_type'),
             is_effected=request.json.get('is_effected'),
             content=request.json.get('content'),
             effect_user_name=request.json.get('effect_user_name'),
@@ -45,6 +49,10 @@ class InformationDetailAPI(ApiViewHandler, ViewDetailGet, ViewDetailUpdate, View
     model = InfoDetail
     update_columns = [
         'title',
+        'author',
+        'thumbnail',
+        'summary',
+        'sub_file',
         'info_type',
         'content_type',
         'content',
@@ -68,6 +76,12 @@ class InformationDetailAPI(ApiViewHandler, ViewDetailGet, ViewDetailUpdate, View
                 obj.update(commit=False, **{i: request.json.get(i)})
         obj.save()
         update_info_production(obj)
+        return
+
+    @login_required
+    def delete(self, _id):
+        obj = self.model.get_by_id(_id)
+        obj.logic_delete()
         return
 
 
