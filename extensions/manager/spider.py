@@ -27,13 +27,9 @@ class ManagementSpider:
 
     @classmethod
     def get_html(cls, endpoint: str, proxies: dict):
-        try:
-            response = requests.get(cls.host + endpoint, timeout=3, verify=False, proxies=proxies)
-            response.encoding = 'utf-8'
-            return response
-        except Exception as e:
-            current_app.logger.error(f'[get_html] failed! (endpoint){endpoint} (err_msg){traceback.format_exc()}')
-            raise e
+        response = requests.get(cls.host + endpoint, timeout=3, verify=False, proxies=proxies)
+        response.encoding = 'utf-8'
+        return response
 
     @classmethod
     def get_manager_list(cls):
