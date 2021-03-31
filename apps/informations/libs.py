@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, g
 from models import InfoToProduction, FOFInfo
 from bases.globals import db
 
@@ -15,7 +15,8 @@ def get_info_production(obj):
         FOFInfo.fof_name,
         FOFInfo.fof_id,
     ).filter(
-        FOFInfo.fof_id.in_(fof_ids)
+        FOFInfo.fof_id.in_(fof_ids),
+        FOFInfo.manager_id == g.token.manager_id,
     ).all()
 
     productions = [
@@ -39,8 +40,9 @@ def update_info_production(obj):
     ).all()
     fof_ids = [i.fof_id for i in items]
 
-    for i in fof_ids:
-        if i not in productions:
+    production_ids = [i['fof_id'] for i in productions]
+    for i in items:
+        if i.id not in production_ids:
             i.logic_delete()
 
     for i in productions:

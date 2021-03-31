@@ -4,6 +4,7 @@ from models import CeleryTaskLogs, MessageTaskSub
 from bases.globals import celery
 from extensions.wx.msg_manager import wx_nav_template
 from extensions.mail.template import mail_nav_template
+from extensions.mengwang.sms import sms_nav_template
 
 
 @celery.task()
@@ -52,6 +53,20 @@ def send_nav_msg(sub_task_id):
                 use_ssl=task_from.get('use_ssl'),
                 title='净值提醒',
                 send_to=investor.get('email'),
+                pro_name=nav_data.get('fof_name'),
+                nav=nav_data.get('nav'),
+                acc_nav=nav_data.get('acc_nav'),
+                date=nav_data.get('date'),
+            )
+            t.task_status = MessageTaskSub.TaskStatus.SUCCESS
+            return
+
+        if t.task_type == MessageTaskSub.TaskType.MOBILE:
+            if not investor.get('mobile'):
+                raise Exception('No mobile')
+
+            sms_nav_template(
+                send_to=investor.get('mobile'),
                 pro_name=nav_data.get('fof_name'),
                 nav=nav_data.get('nav'),
                 acc_nav=nav_data.get('acc_nav'),
