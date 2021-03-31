@@ -29,8 +29,9 @@ def log_message(path, message):
 class ManagementCrawler:
 
     def __init__(self):
-        self.path = pathlib.Path(__file__).parent.absolute() / 'managements'
-        self.error_exceptions_path = self.path / 'error_exceptions.log'
+        # self.path = pathlib.Path(__file__).parent.absolute() / 'managements'
+        self.path = pathlib.Path('/shared/fof/managements')
+        self.error_exceptions_path = self.path / 'fund_exceptions.log'
         self.error_funds_path = self.path / 'error_funds.log'
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36',
