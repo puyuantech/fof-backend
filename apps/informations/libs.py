@@ -37,12 +37,14 @@ def update_info_production(obj):
 
     items = InfoToProduction.filter_by_query(
         info_id=obj.id,
+        manager_id=g.token.manager_id,
     ).all()
     fof_ids = [i.fof_id for i in items]
 
     production_ids = [i['fof_id'] for i in productions]
+
     for i in items:
-        if i.id not in production_ids:
+        if i.fof_id not in production_ids:
             i.logic_delete()
 
     for i in productions:
@@ -50,4 +52,5 @@ def update_info_production(obj):
             InfoToProduction.create(
                 fof_id=i['fof_id'],
                 info_id=obj.id,
+                manager_id=g.token.manager_id,
             )
