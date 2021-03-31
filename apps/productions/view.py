@@ -34,7 +34,7 @@ class ProductionsAPI(ApiViewHandler):
         )
         data = p.paginate(
             query,
-            equal_filter=[FOFInfo.fof_name, FOFInfo.fof_id, FOFInfo.strategy_type, FOFInfo.fof_status, FOFInfo.asset_type],
+            equal_filter=[FOFInfo.fof_name, FOFInfo.fof_id, FOFInfo.strategy_type, FOFInfo.fof_status, FOFInfo.asset_type, FOFInfo.is_on_sale],
             range_filter=[FOFInfo.established_date]
         )
         return data
