@@ -41,6 +41,7 @@ class InfoToProduction(BaseModel):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)            # 编号
     info_id = db.Column(db.Integer)                                             # 资讯ID
     fof_id = db.Column(db.CHAR(16))                                             # 产品ID
+    manager_id = db.Column(db.String(32))                                       # 管理端ID
 
 
 class InfoTemplate(BaseModel):
