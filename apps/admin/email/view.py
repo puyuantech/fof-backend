@@ -31,11 +31,11 @@ class EMAILTask(ApiViewHandler):
         data = []
         for i in results:
             d = {
-                'manager_id': i[0],
-                'fof_id': i[1],
+                'manager_id': i[1],
+                'fof_id': i[0],
             }
             obj = ManagerNavEmail.filter_by_query(
-                manager_id=i[0],
+                manager_id=i[1],
             ).first()
             if obj:
                 d.update(obj.to_dict())
