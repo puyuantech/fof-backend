@@ -27,7 +27,7 @@ class EMAILTask(ApiViewHandler):
             FOFInfo.manager_id != '1',
             FOFInfo.asset_type == 'production',
         ).all()
-        print(results)
+
         data = []
         for i in results:
             d = {
@@ -37,7 +37,6 @@ class EMAILTask(ApiViewHandler):
             obj = ManagerNavEmail.filter_by_query(
                 manager_id=i[1],
             ).first()
-            print(obj)
             if obj:
                 d.update(obj.to_dict())
                 data.append(d)
