@@ -81,3 +81,11 @@ class HaiFengTemplateType(EnumBase):
         cls._init_cache()
         return cls._code_2_name_cache.get(code)
 
+
+class FOFNotificationType(EnumBase):
+    NAV_UPDATE = 'nav_update'       # 净值更新
+    PRODUCT_NEWS = 'product_news'   # 产品公告
+    MARKET_NEWS = 'market_news'     # 专属资讯
+    ROADSHOW_INFO = 'roadshow_info' # 路演信息
+    SYSTEM_NEWS = 'system_news'     # 系统公告
+
