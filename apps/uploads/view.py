@@ -17,6 +17,8 @@ class UploadPublicFileAPI(ApiViewHandler):
         content_type = request.args.get('content_type')
         if not file_obj:
             raise VerifyError('没有文件！')
+        if not content_type:
+            raise VerifyError('未指定文件类型！')
         file_key, url = FileStore().store_file_from_user(g.user.id, file_obj, content_type)
         if not file_key:
             raise LogicError('store file failed! (err_msg){}'.format(url))
