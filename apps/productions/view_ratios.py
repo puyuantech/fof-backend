@@ -9,7 +9,7 @@ from utils.decorators import login_required
 from utils.helper import replace_nan
 from utils.ratios import draw_down_underwater, monthly_return, yearly_return
 from utils.helper import select_periods
-from models import FOFNavPublic, FOFInfo, FOFNav, Management
+from models import FOFNavPublic, FOFInfo, FOFNav, Management, ManagementFund
 from surfing.util.calculator import Calculator
 from .mixin import ProMixin
 
@@ -22,7 +22,25 @@ class ProInfoAPI(ApiViewHandler, ProMixin):
         obj = self.select_model(fof_id)
         if not obj:
             return {}
-        return obj.to_dict()
+
+        data = obj.to_dict()
+        fund = ManagementFund.filter_by_query(
+            fund_no=fof_id,
+        ).first()
+        if fund:
+            data.update({
+                'establish_date': fund.establish_date,
+                'filing_date': fund.filing_date,
+                'filing_stage': fund.filing_stage,
+                'fund_type': fund.fund_type,
+                'currency_type': fund.currency_type,
+                'management_type': fund.management_type,
+                'custodian_name': fund.custodian_name,
+                'fund_status': fund.fund_status,
+                'special_reminder': fund.special_reminder,
+                'update_date': fund.update_date,
+            })
+        return data
 
 
 class ProManagementAPI(ApiViewHandler, ProMixin):
@@ -30,16 +48,18 @@ class ProManagementAPI(ApiViewHandler, ProMixin):
     @login_required
     def get(self, fof_id):
         """详情"""
-        obj = self.select_model(fof_id)
-        if not obj:
+        fund = ManagementFund.filter_by_query(
+            fund_no=fof_id,
+        ).first()
+        if not fund:
             return {}
 
-        management_ids = json.loads(obj.management_ids) if obj.management_ids else []
+        management_ids = fund.manager_ids if fund.manager_ids else []
         if not management_ids:
             return {}
 
         m = Management.filter_by_query(
-            manager_id=management_ids,
+            manager_id=management_ids[0],
         ).first()
         if not m:
             return {}

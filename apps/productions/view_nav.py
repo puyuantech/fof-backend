@@ -1,7 +1,7 @@
 import pandas as pd
 import io
 import datetime
-from flask import make_response, request
+from flask import make_response, request, g
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from bases.globals import db
@@ -61,6 +61,7 @@ class NavUpdateAPI(ApiViewHandler):
                 FOFNav
             ).filter(
                 FOFNav.fof_id == fof_id,
+                FOFNav.manager_id == g.token.manager_id,
                 FOFNav.datetime.in_(dates),
             ).delete(synchronize_session=False)
 
@@ -70,6 +71,7 @@ class NavUpdateAPI(ApiViewHandler):
                     nav=i['单位净值'],
                     acc_net_value=i.get('累计净值'),
                     datetime=i['日期'],
+                    manager_id=g.token.manager_id,
                 )
                 db.session.add(new)
             db.session.commit()
@@ -79,6 +81,7 @@ class NavUpdateAPI(ApiViewHandler):
                 FOFNav
             ).filter(
                 FOFNav.fof_id == fof_id,
+                FOFNav.manager_id == g.token.manager_id,
             ).delete(synchronize_session=False)
 
             for i in nav_data:
@@ -87,6 +90,7 @@ class NavUpdateAPI(ApiViewHandler):
                     nav=i['单位净值'],
                     acc_net_value=i['累计净值'],
                     datetime=i['日期'],
+                    manager_id=g.token.manager_id,
                 )
                 db.session.add(new)
             db.session.commit()
@@ -95,6 +99,7 @@ class NavUpdateAPI(ApiViewHandler):
             FOFNav
         ).filter(
             FOFNav.fof_id == fof_id,
+            manager_id=g.token.manager_id,
         ).all()
         df = pd.DataFrame([i.to_dict() for i in results])
         df = df.rename(columns={
