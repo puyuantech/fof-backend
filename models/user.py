@@ -223,6 +223,7 @@ class ManagerInfo(BaseModel):
     id_number = db.Column(db.String(127))                           # 凭证编码
     address = db.Column(db.String(255))                             # 地址
     legal_person = db.Column(db.String(31))                         # 法人
+    logo = db.Column(db.String(255))                                # Logo
 
 
 class ManagerUserMap(BaseModel):

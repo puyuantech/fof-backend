@@ -18,3 +18,15 @@ class Tags(BaseModel):
     tag_name = db.Column(db.String(16))  # 标签名称
     user_id = db.Column(db.Integer)  # 用户ID
 
+
+class FOFLogos(BaseModel):
+    """
+    产品轮播图
+    """
+    __tablename__ = 'fof_logos'
+
+    id = db.Column(db.Integer, primary_key=True)
+    manager_id = db.Column(db.String(32))
+    fof_id = db.Column(db.String(16))
+    logo = db.Column(db.String(255))
+
