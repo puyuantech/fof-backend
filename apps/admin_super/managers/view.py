@@ -93,3 +93,4 @@ class ManagerAPI(ApiViewHandler):
                 obj.update(commit=False, **{i: request.json.get(i)})
         obj.save()
         return
+

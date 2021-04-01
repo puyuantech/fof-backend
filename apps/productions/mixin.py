@@ -157,6 +157,7 @@ class ProMixin:
             FOFNav.adjusted_nav,
         ).filter(
             FOFNav.fof_id == fof_id,
+            FOFNav.manager_id == g.token.manager_id,
         ).order_by(
             FOFNav.datetime.asc()
         ).all()

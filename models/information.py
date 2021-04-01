@@ -18,6 +18,7 @@ class InfoDetail(BaseModel):
         (2, 'rick_text'),
         (3, 'file_key'),
         (4, 'video'),
+        (5, 'text'),
     ]
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)            # 编号
