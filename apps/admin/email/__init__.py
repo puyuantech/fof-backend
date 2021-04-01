@@ -7,3 +7,6 @@ api = Api(blu)
 
 api.add_resource(MailVerifyAPI, '/verify')
 api.add_resource(MailSettingAPI, '/setting')
+api.add_resource(EMAILTask, '/email_task')
+api.add_resource(NavMailVerifyAPI, '/nav_mail_verify')
+api.add_resource(NavMailSetting, '/nav_mail_setting')
