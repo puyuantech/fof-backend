@@ -38,6 +38,7 @@ def update_production_info(obj):
         'nav_freq',
         'fof_manager',
         'desc_name',
+        'open_date',
     ]
     for i in columns:
         if request.json.get(i) is not None:
