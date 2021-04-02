@@ -9,7 +9,7 @@ from utils.decorators import login_required
 from utils.helper import replace_nan
 from utils.ratios import draw_down_underwater, monthly_return, yearly_return
 from utils.helper import select_periods
-from models import FOFNavPublic, FOFInfo, FOFNav, Management, ManagementFund
+from models import FOFNavPublic, FOFInfo, FOFNav, Management, ManagementFund, FOFTag
 from surfing.util.calculator import Calculator
 from .mixin import ProMixin
 
@@ -40,6 +40,16 @@ class ProInfoAPI(ApiViewHandler, ProMixin):
                 'special_reminder': fund.special_reminder,
                 'update_date': fund.update_date,
             })
+        tags = FOFTag.filter_by_query(
+            fof_id=fof_id,
+            manager_id=g.token.manager_id,
+        ).all()
+        tags = [i.to_dict() for i in tags]
+        if tags:
+            data.update({
+                'tags': tags
+            })
+
         return data
 
 
