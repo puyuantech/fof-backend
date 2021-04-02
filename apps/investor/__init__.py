@@ -8,7 +8,7 @@ from .view_contract import (ContractAPI, ContractListAPI, ContractTemplateAPI, R
                             BookAPI, SignAPI)
 from .view_information import (InformationAPI, InvestorTokenAPI, FaceImageAPI, CertImageAPI,
                                RealNameAPI, RiskLevelAPI, ExperienceAPI, InfoTableAPI, CommitmentAPI)
-from .view_notification import NotificationMenuAPI, NotificationListAPI, NotificationReadAPI, NotificationReadListAPI
+from .view_notification import NotificationMenuAPI, NotificationListAPI, NotificationReadListAPI
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/investor')
 api = Api(blu)
@@ -45,5 +45,4 @@ api.add_resource(CommitmentAPI, '/information/commitment')
 
 api.add_resource(NotificationMenuAPI, '/notification/menu')
 api.add_resource(NotificationListAPI, '/notification/list')
-api.add_resource(NotificationReadAPI, '/notification/read')
 api.add_resource(NotificationReadListAPI, '/notification/read/list')
