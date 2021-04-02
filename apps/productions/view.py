@@ -84,6 +84,8 @@ class ProductionsAPI(ApiViewHandler):
             'nav_freq': request.json.get('nav_freq'),
             'fof_manager': request.json.get('fof_manager'),
             'benchmark_index': request.json.get('benchmark_index'),
+            'desc_name': request.json.get('desc_name'),
+            'open_date': request.json.get('open_date'),
         }
         if FOFInfo.filter_by_query(
             fof_id=self.input.fof_id,

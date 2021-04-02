@@ -26,7 +26,9 @@ class ProductionRefresh(ApiViewHandler):
             settings['LOG_PATH'],
             '{}.sub.log'.format(fof_id),
         )
-        subprocess_popen(['python', 'manager.py', 'update_fof', '--id={}'.format(fof_id)], log_file)
+        subprocess_popen(['python', 'manager.py', 'update_fof', '--id={}'.format(fof_id),
+                          '--manager_id={}'.format(g.token.manager_id)
+                          ], log_file)
 
 
 class ProductionPublicRefresh(ApiViewHandler):
@@ -47,5 +49,6 @@ class ProductionPublicRefresh(ApiViewHandler):
             settings['LOG_PATH'],
             '{}.sub.log'.format(fof_id),
         )
-        subprocess_popen(['python', 'manager.py', 'pub_fof', '--id={}'.format(fof_id)], log_file)
+        subprocess_popen(['python', 'manager.py', 'pub_fof', '--id={}'.format(fof_id),
+                          '--manager_id={}'.format(g.token.manager_id)], log_file)
 

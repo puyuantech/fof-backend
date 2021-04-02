@@ -1,10 +1,11 @@
 import requests
+from bases.globals import settings
 
 
 class MailNavTasks:
     def __init__(self):
         self.url = 'https://fof.prism-advisor.com/api/v1/manager_mail/email_task'
-        self.verify_token = ''
+        self.verify_token = settings['NAV_MAIL_TOKEN']
 
     def get_tasks(self):
 

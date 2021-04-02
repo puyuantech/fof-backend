@@ -38,15 +38,17 @@ def init_super_admin(username, password):
 
 
 @manager.option('--id', dest='fof_id', help='fof id', default=None)
-def update_fof(fof_id):
+@manager.option('--manager_id', dest='manager_id', help='manager_id', default=None)
+def update_fof(fof_id, manager_id):
     from scripts.refresh_fof import update_fof
-    update_fof(fof_id)
+    update_fof(fof_id, manager_id=manager_id)
 
 
 @manager.option('--id', dest='fof_id', help='fof id', default=None)
-def pub_fof(fof_id):
+@manager.option('--manager_id', dest='manager_id', help='manager_id', default=None)
+def pub_fof(fof_id, manager_id):
     from scripts.refresh_fof import update_public_fof
-    update_public_fof(fof_id)
+    update_public_fof(fof_id, manager_id=manager_id)
 
 
 @manager.option('-l', dest='manager_list', help='to update manager list', action='store_true', default=False)

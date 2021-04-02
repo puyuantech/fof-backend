@@ -107,7 +107,7 @@ class ProMixin:
 
         df = df_pub.copy()
         for i in df_pri.index:
-            df.append(df_pri.loc[i, :])
+            df = df.append(df_pri.loc[i, :], ignore_index=True)
 
         df = df.drop_duplicates(subset=['datetime'], keep='last')
         df = df.set_index('datetime')
