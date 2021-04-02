@@ -4,7 +4,7 @@ import requests
 class MailNavTasks:
     def __init__(self):
         self.url = 'https://fof.prism-advisor.com/api/v1/manager_mail/email_task'
-        self.verify_token = 'jisn401f7ac837da42b97f613d789819f37bee6a'
+        self.verify_token = ''
 
     def get_tasks(self):
 

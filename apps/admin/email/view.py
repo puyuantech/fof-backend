@@ -3,20 +3,22 @@ import datetime
 import imaplib
 from flask import g, request
 
-from bases.globals import db
+from bases.globals import db, settings
 from bases.viewhandler import ApiViewHandler
-from bases.exceptions import VerifyError
+from bases.exceptions import VerifyError, LogicError
 from models import ManagerEmailAccount, ManagerNavEmail, FOFInfo
 from utils.decorators import params_required, login_required
 from extensions.mail.mail import Mail, Message
 
 
 class EMAILTask(ApiViewHandler):
-    TOKEN = 'jisn401f7ac837da42b97f613d789819f37bee6a'
 
     @params_required(*['verify_token'])
     def post(self):
-        if self.TOKEN != self.input.verify_token:
+        if not settings.get('NAV_MAIL_TOKEN'):
+            raise LogicError('No NAV_MAIL_TOKEN in config!')
+
+        if settings.get('NAV_MAIL_TOKEN') != self.input.verify_token:
             return
 
         results = db.session.query(
