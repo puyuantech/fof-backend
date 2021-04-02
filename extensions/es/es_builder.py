@@ -215,3 +215,16 @@ class BaseIndexer(object):
             pass
         return ''
 
+
+class FOFFundSearchBuilder(BaseIndexer):
+
+    @classmethod
+    def build_doc_param(cls, fof_id, fof_name):
+        return {
+            'fof_id': fof_id,
+            'fof_name': fof_name,
+            'fof_name_pinyin': fof_name,
+            'fof_name_first': build_pinyin(fof_name),
+            'update_time': datetime.datetime.now(),
+            'create_time': datetime.datetime.now(),
+        }

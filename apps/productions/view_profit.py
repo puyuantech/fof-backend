@@ -71,9 +71,10 @@ class ProductionRet(ApiViewHandler, ProMixin):
 
     @login_required
     def get(self, fof_id):
-        df = self.calc_fof_ret(fof_id).reset_index()
+        df = self.calc_fof_ret(fof_id)
         if len(df) < 1:
             return {}
+        df = df.reset_index()
 
         data = {
             'acc_net_value': df['all_nav'],
@@ -86,9 +87,10 @@ class ProductionMonthlyRet(ApiViewHandler, ProMixin):
 
     @login_required
     def get(self, fof_id):
-        df = self.calc_fof_ret(fof_id).reset_index()
+        df = self.calc_fof_ret(fof_id)
         if len(df) < 1:
             return {}
+        df = df.reset_index()
 
         df = df.set_index('datetime')
         returns = df['daily_ret']
@@ -120,9 +122,11 @@ class ProductionRatio(ApiViewHandler, ProMixin):
             夏普比率
         }
         """
-        df = self.calc_fof_ret(fof_id).reset_index()
+        df = self.calc_fof_ret(fof_id)
         if len(df) < 1:
             return {}
+        df = df.reset_index()
+
         ratios = Calculator.get_stat_result_from_df(df, 'datetime', 'adjusted_nav').__dict__
         ratios.update({
             'acc_net_value': df.iloc[0]['acc_net_value'],
@@ -141,9 +145,10 @@ class ProductionWinRate(ApiViewHandler, ProMixin):
         if not index_id:
             raise VerifyError('No index id')
 
-        df = self.calc_fof_ret(fof_id).reset_index()
+        df = self.calc_fof_ret(fof_id)
         if len(df) < 1:
             return {}
+        df = df.reset_index()
 
         index_df = calc_index_ret(index_id=index_id)
         if len(index_df) < 1:

@@ -144,8 +144,9 @@ def generate_sql_pagination():
     return SQLPagination(page, page_size, ordering)
 
 
-def generate_hash_char(num: int) -> str:
-    num = num + 100009527
+def generate_hash_char(num: int, flag=True) -> str:
+    if not flag:
+        num = num + 100009527
     s = 'mnopqrstbc1y832vwx5u49deghijklza67f'
     length = len(s)
 

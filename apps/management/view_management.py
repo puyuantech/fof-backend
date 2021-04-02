@@ -53,3 +53,17 @@ class ManagementFundAPI(ApiViewHandler):
         data['managements'] = [management.to_dict(remove_fields_list={'fund_ids'}) for management in managements]
         return data
 
+
+class ManagementFundInfoAPI(ApiViewHandler):
+
+    @login_required
+    def get(self, fund_no):
+        fund = ManagementFund.filter_by_query(fund_no=fund_no).first()
+        if not fund:
+            return {}
+        data = fund.to_dict(remove_fields_list={'manager_ids'})
+
+        managements = Management.filter_by_query().filter(Management.manager_id.in_(fund.manager_ids)).all()
+        data['managements'] = [management.to_dict(remove_fields_list={'fund_ids'}) for management in managements]
+        return data
+

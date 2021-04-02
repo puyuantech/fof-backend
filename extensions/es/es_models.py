@@ -15,3 +15,16 @@ class IndexSearchDoc(Document):
         name = 'index_search'
         label_name = 'es_test'
 
+
+class FOFFundSearchDoc(Document):
+
+    fof_id = Keyword()
+    fof_name = Text(analyzer='ik_max_word')
+    fof_name_pinyin = Text(analyzer='pinyin')
+    fof_name_first = Text(analyzer='standard')
+    update_time = Date()
+    create_time = Date()
+
+    class Index:
+        name = 'fof_fund_search'
+        label_name = 'es_test'
