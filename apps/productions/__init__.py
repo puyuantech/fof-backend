@@ -12,6 +12,7 @@ from .view_profit import ProductionRet, ProductionMonthlyRet, ProductionWinRate,
 from .view_ratios import *
 from .view_trades import *
 from .view_nav import *
+from .view_tags import ProTagAPI
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/production')
 api = Api(blu)
@@ -93,3 +94,7 @@ api.add_resource(NavTemplateFile, '/manage_nav/template_file')
 api.add_resource(NavParseFile, '/manage_nav/parse')
 api.add_resource(NavUpdateAPI, '/manage_nav/update/<string:fof_id>')
 api.add_resource(NavByDateAPI, '/manage_nav/by_date/<string:fof_id>')
+
+# tags
+api.add_resource(ProTagAPI, '/manage_tag')
+
