@@ -170,3 +170,12 @@ def select_periods():
         return 'M'
 
     return
+
+
+def parse_date_counts(date_counts):
+    try:
+        dates, counts = zip(*date_counts)
+    except ValueError:
+        return [], []
+    return replace_nan(dates), list(counts)
+
