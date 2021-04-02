@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import time
 import datetime
 import traceback
 
@@ -11,7 +12,7 @@ from bases.exceptions import VerifyError
 from models import FOFInfo, FOFNav, FOFNavPublic, FOFAssetAllocation, FOFPosition, FOFInvestorPosition, User, \
     FOFScaleAlteration, UnitMap, WeChatUnionID, UserInvestorMap
 from utils.decorators import params_required, login_required, admin_login_required
-from utils.helper import generate_sql_pagination, replace_nan
+from utils.helper import generate_sql_pagination, replace_nan, generate_hash_char
 from utils.caches import get_fund_collection_caches, get_hedge_fund_cache, get_fund_cache
 from surfing.util.calculator import Calculator as SurfingCalculator
 from surfing.data.manager.manager_fof import FOFDataManager
@@ -20,6 +21,16 @@ from bases.constants import StuffEnum
 from .libs import update_production_info, parse_trade_file, create_single_trade, update_trade, parse_nav_file, \
     create_single_nav, update_nav, parse_investor_trade_file
 from .mixin import ProMixin
+
+
+class CreateProductionID(ApiViewHandler):
+    @login_required
+    def get(self):
+        num = int(str(g.user.id) + datetime.datetime.now().strftime('%Y%m%d%H%M%S')[2:])
+        _id = generate_hash_char(num)
+        return {
+            'id': _id,
+        }
 
 
 class ProductionsAPI(ApiViewHandler):
@@ -34,7 +45,7 @@ class ProductionsAPI(ApiViewHandler):
         )
         data = p.paginate(
             query,
-            equal_filter=[FOFInfo.fof_name, FOFInfo.fof_id, FOFInfo.strategy_type, FOFInfo.fof_status, FOFInfo.asset_type, FOFInfo.is_on_sale],
+            equal_filter=[FOFInfo.fof_name, FOFInfo.fof_id, FOFInfo.strategy_type, FOFInfo.is_fof, FOFInfo.fof_status, FOFInfo.asset_type, FOFInfo.is_on_sale],
             range_filter=[FOFInfo.established_date]
         )
         return data
@@ -42,8 +53,10 @@ class ProductionsAPI(ApiViewHandler):
     @login_required
     @params_required(*['fof_id'])
     def post(self):
+        manager_id = g.token.manager_id if request.json.get('is_private') else '1'
         data = {
             'fof_id': request.json.get('fof_id'),
+            'manager_id': g.token.manager_id if request.json.get('is_private') else '1',
             'datetime':  request.json.get('datetime'),
             'fof_name': request.json.get('fof_name'),
             'admin': request.json.get('admin'),
@@ -67,14 +80,21 @@ class ProductionsAPI(ApiViewHandler):
             'is_fof': request.json.get('is_fof'),
             'is_on_sale': request.json.get('is_on_sale'),
             'benchmark': request.json.get('benchmark'),
-            'manager_id': g.token.manager_id if request.json.get('is_private') else '1',
             'asset_type': request.json.get('asset_type'),
             'nav_freq': request.json.get('nav_freq'),
+            'fof_manager': request.json.get('fof_manager'),
+            'benchmark_index': request.json.get('benchmark_index'),
         }
-        if FOFInfo.filter_by_query(fof_id=self.input.fof_id, show_deleted=True).one_or_none():
+        if FOFInfo.filter_by_query(
+            fof_id=self.input.fof_id,
+            manager_id=manager_id,
+            show_deleted=True
+        ).one_or_none():
             raise VerifyError('ID 重复')
-        FOFInfo.create(**data)
-        return
+        obj = FOFInfo.create(**data)
+        return {
+            'id': obj.fof_id,
+        }
 
 
 class ProductionAPI(ApiViewHandler, ProMixin):

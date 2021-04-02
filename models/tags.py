@@ -19,6 +19,18 @@ class Tags(BaseModel):
     user_id = db.Column(db.Integer)  # 用户ID
 
 
+class FOFTag(BaseModel):
+    """产品标签"""
+    __tablename__ = 'fof_tags'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)    # 数据行编号
+    tag_name = db.Column(db.String(16))                                 # 标签名称
+    fof_id = db.Column(db.String(32))                                   #
+    manager_id = db.Column(db.String(32))                               # 管理端ID
+    add_user_id = db.Column(db.Integer)                                 # 添加者ID
+    del_user_id = db.Column(db.Integer)                                 # 删除者ID
+
+
 class FOFLogos(BaseModel):
     """
     产品轮播图

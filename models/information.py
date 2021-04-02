@@ -19,6 +19,7 @@ class InfoDetail(BaseModel):
         (3, 'file_key'),
         (4, 'video'),
         (5, 'text'),
+        (6, 'url'),
     ]
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)            # 编号
