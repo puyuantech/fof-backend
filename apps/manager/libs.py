@@ -89,8 +89,8 @@ def get_investor_counts(manager_id, start_time):
     }
 
 
-def get_notification_statistics(manager_id):
-    start_time = datetime.datetime.now() - datetime.timedelta(days=30)
+def get_notification_statistics(manager_id, days):
+    start_time = datetime.datetime.now() - datetime.timedelta(days=days)
     start_date = start_time.date()
 
     notification_investor = get_investor_counts(manager_id, start_time)
