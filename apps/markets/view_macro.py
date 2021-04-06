@@ -19,14 +19,7 @@ class AssetMenuAPI(ApiViewHandler):
 
     @login_required
     def get(self):
-        data = []
-        asset_details = BasicDataApi().get_asset_details()
-        for key in ('大类资产', '股票指数', '期货指数', '典型产品', '策略指数'):
-            data.append({
-                'title': key,
-                'items': [{'id': asset_id, 'name': asset_name} for asset_id, asset_name in asset_details[key]],
-            })
-        return data
+        return BasicDataApi().get_asset_details()
 
 
 class AssetRetAPI(ApiViewHandler):

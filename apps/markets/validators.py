@@ -14,7 +14,7 @@ class YearValidation(BaseValidation):
 class TimeValidation(BaseValidation):
     begin_date: datetime.date = None
     end_date: datetime.date = None
-    time_para: Literal['ALL','1M','3M','6M','1Y','YTD'] = None
+    time_para: Literal['ALL','1W','1M','3M','6M','1Y','YTD'] = None
 
 
 class AssetRetValidation(TimeValidation):
@@ -22,6 +22,7 @@ class AssetRetValidation(TimeValidation):
 
 
 class AssetRecentValidation(YearValidation):
+    weekly: bool = False
     asset_list: conlist(str, min_items=1)
 
 
