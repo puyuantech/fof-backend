@@ -11,7 +11,6 @@ from .libs import check_username_login
 class AdminLoginAPI(ApiViewHandler):
     @params_required(*['username', 'password', 'verification_code', 'verification_key'])
     def post(self):
-        g.user_operation = '登录-密码'
         check_img_captcha(
             verification_code=self.input.verification_code,
             verification_key=self.input.verification_key,

@@ -107,12 +107,18 @@ class TradesPurRedeemAPI(ApiViewHandler):
         ]
         data = {i: request.json.get(i) for i in allow_columns}
         _id = HedgeFundDataManager().investor_pur_redemp_update(data)
-        HedgeFundInvestorPurAndRedempSub.create(
+        trade = HedgeFundInvestorPurAndRedempSub.create(
             main_id=_id,
             trade_confirm_url=request.json.get('trade_confirm_url'),
             trade_apply_url=request.json.get('trade_apply_url'),
             remark=request.json.get('remark'),
         )
+
+        g.user_operation = '添加申赎交易记录'
+        g.user_operation_params = {
+            'fof_id': _id,
+            'trade_id': trade.id,
+        }
 
     @login_required
     def delete(self):
@@ -217,6 +223,11 @@ class TradesDivAndCarryAPI(ApiViewHandler):
         ]
         data = {i: request.json.get(i) for i in allow_columns}
         HedgeFundDataManager().investor_div_carry_add(data)
+
+        g.user_operation = '添加分红/计提记录'
+        g.user_operation_params = {
+            'fof_id': request.json.get('fof_id'),
+        }
 
     @login_required
     def delete(self):

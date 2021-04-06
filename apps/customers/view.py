@@ -44,6 +44,11 @@ class CusAPI(ApiViewHandler):
 
         # 添加信息
         unit_map.update_columns(request)
+        g.user_operation = '创建客户'
+        g.user_operation_params = {
+            'investor_id': unit_map.investor_id,
+            'unit_map_id': unit_map.id,
+        }
         return 'success'
 
 
@@ -62,6 +67,12 @@ class CustomerAPI(ApiViewHandler):
         if not instance:
             raise VerifyError('不存在！')
         instance.update_columns(request)
+
+        g.user_operation = '编辑客户'
+        g.user_operation_params = {
+            'investor_id': instance.investor_id,
+            'unit_map_id': instance.id,
+        }
         return get_investor_info(instance)
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
@@ -69,6 +80,12 @@ class CustomerAPI(ApiViewHandler):
         instance = UnitMap.get_by_id(_id)
         if not instance:
             raise VerifyError('不存在！')
+
+        g.user_operation = '删除客户'
+        g.user_operation_params = {
+            'investor_id': instance.investor_id,
+            'unit_map_id': instance.id,
+        }
         instance.logic_delete()
 
 

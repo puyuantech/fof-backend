@@ -34,6 +34,11 @@ class StaffsAPI(ApiViewHandler):
 
         # 添加用户信息
         update_user_info(user)
+
+        g.user_operation = '添加伙伴'
+        g.user_operation_params = {
+            'id': user.id,
+        }
         return 'success'
 
 
@@ -51,12 +56,22 @@ class StaffAPI(ApiViewHandler):
         if self.input.role_id:
             for i in user.token:
                 i.delete()
+
+        g.user_operation = '编辑伙伴'
+        g.user_operation_params = {
+            'id': user.id,
+        }
         return user.to_dict()
 
     @super_admin_login_required
     def delete(self, _id):
         user = User.get_by_id(_id)
         user.logic_delete()
+
+        g.user_operation = '删除伙伴'
+        g.user_operation_params = {
+            'id': user.id,
+        }
 
 
 class ResetStaffPassword(ApiViewHandler):
