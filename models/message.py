@@ -22,6 +22,7 @@ class MessageTaskSub(BaseModel):
         MAIL = 1
         MOBILE = 2
         WE_CHAT = 3
+        NAV_NOTIFICATION = 4
 
     class TaskStatus(EnumBase):
         SUCCESS = 1

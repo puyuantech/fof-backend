@@ -1,5 +1,5 @@
 from flask import request, g
-from models import ManagerWeChatAccount, ManagerEmailAccount, MessageTaskSub
+from models import ManagerWeChatAccount, ManagerEmailAccount, MessageTaskSub, FOFNotification
 from bases.exceptions import VerifyError
 
 
@@ -34,6 +34,10 @@ def select_task_from():
         }
     elif task_type == MessageTaskSub.TaskType.MOBILE:
         task_from = {}
+    elif task_type == MessageTaskSub.TaskType.NAV_NOTIFICATION:
+        task_from = {
+            'manager_id': g.token.manager_id,
+        }
     else:
         raise VerifyError('信息类型错误')
 
