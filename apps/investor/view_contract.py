@@ -1,4 +1,5 @@
 
+from flask import g
 from bases.validation import FOFValidation, UnitValidation, ContractValidation
 from bases.viewhandler import ApiViewHandler
 from models import InvestorContract, ContractTemplate
@@ -108,5 +109,9 @@ class SignAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = ContractValidation.get_valid_data(self.input)
+        g.user_operation = '预约通过'
+        g.user_operation_params = {
+            'investor_id': data.get('investor_id'),
+        }
         return InvestorContract.signing_contract(**data)
 

@@ -1,4 +1,5 @@
 
+from flask import g
 from bases.viewhandler import ApiViewHandler
 from models import FOFInfo, FOFLogos, ManagerInfo
 from utils.decorators import login_required, params_required
@@ -17,6 +18,7 @@ class LogoAPI(ApiViewHandler):
     def put(self):
         manager_info = ManagerInfo.get_by_query(manager_id=self.input.manager_id)
         manager_info.update(logo=self.input.logo)
+        g.user_operation = '修改logo'
         return 'success'
 
 
@@ -30,6 +32,7 @@ class FOFLogoAPI(ApiViewHandler):
             fof_id=self.input.fof_id,
             logo=self.input.logo,
         )
+        g.user_operation = '创建轮播图'
         return 'success'
 
     @params_required(*['logo_id', 'fof_id', 'logo'])
@@ -37,6 +40,7 @@ class FOFLogoAPI(ApiViewHandler):
     def put(self):
         fof_logo = FOFLogos.get_by_id(self.input.logo_id)
         fof_logo.update(fof_id=self.input.fof_id, logo=self.input.logo)
+        g.user_operation = '修改轮播图'
         return 'success'
 
     @params_required(*['logo_id'])
@@ -44,6 +48,7 @@ class FOFLogoAPI(ApiViewHandler):
     def delete(self):
         fof_logo = FOFLogos.get_by_id(self.input.logo_id)
         fof_logo.logic_delete()
+        g.user_operation = '删除轮播图'
         return 'success'
 
 
