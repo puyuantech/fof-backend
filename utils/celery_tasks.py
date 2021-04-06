@@ -78,7 +78,7 @@ def send_nav_msg(sub_task_id):
         if t.task_type == MessageTaskSub.TaskType.NAV_NOTIFICATION:
             FOFNotification.send_nav_update(
                 manager_id=task_from.get('manager_id'),
-                investor_id=investor.get('id'),
+                investor_id=investor.get('investor_id'),
                 content={
                     'fof_name': nav_data.get('fof_name'),
                     'fof_id': nav_data.get('fof_id'),

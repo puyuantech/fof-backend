@@ -98,6 +98,7 @@ class WeChatSettingAPI(ApiViewHandler):
             if request.json.get(i) is not None:
                 obj.update(commit=False, **{i: request.json.get(i)})
         obj.save()
+        g.user_operation = '修改微信设置'
 
     @login_required
     def delete(self):

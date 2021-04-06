@@ -44,7 +44,7 @@ class InformationAPI(ApiViewHandler, ViewList):
         )
         update_info_production(obj)
 
-        g.user_operation = '删除咨询'
+        g.user_operation = '创建资讯'
         g.user_operation_params = {
             'id': obj.id,
         }
@@ -87,7 +87,7 @@ class InformationDetailAPI(ApiViewHandler, ViewDetailGet, ViewDetailUpdate, View
     def delete(self, _id):
         obj = self.model.get_by_id(_id)
         obj.logic_delete()
-        g.user_operation = '删除咨询'
+        g.user_operation = '删除资讯'
         g.user_operation_params = {
             'id': _id,
         }

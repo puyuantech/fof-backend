@@ -119,6 +119,7 @@ class MailSettingAPI(ApiViewHandler):
             if request.json.get(i) is not None:
                 obj.update(commit=False, **{i: request.json.get(i)})
         obj.save()
+        g.user_operation = '修改发送邮箱'
 
     @login_required
     def delete(self):
@@ -181,6 +182,7 @@ class NavMailSetting(ApiViewHandler):
             if request.json.get(i) is not None:
                 obj.update(commit=False, **{i: request.json.get(i)})
         obj.save()
+        g.user_operation = '修改接收邮箱'
 
     @login_required
     def delete(self):
