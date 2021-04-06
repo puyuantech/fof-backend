@@ -24,7 +24,7 @@ class NotificationMenuAPI(ApiViewHandler):
                 investor_id=g.token.investor_id,
             ).order_by(
                 FOFNotification.id.desc(),
-            ).one_or_none()
+            ).first()
             notifications[notification_type] = {
                 'unread_count': unread_counts.get(notification_type, 0),
                 'latest_notification': latest_notification and latest_notification.to_dict(),
