@@ -82,7 +82,6 @@ class InvestorMobileLoginAPI(ApiViewHandler):
 
     @params_required(*['mobile', 'code', 'manager_id'])
     def post(self):
-        g.user_operation = '登录-手机号'
         check_sms_captcha(
             verification_code=self.input.code,
             verification_key=self.input.mobile,

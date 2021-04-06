@@ -53,9 +53,17 @@ class NavUpdateAPI(ApiViewHandler):
             return
 
         dates = []
+        dates_str = []
         for i in nav_data:
             i['日期'] = datetime.datetime.strptime(i.get('日期'), '%Y-%m-%d').date()
             dates.append(i['日期'])
+            dates_str.append(i['日期'])
+
+        g.user_operation = '修改净值'
+        g.user_operation_params = {
+            'fof_id': fof_id,
+            'dates': dates_str,
+        }
 
         if method == 'part':
 

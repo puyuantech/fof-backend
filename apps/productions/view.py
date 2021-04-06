@@ -94,6 +94,9 @@ class ProductionsAPI(ApiViewHandler):
         ).one_or_none():
             raise VerifyError('ID 重复')
         obj = FOFInfo.create(**data)
+
+        g.user_operation = '添加产品'
+        g.user_operation_params = {'fof_id': obj.fof_id}
         return {
             'id': obj.fof_id,
         }
@@ -110,10 +113,17 @@ class ProductionAPI(ApiViewHandler, ProMixin):
     def put(self, _id):
         obj = self.select_model(fof_id=_id)
         update_production_info(obj)
+
+        g.user_operation = '基金详情编辑'
+        g.user_operation_params = {
+            'fof_id': _id,
+        }
         return
 
     @login_required
     def delete(self, _id):
+        g.user_operation = '删除产品'
+        g.user_operation_params = {'fof_id': _id}
         obj = self.select_model(fof_id=_id)
         obj.logic_delete()
 
