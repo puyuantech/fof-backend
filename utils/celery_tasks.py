@@ -1,6 +1,6 @@
 import datetime
 import json
-from models import CeleryTaskLogs, MessageTaskSub
+from models import CeleryTaskLogs, MessageTaskSub, FOFNotification
 from bases.globals import celery
 from extensions.wx.msg_manager import wx_nav_template
 from extensions.mail.template import mail_nav_template
@@ -71,6 +71,21 @@ def send_nav_msg(sub_task_id):
                 nav=nav_data.get('nav'),
                 acc_nav=nav_data.get('acc_nav'),
                 date=nav_data.get('date'),
+            )
+            t.task_status = MessageTaskSub.TaskStatus.SUCCESS
+            return
+
+        if t.task_type == MessageTaskSub.TaskType.NAV_NOTIFICATION:
+            FOFNotification.send_nav_update(
+                manager_id=task_from.get('manager_id'),
+                investor_id=investor.get('id'),
+                content={
+                    'fof_name': nav_data.get('fof_name'),
+                    'fof_id': nav_data.get('fof_id'),
+                    'nav': nav_data.get('nav'),
+                    'acc_nav': nav_data.get('acc_nav'),
+                    'date': nav_data.get('date'),
+                }
             )
             t.task_status = MessageTaskSub.TaskStatus.SUCCESS
             return

@@ -469,7 +469,10 @@ class ProductionInvestor(ApiViewHandler):
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.OPE_MANAGER, StuffEnum.FUND_MANAGER])
     def get(self, fof_id):
-        investor_return = FOFDataManager.get_investor_return(fof_id)
+        investor_return = FOFDataManager.get_investor_return(
+            manager_id=g.token.manager_id,
+            fof_id=fof_id,
+        )
         if isinstance(investor_return, pd.DataFrame) and len(investor_return) > 1:
             investor_return['shares_sum'] = investor_return['shares'].sum()
             investor_return['shares_weight'] = investor_return['shares'] / investor_return['shares_sum']
