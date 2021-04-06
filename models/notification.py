@@ -3,6 +3,7 @@ import datetime
 
 from sqlalchemy import distinct, func
 
+from bases.constants import FOFNotificationType
 from bases.dbwrapper import db, BaseModel
 from utils.helper import parse_date_counts
 
@@ -20,6 +21,16 @@ class FOFNotification(BaseModel):
     content_id = db.Column(db.Integer)           # 资讯ID, 净值更新定为 -1
     content = db.Column(db.JSON)                 # 资讯内容
     read = db.Column(db.BOOLEAN, default=False)  # 是否已读
+
+    @classmethod
+    def send_nav_update(cls, manager_id, investor_id, content: dict):
+        cls.create(
+            manager_id=manager_id,
+            investor_id=investor_id,
+            notification_type=FOFNotificationType.NAV_UPDATE,
+            content_id=-1,
+            content=content,
+        )
 
     @classmethod
     def get_notification_counts(cls, manager_id, start_time, filter_read=False):
