@@ -45,3 +45,19 @@ class ProductRecentValidation(YearValidation):
 class ProductCorrValidation(ProductRetValidation):
     period: Literal['week','month']
 
+
+class ValuationTimeValidation(BaseValidation):
+    begin_date: datetime.date = None
+    end_date: datetime.date = None
+    time_para: Literal['ALL','1Y','2Y','3Y','5Y','YTD'] = None
+
+
+class ValuationIndexValidation(ValuationTimeValidation):
+    index_list: conlist(str, min_items=1)
+    valuation_type: str # PB, PE, ROE
+
+
+class ValuationHistoryValidation(ValuationTimeValidation):
+    index_id: str
+    valuation_type: str # PB, PE, ROE
+

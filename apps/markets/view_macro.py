@@ -12,7 +12,8 @@ from utils.helper import replace_nan
 from .libs import get_title_and_items
 from .validators import (TimeValidation, AssetRetValidation, AssetRecentValidation,
                          IndustryRetValidation, IndustryRecentValidation,
-                         ProductRetValidation, ProductRecentValidation, ProductCorrValidation)
+                         ProductRetValidation, ProductRecentValidation, ProductCorrValidation,
+                         ValuationTimeValidation, ValuationIndexValidation, ValuationHistoryValidation)
 
 
 class AssetMenuAPI(ApiViewHandler):
@@ -34,10 +35,10 @@ class AssetRetAPI(ApiViewHandler):
         if df is None:
             return
 
-        data = Calculator.get_asset_stats(df['_input_asset_nav'], df['_input_asset_info'])
+        stats = Calculator.get_asset_stats(df['_input_asset_nav'], df['_input_asset_info'])
         return {
             'rets': replace_nan(df['data'].reset_index().to_dict('list')),
-            'stats': [row.to_dict() for _, row in data.iterrows()]
+            'stats': [row.to_dict() for _, row in stats.iterrows()]
         }
 
 
@@ -108,10 +109,10 @@ class ProductRetAPI(ApiViewHandler):
         if df is None:
             return
 
-        data = Calculator.get_product_stats(df['_input_asset_nav'], df['_input_asset_info'])
+        stats = Calculator.get_product_stats(df['_input_asset_nav'], df['_input_asset_info'])
         return {
             'rets': replace_nan(df['data'].reset_index().to_dict('list')),
-            'stats': [row.to_dict() for _, row in data.iterrows()]
+            'stats': [row.to_dict() for _, row in stats.iterrows()]
         }
 
 
@@ -183,5 +184,57 @@ class StyleFactorAPI(ApiViewHandler):
             raise LogicError('缺少参数')
 
         df = DerivedDataApi().get_style_factor_ret(**data)
+        return replace_nan(df.reset_index().to_dict('list'))
+
+
+class ValuationMenuAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        return DerivedDataApi().get_index_val_info()
+
+
+class ValuationIndexAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ValuationIndexValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = DerivedDataApi().get_index_valuation_with_period(**data)
+
+        data.pop('valuation_type')
+        stats = Calculator.get_index_stats(**data)
+        return {
+            'indexs': replace_nan(df['data'].reset_index().to_dict('list')),
+            'stats': replace_nan([row.to_dict() for _, row in stats.iterrows()])
+        }
+
+
+class ValuationIndustryAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ValuationTimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = DerivedDataApi().get_all_industry_val(**data)
+        return {
+            '散点': df['散点'].reset_index().to_dict('list'),
+            '虚线': df['虚线'].reset_index().to_dict('list'),
+        }
+
+
+class ValuationHistoryAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ValuationHistoryValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = Calculator.index_val_history(**data)
         return replace_nan(df.reset_index().to_dict('list'))
 
