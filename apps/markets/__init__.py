@@ -6,7 +6,7 @@ from .view_macro import (AssetMenuAPI, AssetRetAPI, AssetRecentAPI,
                          ProductMenuAPI, ProductRetAPI, ProductRecentAPI, ProductCorrAPI,
                          FutureDiffAPI, MarketSizeAPI, MainIndexAPI, StyleFactorAPI,
                          ValuationMenuAPI, ValuationIndexAPI, ValuationIndustryAPI,
-                         ValuationHistoryAPI)
+                         ValuationHistoryAPI, StockRetAPI)
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/market')
 api = Api(blu)
@@ -34,3 +34,4 @@ api.add_resource(ValuationMenuAPI, '/macro/valuation/menu')
 api.add_resource(ValuationIndexAPI, '/macro/valuation/index')
 api.add_resource(ValuationIndustryAPI, '/macro/valuation/industry')
 api.add_resource(ValuationHistoryAPI, '/macro/valuation/history')
+api.add_resource(StockRetAPI, '/macro/stock_ret')
