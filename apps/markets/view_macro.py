@@ -267,3 +267,10 @@ class StockRetAPI(ApiViewHandler):
             '股票收益': stock_data,
         }
 
+
+class StockDebtMenuAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        return DerivedDataApi().stock_debt_val_info()
+
