@@ -1,4 +1,6 @@
 
+from collections import defaultdict
+
 from surfing.data.api.basic import BasicDataApi
 from surfing.data.api.derived import DerivedDataApi
 from surfing.data.api.raw import RawDataApi
@@ -237,4 +239,31 @@ class ValuationHistoryAPI(ApiViewHandler):
 
         df = Calculator.index_val_history(**data)
         return replace_nan(df.reset_index().to_dict('list'))
+
+
+class StockRetAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        data = TimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = DerivedDataApi().get_industry_stock_ret_and_size(**data)
+
+        industry_1_data = df['行业一级收益'].reset_index().to_dict('records')
+
+        industry_2_data = defaultdict(list)
+        for row in df['行业二级收益'].reset_index().to_dict('records'):
+            industry_2_data[row['industry_1']].append(row)
+
+        stock_data = defaultdict(list)
+        for row in df['股票收益'].drop(columns=['industry_1', 'industry_1_name', 'industry_2_name']).reset_index().to_dict('records'):
+            stock_data[row['industry_2']].append(row)
+
+        return {
+            '行业一级收益': industry_1_data,
+            '行业二级收益': industry_2_data,
+            '股票收益': stock_data,
+        }
 
