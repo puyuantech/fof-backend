@@ -6,7 +6,9 @@ from .view_macro import (AssetMenuAPI, AssetRetAPI, AssetRecentAPI,
                          ProductMenuAPI, ProductRetAPI, ProductRecentAPI, ProductCorrAPI,
                          FutureDiffAPI, MarketSizeAPI, MainIndexAPI, StyleFactorAPI,
                          ValuationMenuAPI, ValuationIndexAPI, ValuationIndustryAPI,
-                         ValuationHistoryAPI, StockRetAPI, StockDebtMenuAPI)
+                         ValuationHistoryAPI, StockRetAPI, StockDebtMenuAPI, StockDebtDetailAPI,
+                         IndustryBetaAPI, SideCapAPI, PPIAPI, PMIAPI, GDPAPI, CPIAPI, USBondAPI,
+                         USDIndexAPI)
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/market')
 api = Api(blu)
@@ -36,3 +38,12 @@ api.add_resource(ValuationIndustryAPI, '/macro/valuation/industry')
 api.add_resource(ValuationHistoryAPI, '/macro/valuation/history')
 api.add_resource(StockRetAPI, '/macro/stock_ret')
 api.add_resource(StockDebtMenuAPI, '/macro/stock_debt/menu')
+api.add_resource(StockDebtDetailAPI, '/macro/stock_debt/detail')
+api.add_resource(IndustryBetaAPI, '/macro/industry_beta')
+api.add_resource(SideCapAPI, '/macro/side_cap')
+api.add_resource(PPIAPI, '/macro/ppi')
+api.add_resource(PMIAPI, '/macro/pmi')
+api.add_resource(GDPAPI, '/macro/gdp')
+api.add_resource(CPIAPI, '/macro/cpi')
+api.add_resource(USBondAPI, '/macro/us_bond')
+api.add_resource(USDIndexAPI, '/macro/usd_index')
