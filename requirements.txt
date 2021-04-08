@@ -26,3 +26,6 @@ pydantic
 beautifulsoup4
 SQLAlchemy < 1.4
 XlsxWriter==1.3.7
+babel
+six
+xls2xlsx
