@@ -27,6 +27,7 @@ from surfing.data.view.derived_models import FOFInvestorData as SurfingFOFInvest
 from surfing.data.view.derived_models import HedgeFundInvestorPurAndRedemp as SurfingHedgeFundInvestorPurAndRedemp
 from surfing.data.view.derived_models import HedgeFundInvestorDivAndCarry as SurfingHedgeFundInvestorDivAndCarry
 from surfing.data.view.derived_models import HedgeFundInvestorPurAndRedempSub as SurfingHedgeFundInvestorPurAndRedempSub
+from surfing.data.view.derived_models import HedgeFundCustodianData as SurfingHedgeFundCustodianData
 
 
 from bases.dbwrapper import BaseModel, db
@@ -179,5 +180,11 @@ class HedgeFundInvestorDivAndCarry(SurfingHedgeFundInvestorDivAndCarry, BaseMode
 
 class HedgeFundInvestorPurAndRedempSub(SurfingHedgeFundInvestorPurAndRedempSub, BaseModel):
     __tablename__ = 'hedge_fund_investor_pur_redemp_sub'
+    __bind_key__ = 'derived'
+    __table_args__ = {'extend_existing': True}
+
+
+class HedgeFundCustodianData(SurfingHedgeFundCustodianData, BaseModel):
+    __tablename__ = 'hedge_fund_custodian_data'
     __bind_key__ = 'derived'
     __table_args__ = {'extend_existing': True}

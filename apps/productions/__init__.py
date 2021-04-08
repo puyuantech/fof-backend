@@ -13,6 +13,7 @@ from .view_ratios import *
 from .view_trades import *
 from .view_nav import *
 from .view_tags import ProTagAPI
+from .view_custodian import NavCompare, CusNavFileHtml, UploadCusNav, CalcPosition, CusPosition, CalcTrades
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/production')
 api = Api(blu)
@@ -98,3 +99,10 @@ api.add_resource(NavByDateAPI, '/manage_nav/by_date/<string:fof_id>')
 # tags
 api.add_resource(ProTagAPI, '/manage_tag')
 
+# custodian
+api.add_resource(NavCompare, '/nav_compare/<string:fof_id>')
+api.add_resource(CusNavFileHtml, '/cus_nav_html_file/<string:fof_id>')
+api.add_resource(UploadCusNav, '/upload_cus_nav_file/<string:fof_id>')
+api.add_resource(CalcPosition, '/calc_position/<string:fof_id>/<string:date_str>')
+api.add_resource(CusPosition, '/cus_position/<string:fof_id>/<string:date_str>')
+api.add_resource(CalcTrades, '/calc_trades/<string:fof_id>/<string:date_str>')

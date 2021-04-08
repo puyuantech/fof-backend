@@ -45,11 +45,13 @@ class TradesPurRedeemAPI(ApiViewHandler):
         if investor_id:
             query = HedgeFundInvestorPurAndRedemp.filter_by_query(
                 investor_id=investor_id,
+                manager_id=g.token.manager_id,
                 fof_id=fof_id,
             )
         else:
             query = HedgeFundInvestorPurAndRedemp.filter_by_query(
                 fof_id=fof_id,
+                manager_id=g.token.manager_id,
             )
         data = p.paginate(
             query,
@@ -74,6 +76,7 @@ class TradesPurRedeemAPI(ApiViewHandler):
             "redemp_fee",
         ]
         data = {i: request.json.get(i) for i in allow_columns}
+        data['manager_id'] = g.token.manager_id
         HedgeFundDataManager().investor_pur_redemp_update(data)
         obj = HedgeFundInvestorPurAndRedempSub.filter_by_query(
             main_id=request.json.get('id'),
@@ -106,6 +109,7 @@ class TradesPurRedeemAPI(ApiViewHandler):
             "redemp_fee",
         ]
         data = {i: request.json.get(i) for i in allow_columns}
+        data['manager_id'] = g.token.manager_id
         _id = HedgeFundDataManager().investor_pur_redemp_update(data)
         trade = HedgeFundInvestorPurAndRedempSub.create(
             main_id=_id,
@@ -133,7 +137,9 @@ class TradesCarryEventAPI(ApiViewHandler):
 
     @login_required
     def post(self):
-        df = HedgeFundDataManager().calc_carry_event(request.json)
+        res = request.json
+        res['manager_id'] = g.token.manager_id
+        df = HedgeFundDataManager().calc_carry_event(res)
         data = replace_nan(df.to_dict(orient='records'))
         for i in data:
             unit_map = UnitMap.filter_by_query(
@@ -152,7 +158,9 @@ class TradesDividendEventAPI(ApiViewHandler):
 
     @login_required
     def post(self):
-        df = HedgeFundDataManager().calc_dividend_event(request.json)
+        res = request.json
+        res['manager_id'] = g.token.manager_id
+        df = HedgeFundDataManager().calc_dividend_event(res)
         data = replace_nan(df.to_dict(orient='records'))
         for i in data:
             unit_map = UnitMap.filter_by_query(
@@ -192,11 +200,13 @@ class TradesDivAndCarryAPI(ApiViewHandler):
         if investor_id:
             query = HedgeFundInvestorDivAndCarry.filter_by_query(
                 investor_id=investor_id,
+                manager_id=g.token.manager_id,
                 fof_id=fof_id,
             )
         else:
             query = HedgeFundInvestorDivAndCarry.filter_by_query(
                 fof_id=fof_id,
+                manager_id=g.token.manager_id,
             )
         data = p.paginate(
             query,
@@ -222,6 +232,7 @@ class TradesDivAndCarryAPI(ApiViewHandler):
             "share_after_trans",
         ]
         data = {i: request.json.get(i) for i in allow_columns}
+        data['manager_id'] = g.token.manager_id
         HedgeFundDataManager().investor_div_carry_add(data)
 
         g.user_operation = '添加分红/计提记录'
