@@ -64,7 +64,7 @@ class FOFLogoListAPI(ApiViewHandler):
         data = []
         for fof_logo in fof_logos:
             data.append({
-                'fof_name': fofs[fof_logo.fof_id],
+                'fof_name': fofs.get(fof_logo.fof_id),
                 **fof_logo.to_dict()
             })
         return data
