@@ -8,7 +8,7 @@ from .view_macro import (AssetMenuAPI, AssetRetAPI, AssetRecentAPI,
                          ValuationMenuAPI, ValuationIndexAPI, ValuationIndustryAPI,
                          ValuationHistoryAPI, StockRetAPI, StockDebtMenuAPI, StockDebtDetailAPI,
                          IndustryBetaAPI, SideCapAPI, PPIAPI, PMIAPI, GDPAPI, CPIAPI, USBondAPI,
-                         USDIndexAPI, AHPremAPI)
+                         USDIndexAPI, AHPremAPI, RzrqyeAPI)
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/market')
 api = Api(blu)
@@ -21,15 +21,15 @@ api.add_resource(IndexSingleChangeAPI, '/single_change')
 api.add_resource(AssetMenuAPI, '/macro/asset/menu')
 api.add_resource(AssetRetAPI, '/macro/asset/ret')
 api.add_resource(AssetRecentAPI, '/macro/asset/recent')
-api.add_resource(IndustryMenuAPI, '/macro/industry/menu')
-api.add_resource(IndustryRetAPI, '/macro/industry/ret')
-api.add_resource(IndustryRecentAPI, '/macro/industry/recent')
+api.add_resource(IndustryMenuAPI, '/macro/industry/menu')     # Deprecated
+api.add_resource(IndustryRetAPI, '/macro/industry/ret')       # Deprecated
+api.add_resource(IndustryRecentAPI, '/macro/industry/recent') # Deprecated
 api.add_resource(ProductMenuAPI, '/macro/product/menu')
 api.add_resource(ProductRetAPI, '/macro/product/ret')
 api.add_resource(ProductRecentAPI, '/macro/product/recent')
 api.add_resource(ProductCorrAPI, '/macro/product/corr')
 api.add_resource(FutureDiffAPI, '/macro/future_diff')
-api.add_resource(MarketSizeAPI, '/macro/market_size')
+api.add_resource(MarketSizeAPI, '/macro/market_size')         # Deprecated
 api.add_resource(MainIndexAPI, '/macro/main_index')
 api.add_resource(StyleFactorAPI, '/macro/style_factor')
 api.add_resource(ValuationMenuAPI, '/macro/valuation/menu')
@@ -48,3 +48,4 @@ api.add_resource(CPIAPI, '/macro/cpi')
 api.add_resource(USBondAPI, '/macro/us_bond')
 api.add_resource(USDIndexAPI, '/macro/usd_index')
 api.add_resource(AHPremAPI, '/macro/ah_prem')
+api.add_resource(RzrqyeAPI, '/macro/rzrqye')

@@ -418,3 +418,18 @@ class AHPremAPI(ApiViewHandler):
         df = BasicDataApi().get_ah_prem(**data)
         return replace_nan(df['data'].reset_index().to_dict('list'))
 
+
+class RzrqyeAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = TimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_rzrqye(**data)
+        return {
+            'rets': replace_nan(df['data'].reset_index().to_dict('list')),
+            '介绍': df['text'],
+        }
+
