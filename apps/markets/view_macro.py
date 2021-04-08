@@ -16,7 +16,7 @@ from .validators import (TimeValidation, AssetRetValidation, AssetRecentValidati
                          IndustryRetValidation, IndustryRecentValidation,
                          ProductRetValidation, ProductRecentValidation, ProductCorrValidation,
                          ValuationTimeValidation, ValuationIndexValidation, ValuationHistoryValidation,
-                         StockDebtValidation, SideCapValidation)
+                         StockDebtValidation, SideCapValidation, AHPremValidation)
 
 
 class AssetMenuAPI(ApiViewHandler):
@@ -405,4 +405,16 @@ class USDIndexAPI(ApiViewHandler):
             'rets': replace_nan(df['data'].reset_index().to_dict('list')),
             '介绍': df['text'],
         }
+
+
+class AHPremAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = AHPremValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_ah_prem(**data)
+        return replace_nan(df['data'].reset_index().to_dict('list'))
 

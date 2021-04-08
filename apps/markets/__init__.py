@@ -8,7 +8,7 @@ from .view_macro import (AssetMenuAPI, AssetRetAPI, AssetRecentAPI,
                          ValuationMenuAPI, ValuationIndexAPI, ValuationIndustryAPI,
                          ValuationHistoryAPI, StockRetAPI, StockDebtMenuAPI, StockDebtDetailAPI,
                          IndustryBetaAPI, SideCapAPI, PPIAPI, PMIAPI, GDPAPI, CPIAPI, USBondAPI,
-                         USDIndexAPI)
+                         USDIndexAPI, AHPremAPI)
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/market')
 api = Api(blu)
@@ -47,3 +47,4 @@ api.add_resource(GDPAPI, '/macro/gdp')
 api.add_resource(CPIAPI, '/macro/cpi')
 api.add_resource(USBondAPI, '/macro/us_bond')
 api.add_resource(USDIndexAPI, '/macro/usd_index')
+api.add_resource(AHPremAPI, '/macro/ah_prem')

@@ -72,3 +72,7 @@ class SideCapValidation(TimeValidation):
     direction: Literal['北向资金','南向资金']
     index_id: str
 
+
+class AHPremValidation(TimeValidation):
+    frequency: Literal['1D','1W','1M']
+
