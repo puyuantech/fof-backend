@@ -337,3 +337,17 @@ class CusNavFileHtml(ApiViewHandler):
         response = make_response(out.getvalue())
         response.headers["Content-type"] = "text/html"
         return response
+
+    @login_required
+    def delete(self, fof_id):
+        """删除托管数据和文件"""
+        date_str = request.args.get('datetime')
+        obj = HedgeFundCustodianData.filter_by_query(
+            manager_id=g.token.manager_id,
+            fof_id=fof_id,
+            datetime=date_str,
+        ).first()
+
+        if not obj:
+            raise VerifyError('')
+        obj.delete()
