@@ -15,7 +15,8 @@ from .libs import get_title_and_items
 from .validators import (TimeValidation, AssetRetValidation, AssetRecentValidation,
                          IndustryRetValidation, IndustryRecentValidation,
                          ProductRetValidation, ProductRecentValidation, ProductCorrValidation,
-                         ValuationTimeValidation, ValuationIndexValidation, ValuationHistoryValidation)
+                         ValuationTimeValidation, ValuationIndexValidation, ValuationHistoryValidation,
+                         StockDebtValidation, SideCapValidation)
 
 
 class AssetMenuAPI(ApiViewHandler):
@@ -273,4 +274,135 @@ class StockDebtMenuAPI(ApiViewHandler):
     @login_required
     def get(self):
         return DerivedDataApi().stock_debt_val_info()
+
+
+class StockDebtDetailAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        data = StockDebtValidation.get_valid_data(self.input)
+        df = DerivedDataApi().stock_debt_val_detail(**data)
+        return {
+            'rets': replace_nan(df['data'].reset_index().to_dict('list')),
+            'title': df['title'],
+        }
+
+
+class IndustryBetaAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ValuationTimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = DerivedDataApi().industry_beta(**data)
+        return replace_nan(df.reset_index().to_dict('list'))
+
+
+class SideCapAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        return BasicDataApi().get_side_cap_index()
+
+    @login_required
+    def post(self):
+        data = SideCapValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_side_cap_data(**data)
+        return replace_nan(df.reset_index().to_dict('list'))
+
+
+class PPIAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ValuationTimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_ppi(**data)
+        return {
+            'rets': replace_nan(df['data'].reset_index().to_dict('list')),
+            '沪深300总增长': df['沪深300总增长'],
+            '介绍': df['介绍'],
+        }
+
+
+class PMIAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ValuationTimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_pmi(**data)
+        return {
+            'rets': replace_nan(df['data'].reset_index().to_dict('list')),
+            '介绍': df['介绍'],
+        }
+
+
+class GDPAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ValuationTimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_gdp(**data)
+        return {
+            'rets': replace_nan(df['data'].reset_index().to_dict('list')),
+            '介绍': df['text'],
+        }
+
+
+class CPIAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ValuationTimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_cpi(**data)
+        return {
+            'rets': replace_nan(df['data'].reset_index().to_dict('list')),
+            '介绍': df['text'],
+        }
+
+
+class USBondAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ValuationTimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_us_bond_rate(**data)
+        return {
+            'rets': replace_nan(df['data'].reset_index().to_dict('list')),
+            '介绍': df['text'],
+        }
+
+
+class USDIndexAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        data = ValuationTimeValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_usd_index(**data)
+        return {
+            'rets': replace_nan(df['data'].reset_index().to_dict('list')),
+            '介绍': df['text'],
+        }
 

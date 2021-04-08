@@ -61,3 +61,14 @@ class ValuationHistoryValidation(ValuationTimeValidation):
     index_id: str
     valuation_type: str # PB, PE, ROE
 
+
+class StockDebtValidation(BaseValidation):
+    index_id: str
+    valuation_type: str
+    debt_ret_index: str
+
+
+class SideCapValidation(TimeValidation):
+    direction: Literal['北向资金','南向资金']
+    index_id: str
+
