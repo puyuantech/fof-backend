@@ -1,4 +1,5 @@
 import os
+from flask import g
 from bases.viewhandler import ApiViewHandler
 from bases.globals import settings
 from bases.exceptions import VerifyError
@@ -14,7 +15,8 @@ class ProductionRefresh(ApiViewHandler):
     def get(self, fof_id):
 
         obj = FOFInfo.filter_by_query(
-            fof_id=fof_id
+            fof_id=fof_id,
+            manager_id=g.token.manager_id,
         ).one_or_none()
         if not obj:
             raise VerifyError('不存在！')
@@ -37,7 +39,8 @@ class ProductionPublicRefresh(ApiViewHandler):
     def get(self, fof_id):
 
         obj = FOFInfo.filter_by_query(
-            fof_id=fof_id
+            fof_id=fof_id,
+            manager_id=g.token.manager_id,
         ).one_or_none()
         if not obj:
             raise VerifyError('不存在！')
