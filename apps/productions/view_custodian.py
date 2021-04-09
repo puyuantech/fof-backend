@@ -63,19 +63,20 @@ class NavCompare(ApiViewHandler):
             HedgeFundCustodianData.manager_id == g.token.manager_id,
             HedgeFundCustodianData.fof_id == fof_id,
         ).all()
-        cus_df = pd.DataFrame([{
-            'datetime': i[0],
-            'cus_nav': i[1],
-            'cus_mv': i[2],
-            'cus_volume': i[3],
-            'url': i[4],
-        } for i in cus])
-        cus_df = cus_df.set_index('datetime')
-        cus_df = cus_df.reindex(df.index)
-        df['cus_nav'] = cus_df['cus_nav']
-        df['cus_mv'] = cus_df['cus_mv']
-        df['cus_volume'] = cus_df['cus_volume']
-        df['url'] = cus_df['url']
+        if len(cus) > 0:
+            cus_df = pd.DataFrame([{
+                'datetime': i[0],
+                'cus_nav': i[1],
+                'cus_mv': i[2],
+                'cus_volume': i[3],
+                'url': i[4],
+            } for i in cus])
+            cus_df = cus_df.set_index('datetime')
+            cus_df = cus_df.reindex(df.index)
+            df['cus_nav'] = cus_df['cus_nav']
+            df['cus_mv'] = cus_df['cus_mv']
+            df['cus_volume'] = cus_df['cus_volume']
+            df['url'] = cus_df['url']
 
         df = df.reset_index()
         df = df.sort_values('datetime', ascending=False)
