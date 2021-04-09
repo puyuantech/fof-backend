@@ -1,3 +1,6 @@
+
+from sqlalchemy import distinct, func
+
 from bases.dbwrapper import db, BaseModel
 
 
@@ -53,3 +56,22 @@ class InfoTemplate(BaseModel):
     template_name = db.Column(db.String(63))                                    # 模版名称
     content = db.Column(db.TEXT)                                                # 配置
     manager_id = db.Column(db.String(32))                                       # 管理者ID
+
+
+class InfoStatistics(BaseModel):
+    __tablename__ = 'info_statistics'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    info_id = db.Column(db.Integer)
+    info_type = db.Column(db.Integer)
+    manager_id = db.Column(db.String(32))
+    investor_id = db.Column(db.String(32))
+
+    @classmethod
+    def get_user_count(cls, info_id):
+        return db.session.query(
+            func.count(distinct(cls.investor_id)),
+        ).filter_by(
+            info_id=info_id,
+        ).scalar()
+

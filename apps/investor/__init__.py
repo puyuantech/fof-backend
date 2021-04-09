@@ -3,6 +3,7 @@ from flask_restful import Api
 
 from .view_certification import (LatestAPI, EffectiveAPI, ApplyAPI, SubmitAPI,
                                  ApproveAPI, UnapproveAPI, ReapplyAPI)
+from .view_content import ContentStatisticsAPI
 from .view_contract import (ContractAPI, ContractListAPI, ContractTemplateAPI, RiskDiscloseAPI,
                             FundContractAPI, ProtocolAPI, FundMatchingAPI, VideoAPI, LookbackAPI,
                             BookAPI, SignAPI)
@@ -20,6 +21,8 @@ api.add_resource(SubmitAPI, '/certification/submit')
 api.add_resource(ApproveAPI, '/certification/approve')
 api.add_resource(UnapproveAPI, '/certification/unapprove')
 api.add_resource(ReapplyAPI, '/certification/reapply')
+
+api.add_resource(ContentStatisticsAPI, '/content/statistics')
 
 api.add_resource(ContractAPI, '/contract')
 api.add_resource(ContractListAPI, '/contract/list')
