@@ -47,8 +47,9 @@ def register_investor_user(mobile):
         user, investor = User.create_main_user_investor(mobile)
 
     unit_map = investor.check_manager_map(g.token.manager_id)
-    if not unit_map:
-        unit_map = investor.create_manager_map(g.token.manager_id, mobile=mobile)
+    if unit_map:
+        raise VerifyError('手机号已存在！')
+    unit_map = investor.create_manager_map(g.token.manager_id, mobile=mobile)
     return unit_map
 
 
