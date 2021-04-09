@@ -3,7 +3,7 @@ from bases.viewhandler import ApiViewHandler
 from bases.constants import StuffEnum
 from utils.decorators import admin_login_required
 from utils.helper import generate_sql_pagination
-from models import Operation
+from models import Operation, User
 
 
 class OperationsAPI(ApiViewHandler):
@@ -15,5 +15,11 @@ class OperationsAPI(ApiViewHandler):
         query = Operation.filter_by_query(
             manager_id=g.token.manager_id,
         )
-        data = p.paginate(query)
+        data = p.paginate(
+            query,
+            equal_filter=[Operation.user_id, Operation.action],
+            range_filter=[Operation.create_time],
+        )
+        for i in data:
+            i['username'] = User.get_by_id(i['user_id'])
         return data
