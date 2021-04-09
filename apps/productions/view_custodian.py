@@ -290,8 +290,8 @@ class UploadCusNav(ApiViewHandler):
         hf = HedgeFundDataManager()
         with open(file_name, 'rb') as f:
             date = hf.upload_custodian_data(
-                g.token.manager_id,
-                fof_id,
+                manager_id=g.token.manager_id,
+                fof_id=fof_id,
                 datas=f,
             )
 
