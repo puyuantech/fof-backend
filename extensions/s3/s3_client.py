@@ -60,14 +60,14 @@ if __name__ == '__main__':
         # The response contains the presigned URL
         return response
 
-    url = create_presigned_url(settings['AWS_PRIVATE_BUCKET_NAME'], '1')
+    url = create_presigned_url(settings['AWS_PRIVATE_BUCKET_NAME'], 'hhhhh')
     print(url)
-    if url is not None:
-        'https://fof-private.s3.cn-north-1.amazonaws.com.cn/1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZQQJSZ6G3PJ6HROT%2F20210304%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Date=20210304T043157Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=87fd3fe0ec59014c42618aa6bb3873863ae6d7acec7561290082a2cea5a1e4e9'
-        'https://fof-private.s3.cn-north-1.amazonaws.com.cn/1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZQQJSZ6G3PJ6HROT%2F20210304%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Date=20210304T043306Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4be3d789f584c9a66e26dcbdaf6842f1309ddd8464ac092e8df1d7a060ffafbc'
-
-        response = requests.get(url)
-        print(response.content)
+    # if url is not None:
+    #     'https://fof-private.s3.cn-north-1.amazonaws.com.cn/1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZQQJSZ6G3PJ6HROT%2F20210304%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Date=20210304T043157Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=87fd3fe0ec59014c42618aa6bb3873863ae6d7acec7561290082a2cea5a1e4e9'
+    #     'https://fof-private.s3.cn-north-1.amazonaws.com.cn/1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZQQJSZ6G3PJ6HROT%2F20210304%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Date=20210304T043306Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4be3d789f584c9a66e26dcbdaf6842f1309ddd8464ac092e8df1d7a060ffafbc'
+    #
+    #     response = requests.get(url)
+    #     print(response.content)
     # file_path = '/Users/puyuantech/Desktop/WechatIMG76.jpeg'
     # file_key = '1'
     #
