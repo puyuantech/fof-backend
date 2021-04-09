@@ -39,6 +39,7 @@ class ProductRetValidation(TimeValidation):
 
 
 class ProductRecentValidation(YearValidation):
+    weekly: bool = False
     product_list: conlist(str, min_items=1)
 
 
