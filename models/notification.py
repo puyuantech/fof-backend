@@ -7,6 +7,8 @@ from bases.constants import FOFNotificationType
 from bases.dbwrapper import db, BaseModel
 from utils.helper import parse_date_counts
 
+from .information import InfoStatistics
+
 
 class FOFNotification(BaseModel):
     """
@@ -21,6 +23,12 @@ class FOFNotification(BaseModel):
     content_id = db.Column(db.Integer)           # 资讯ID, 净值更新定为 -1
     content = db.Column(db.JSON)                 # 资讯内容
     read = db.Column(db.BOOLEAN, default=False)  # 是否已读
+
+    def to_dict(self, fields_list=None, remove_fields_list=None, remove_deleted=True):
+        data = super().to_dict(fields_list, remove_fields_list, remove_deleted)
+        if data['notification_type'] == FOFNotificationType.ROADSHOW_INFO:
+            data['content']['viewed'] = InfoStatistics.get_user_count(data['content_id'])
+        return data
 
     @classmethod
     def send_nav_update(cls, manager_id, investor_id, content: dict):
