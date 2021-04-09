@@ -45,7 +45,12 @@ class NavCompare(ApiViewHandler):
         } for i in calc])
 
         if len(cal_df) < 1:
-            return []
+            return {
+                'page': 1,
+                'page_size': 10,
+                'count': 0,
+                'results': [],
+            }
         df = cal_df.set_index('datetime')
 
         cus = db.session.query(
@@ -279,6 +284,7 @@ class UploadCusNav(ApiViewHandler):
         if file_suffix == '.xls':
             FileStore().load_from_user(file_obj, file_name)
             x2x = XLS2XLSX(file_name)
+            FileStore.clear_temp_file(file_name)
             file_name = f'{file_name}x'
             x2x.to_xlsx(file_name)
             file_suffix = '.xlsx'
@@ -315,6 +321,12 @@ class UploadCusNav(ApiViewHandler):
         ).first()
         obj.url = file_key
         obj.save()
+
+        g.user_operation = '上传托管净值文件'
+        g.user_operation_params = {
+            'fof_id': fof_id,
+            'date': date,
+        }
         return
 
 
@@ -354,3 +366,9 @@ class CusNavFileHtml(ApiViewHandler):
         if not obj:
             raise VerifyError('')
         obj.delete()
+
+        g.user_operation = '删除托管净值文件'
+        g.user_operation_params = {
+            'fof_id': fof_id,
+            'date': date_str,
+        }

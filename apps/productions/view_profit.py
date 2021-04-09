@@ -88,7 +88,7 @@ class ProductionMonthlyRet(ApiViewHandler, ProMixin):
     @login_required
     def get(self, fof_id):
         df = self.calc_fof_ret(fof_id)
-        if len(df) < 1:
+        if len(df) < 2:
             return {}
         df = df.reset_index()
 
