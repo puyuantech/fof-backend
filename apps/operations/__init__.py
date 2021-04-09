@@ -5,4 +5,4 @@ from .view import OperationsAPI
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/operation')
 api = Api(blu)
 
-api.add_resource(OperationsAPI, '/<string:investor_id>')
+api.add_resource(OperationsAPI, '')
