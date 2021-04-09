@@ -20,6 +20,9 @@ class OperationsAPI(ApiViewHandler):
             equal_filter=[Operation.user_id, Operation.action],
             range_filter=[Operation.create_time],
         )
-        for i in data:
-            i['username'] = User.get_by_id(i['user_id'])
+
+        for i in data['results']:
+            u = User.filter_by_query(id=i['user_id']).first()
+            if u:
+                i['username'] = u.username
         return data
