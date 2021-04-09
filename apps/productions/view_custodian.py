@@ -281,6 +281,7 @@ class UploadCusNav(ApiViewHandler):
             x2x = XLS2XLSX(file_name)
             file_name = f'{file_name}x'
             x2x.to_xlsx(file_name)
+            file_suffix = '.xlsx'
         elif file_suffix == '.xlsx':
             FileStore().load_from_user(file_obj, file_name)
         else:
@@ -301,8 +302,10 @@ class UploadCusNav(ApiViewHandler):
             file_obj=file_obj,
             content_type=content_type,
             suffix=file_suffix,
+            file_path=file_name,
         )
         if not file_key:
+            print(url)
             raise LogicError('保存文件失败')
 
         obj = HedgeFundCustodianData.filter_by_query(

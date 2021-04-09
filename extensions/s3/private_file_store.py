@@ -27,16 +27,17 @@ class FileStore:
         if os.path.exists(file_path):
             os.remove(file_path)
 
-    def store_file_from_user(self, user_id, file_obj, content_type, suffix=''):
+    def store_file_from_user(self, user_id, file_obj, content_type, suffix='', file_path=False):
         if not file_obj or not self.private_bucket_name:
             return False, f'missing private_bucket_name (private_bucket_name){self.private_bucket_name}'
 
         try:
             _id = uuid.uuid1().hex
-            file_path = os.path.join(self.store_path, f'file_from_user_{user_id}{suffix}')
-            file_key = f'fof_private_file/{user_id}/{_id}{suffix}'
+            if not file_path:
+                file_path = os.path.join(self.store_path, f'file_from_user_{user_id}{suffix}')
+                self.load_from_user(file_obj, file_path)
 
-            self.load_from_user(file_obj, file_path)
+            file_key = f'fof_private_file/{user_id}/{_id}{suffix}'
             self.upload_to_s3(file_path, file_key, content_type)
             self.clear_temp_file(file_path)
 
