@@ -194,7 +194,6 @@ class UnitMap(BaseModel):
             'name',
             'cred_type',
             'cred',
-            'mobile',
             'amount',
             'email',
             'sign_date',
