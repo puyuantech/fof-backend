@@ -44,7 +44,7 @@ def get_customers(manager_id):
     for item in FOFInvestorPosition.filter_by_query(manager_id=manager_id).all():
         investor_productions[item.investor_id].append({
             'fof_id': item.fof_id,
-            'fof_name': productions[item.fof_id],
+            'fof_name': productions.get(item.fof_id),
         })
 
     investor_counts = FOFNotification.get_investor_counts(manager_id)
