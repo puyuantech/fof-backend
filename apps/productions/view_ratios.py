@@ -129,6 +129,7 @@ class ProPeriodRetAPI(ApiViewHandler, ProMixin):
         """区间收益"""
         self.select_model(fof_id)
         df = self.calc_fof_ret(fof_id)
+        df = df.dropna(subset=['all_nav'])
         if len(df) < 1:
             return {}
 
@@ -186,6 +187,7 @@ class ProRollingProfitAPI(ApiViewHandler, ProMixin):
         period = period if period else 'W'
         period_size = period_size if period == 'M' else period_size * self.period_rule[period_size]
         arr = df['adjusted_nav'].resample(period).last().fillna(method='ffill')
+        arr = arr.dropna()
 
         ret = arr.pct_change(periods=period_size)
         ret = ret.dropna()
