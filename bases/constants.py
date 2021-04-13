@@ -65,16 +65,17 @@ class ContractTemplateType(EnumBase):
 
 
 class HaiFengTemplateType(EnumBase):
-    fund_contract = 0
+    fund_contract = 0 # 基金合同
     # '托管协议' = 1
     # '代销合同' = 2
-    protocol = 3
+    protocol = 3 # 补充协议
     # '征询意见函' = 4
     # '公告告知' = 5
-    risk_disclose = 6
+    risk_disclose = 6 # 风险揭示书
     # '其他预留' = 7
     # '有限合伙协议' = 21
     # '基金运营服务协议' = 22
+    # '其他' = 99
 
     @classmethod
     def read(cls, code):

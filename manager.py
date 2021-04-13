@@ -77,6 +77,13 @@ def extend_fof_info():
     extend_fof_info_from_management()
 
 
+@manager.option('--manager_id')
+@manager.option('--fof_id')
+def save_template(manager_id, fof_id):
+    from extensions.haifeng.fof_template import FOFTemplate
+    print(FOFTemplate(manager_id=manager_id).save_fof_template(fof_id=fof_id))
+
+
 if __name__ == '__main__':
     manager.run()
 
