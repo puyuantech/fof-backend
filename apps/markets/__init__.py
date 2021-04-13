@@ -4,6 +4,7 @@ from .view import IndexListAPI, IndexAPI, IndexDetailAPI, IndexSingleChangeAPI
 from .view_macro import (AssetMenuAPI, AssetRetAPI, AssetRecentAPI,
                          IndustryMenuAPI, IndustryRetAPI, IndustryRecentAPI,
                          ProductMenuAPI, ProductRetAPI, ProductRecentAPI, ProductCorrAPI,
+                         ProductBenchmarkAPI, ProductRollingCorrAPI, ProductRollingBetaAPI,
                          FutureDiffAPI, MarketSizeAPI, MainIndexAPI, StyleFactorAPI,
                          ValuationMenuAPI, ValuationIndexAPI, ValuationIndustryAPI,
                          ValuationHistoryAPI, StockRetAPI, StockDebtMenuAPI, StockDebtDetailAPI,
@@ -28,6 +29,9 @@ api.add_resource(ProductMenuAPI, '/macro/product/menu')
 api.add_resource(ProductRetAPI, '/macro/product/ret')
 api.add_resource(ProductRecentAPI, '/macro/product/recent')
 api.add_resource(ProductCorrAPI, '/macro/product/corr')
+api.add_resource(ProductBenchmarkAPI, '/macro/product/benchmark')
+api.add_resource(ProductRollingCorrAPI, '/macro/product/rolling_corr')
+api.add_resource(ProductRollingBetaAPI, '/macro/product/rolling_beta')
 api.add_resource(FutureDiffAPI, '/macro/future_diff')
 api.add_resource(MarketSizeAPI, '/macro/market_size')         # Deprecated
 api.add_resource(MainIndexAPI, '/macro/main_index')

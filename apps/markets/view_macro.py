@@ -12,10 +12,10 @@ from utils.decorators import login_required
 from utils.helper import replace_nan
 
 from .libs import get_title_and_items
-from .validators import (TimeValidation, AssetRetValidation, AssetRecentValidation,
-                         IndustryRetValidation, IndustryRecentValidation,
-                         ProductRetValidation, ProductRecentValidation, ProductCorrValidation,
-                         ValuationTimeValidation, ValuationIndexValidation, ValuationHistoryValidation,
+from .validators import (TimeValidation, AssetRetValidation, AssetRecentValidation, IndustryRetValidation,
+                         IndustryRecentValidation, ProductRetValidation, ProductRecentValidation,
+                         ProductCorrValidation, ProductRollingValidation, ValuationTimeValidation,
+                         ValuationIndexValidation, ValuationIndustryValidation, ValuationHistoryValidation,
                          StockDebtValidation, SideCapValidation, AHPremValidation)
 
 
@@ -142,6 +142,50 @@ class ProductCorrAPI(ApiViewHandler):
         return get_title_and_items(df)
 
 
+class ProductBenchmarkAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        return BasicDataApi().get_product_benchmark()
+
+
+class ProductRollingCorrAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        params = ProductRollingValidation.get_valid_data(self.input)
+        data = ProductRetValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_product_price(**data)
+        if df is None:
+            return
+
+        df = Calculator.get_product_rolling_corr(df['_input_asset_nav'], **params)
+        return {
+            'rets': replace_nan(df['data'].reset_index().to_dict('list')),
+            'stats': {key: get_title_and_items(value) for key, value in df['details'].items()}
+        }
+
+
+class ProductRollingBetaAPI(ApiViewHandler):
+
+    @login_required
+    def post(self):
+        params = ProductRollingValidation.get_valid_data(self.input)
+        data = ProductRetValidation.get_valid_data(self.input)
+        if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
+            raise LogicError('缺少参数')
+
+        df = BasicDataApi().get_product_price(**data)
+        if df is None:
+            return
+
+        df = Calculator.get_product_rolling_beta(df['_input_asset_nav'], **params)
+        return replace_nan(df.reset_index().to_dict('list'))
+
+
 class FutureDiffAPI(ApiViewHandler):
 
     @login_required
@@ -219,7 +263,7 @@ class ValuationIndustryAPI(ApiViewHandler):
 
     @login_required
     def post(self):
-        data = ValuationTimeValidation.get_valid_data(self.input)
+        data = ValuationIndustryValidation.get_valid_data(self.input)
         if not data['time_para'] and (not data['begin_date'] or not data['end_date']):
             raise LogicError('缺少参数')
 
