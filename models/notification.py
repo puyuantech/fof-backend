@@ -108,6 +108,7 @@ class FOFNotification(BaseModel):
             manager_id=manager_id,
             investor_id=investor_id,
             read=False,
+            is_deleted=False,
         ).group_by(
             cls.notification_type,
         ).all()
