@@ -145,7 +145,7 @@ def generate_sql_pagination():
 
 
 def generate_hash_char(num: int, flag=True) -> str:
-    if not flag:
+    if flag:
         num = num + 100009527
     s = 'mnopqrstbc1y832vwx5u49deghijklza67f'
     length = len(s)
@@ -179,4 +179,8 @@ def parse_date_counts(date_counts):
     except ValueError:
         return [], []
     return replace_nan(dates), list(counts)
+
+
+if __name__ == '__main__':
+    print(generate_hash_char(1))
 
