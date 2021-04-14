@@ -126,6 +126,7 @@ class CustomerPosition(ApiViewHandler):
             FOFInvestorPosition.investor_id == investor_id,
             FOFInvestorPosition.manager_id == g.token.manager_id,
             FOFInfo.fof_id == FOFInvestorPosition.fof_id,
+            FOFInfo.is_deleted == False,
             FOFInfo.manager_id == g.token.manager_id,
         ).all()
 
@@ -210,7 +211,7 @@ class CustomerTradesPurRed(ApiViewHandler):
             manager_id=g.token.manager_id,
         ).first()
         if not fof:
-            return data_dict
+            return None
 
         sub = HedgeFundInvestorPurAndRedempSub.filter_by_query(
             main_id=data_dict.get('id'),
@@ -233,7 +234,7 @@ class CustomerTradesPurRed(ApiViewHandler):
         )
         data = p.paginate(
             query,
-            call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x],
+            call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x if self.add_investor_info(i.to_dict())],
             equal_filter=[HedgeFundInvestorPurAndRedemp.event_type],
         )
         return data
@@ -248,7 +249,7 @@ class CustomerTradesDivCar(ApiViewHandler):
             manager_id=g.token.manager_id,
         ).first()
         if not fof:
-            return data_dict
+            return None
 
         data_dict['fof_name'] = fof.fof_name
         data_dict['desc_name'] = fof.desc_name
@@ -263,7 +264,7 @@ class CustomerTradesDivCar(ApiViewHandler):
         )
         data = p.paginate(
             query,
-            call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x],
+            call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x if self.add_investor_info(i.to_dict())],
             equal_filter=[HedgeFundInvestorDivAndCarry.event_type],
         )
         return data
