@@ -13,7 +13,7 @@ from .view_ratios import *
 from .view_trades import *
 from .view_nav import *
 from .view_tags import ProTagAPI
-from .view_custodian import NavCompare, CusNavFileHtml, UploadCusNav, CalcPosition, CusPosition, CalcTrades
+from .view_custodian import NavCompare, CusNavFileHtml, UploadCusNav, CalcPosition, CusPosition, CalcTrades, FundAliasAPI
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/production')
 api = Api(blu)
@@ -34,6 +34,10 @@ api.add_resource(ProductionInvestorTrades, '/investor_trades/<string:fof_id>')
 api.add_resource(ProductionInvestorTradesSingle, '/investor_trade_single/<int:trade_id>')
 api.add_resource(ProductionPosition, '/cur_position/<string:fof_id>')
 api.add_resource(ProductionInvestor, '/cur_investors/<string:fof_id>')
+
+# 净资产修正
+api.add_resource(AssetCorrectAPI, '/asset_correct/<string:fof_id>')
+api.add_resource(AssetCorrectDetailAPI, '/asset_correct_detail/<int:_id>')
 
 api.add_resource(NavCalcAPI, '/nav_calc/<string:fof_id>')
 api.add_resource(AccountStatementAPI, '/account_statement/<string:fof_id>')
@@ -106,3 +110,5 @@ api.add_resource(UploadCusNav, '/upload_cus_nav_file/<string:fof_id>')
 api.add_resource(CalcPosition, '/calc_position/<string:fof_id>/<string:date_str>')
 api.add_resource(CusPosition, '/cus_position/<string:fof_id>/<string:date_str>')
 api.add_resource(CalcTrades, '/calc_trades/<string:fof_id>/<string:date_str>')
+api.add_resource(FundAliasAPI, '/fund_alias')
+

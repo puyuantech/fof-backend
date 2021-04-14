@@ -22,7 +22,9 @@ class UploadPublicFileAPI(ApiViewHandler):
             raise VerifyError('没有文件！')
         if not content_type:
             raise VerifyError('未指定文件类型！')
-        file_key, url = FileStore().store_file_from_user(g.user.id, file_obj, content_type)
+
+        file_suffix = re.findall(r'\.[^.\\/:*?"<>|\r\n]+$', file_obj.filename)[0]
+        file_key, url = FileStore().store_file_from_user(g.user.id, file_obj, content_type, file_suffix)
         if not file_key:
             raise LogicError('store file failed! (err_msg){}'.format(url))
         return {

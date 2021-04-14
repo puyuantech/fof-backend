@@ -101,6 +101,8 @@ class ProMixin:
 
         df_pub = self.get_public_nav(fof_id)
         df_pri = self.get_private_nav(fof_id)
+        print(df_pub)
+        print(df_pri)
 
         if len(df_pub) < 1 and len(df_pri) < 1:
             return []
