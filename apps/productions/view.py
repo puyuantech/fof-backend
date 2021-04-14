@@ -27,7 +27,7 @@ class CreateProductionID(ApiViewHandler):
     @login_required
     def get(self):
         num = int(str(g.user.id) + datetime.datetime.now().strftime('%Y%m%d%H%M%S')[2:])
-        _id = generate_hash_char(num)
+        _id = generate_hash_char(num, flag=False)
         return {
             'id': _id,
         }
