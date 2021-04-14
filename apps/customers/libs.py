@@ -17,6 +17,17 @@ def get_user_by_mobile(mobile):
     return User.filter_by_query(mobile=mobile).first()
 
 
+def get_user_dict(user_id, map_type):
+    u = User.filter_by_query(id=user_id).first()
+    if not u:
+        return {}
+    return {
+        'mobile': u.mobile,
+        'user_id': user_id,
+        'map_type': map_type,
+    }
+
+
 def get_investor_info(unit):
     data_dict = unit.to_dict()
 
@@ -43,7 +54,7 @@ def get_investor_info(unit):
     if not investor_map:
         data_dict['user_investor_map'] = []
     else:
-        data_dict['user_investor_map'] = [i.to_dict() for i in investor_map]
+        data_dict['user_investor_map'] = [get_user_dict(i.user_id, i.map_type) for i in investor_map]
 
     return data_dict
 
