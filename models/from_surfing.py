@@ -17,6 +17,8 @@ from surfing.data.view.basic_models import FOFRealTransitMoney as SurfingFOFReal
 from surfing.data.view.basic_models import FOFRealEstimateInterest as SurfingFOFRealEstimateInterest
 from surfing.data.view.basic_models import FOFRealEstimateFee as SurfingFOFRealEstimateFee
 from surfing.data.view.basic_models import FOFInvestorPositionSummary as SurfingFOFInvestorPositionSummary
+from surfing.data.view.basic_models import FOFAssertCorrect as SurfingFOFAssertCorrect
+from surfing.data.view.basic_models import HedgeFundAlias as SurfingHedgeFundAlias
 
 from surfing.data.view.derived_models import FOFPosition as SurfingFOFPosition
 from surfing.data.view.derived_models import FOFNav as SurfingFOFNav
@@ -39,6 +41,22 @@ class MngInfo(SurfingMngInfo, db.Model):
 
 class HedgeFundNAV(SurfingHedgeFundNAV, BaseModel):
     __tablename__ = 'hedge_fund_nav'
+    __bind_key__ = 'basic'
+    __table_args__ = {
+        'extend_existing': True,
+    }
+
+
+class FOFAssetCorrect(SurfingFOFAssertCorrect, BaseModel):
+    __tablename__ = 'fof_assert_correct'
+    __bind_key__ = 'basic'
+    __table_args__ = {
+        'extend_existing': True,
+    }
+
+
+class HedgeFundAlias(SurfingHedgeFundAlias, BaseModel):
+    __tablename__ = 'hedge_fund_alias'
     __bind_key__ = 'basic'
     __table_args__ = {
         'extend_existing': True,

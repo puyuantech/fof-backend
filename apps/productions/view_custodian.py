@@ -9,9 +9,9 @@ from bases.viewhandler import ApiViewHandler
 from bases.globals import db, settings
 from bases.exceptions import VerifyError, LogicError
 from models import FOFNavCalc, HedgeFundCustodianData, FOFPosition, HedgeFundInvestorDivAndCarry, \
-    HedgeFundInvestorPurAndRedemp, UnitMap
+    HedgeFundInvestorPurAndRedemp, UnitMap, HedgeFundAlias
 from utils.decorators import login_required
-from utils.helper import replace_nan
+from utils.helper import replace_nan, generate_sql_pagination
 from utils.serializer import DataFrameDictSerializer
 from utils.xlsx2html import xlsx2html
 from utils.caches import get_fund_cache
@@ -373,3 +373,47 @@ class CusNavFileHtml(ApiViewHandler):
             'fof_id': fof_id,
             'date': date_str,
         }
+
+
+class FundAliasAPI(ApiViewHandler):
+    """私募基金别名"""
+    model = HedgeFundAlias
+
+    @login_required
+    def get(self):
+        p = generate_sql_pagination()
+
+        query = self.model.filter_by_query(
+            manager_id=g.token.manager_id,
+        )
+        data = p.paginate(query)
+        return data
+
+    @login_required
+    def post(self):
+        obj = self.model(
+            manager_id=g.token.manager_id,
+            fund_id=request.json.get('fund_id'),
+            fund_id_alias=request.json.get('fund_id_alias'),
+        )
+        obj.save()
+
+    @login_required
+    def put(self):
+        obj = self.model.filter_by_query(
+            manager_id=g.token.manager_id,
+            fund_id_alias=request.json.get('fund_id_alias'),
+        ).first()
+
+        obj.fund_id = request.json.get('fund_id')
+        obj.save()
+
+    @login_required
+    def delete(self):
+        obj = self.model.filter_by_query(
+            manager_id=g.token.manager_id,
+            fund_id_alias=request.json.get('fund_id_alias'),
+        ).first()
+        if not obj:
+            return
+        obj.delete()

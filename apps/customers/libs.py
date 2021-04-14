@@ -4,7 +4,7 @@ import pandas as pd
 import io
 from flask import request, current_app, g
 
-from models import User, FOFScaleAlteration, FOFInvestorData, InvestorTag, InvestorInfo
+from models import User, FOFScaleAlteration, FOFInvestorData, InvestorTag, InvestorInfo, UserInvestorMap
 from bases.exceptions import VerifyError
 from bases.constants import StuffEnum
 
@@ -36,6 +36,14 @@ def get_investor_info(unit):
         data_dict['total_investment'] = None
     else:
         data_dict['total_investment'] = investor_data.total_investment
+
+    investor_map = UserInvestorMap.filter_by_query(
+        investor_id=unit.investor_id,
+    ).all()
+    if not investor_map:
+        data_dict['user_investor_map'] = []
+    else:
+        data_dict['user_investor_map'] = [i.to_dict() for i in investor_map]
 
     return data_dict
 
