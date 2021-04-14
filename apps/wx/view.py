@@ -186,13 +186,14 @@ class WXBindMobile(ApiViewHandler):
             db.session.commit()
             return refresh_token(user, investor_dict, manager_id=g.token.manager_id)
 
-        if target_user.we_chat:
+        if WeChatUnionID.filter_by_query(user_id=target_user.id, manager_id=g.token.manager_id).first():
             raise VerifyError('目标账户已绑定别的微信号！')
 
         # 绑定新的 User 对象，并删除原虚拟对象
         wx_user = g.user.we_chat[0]
         wx_user.user_id = target_user.id
-        g.user.is_deleted = True
+        if g.user.is_wx:
+            g.user.is_deleted = True
         db.session.commit()
 
         investor = target_user.get_main_investor()
