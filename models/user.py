@@ -74,6 +74,15 @@ class User(BaseModel):
 
         return user, investor
 
+    @classmethod
+    def create_investor_sub_user(cls, user_id, investor_id):
+        investor_map = UserInvestorMap.create(
+            user_id=user_id,
+            investor_id=investor_id,
+            map_type=UserInvestorMap.MapType.SUB,
+        )
+        return investor_map
+
     def get_main_investor(self):
         investor = db.session.query(InvestorInfo).filter(
             UserInvestorMap.user_id == self.id,

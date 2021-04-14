@@ -133,6 +133,7 @@ class CustomerPosition(ApiViewHandler):
         for i in results:
             d = i[0].to_dict()
             d['fof_name'] = i[1].fof_name
+            d['desc_name'] = i[1].desc_name
             d['net_asset_value'] = i[1].net_asset_value
             d['acc_unit_value'] = i[1].acc_unit_value
             d['ret_year_to_now'] = i[1].ret_year_to_now
@@ -158,7 +159,7 @@ class CustomerTrades(ApiViewHandler):
         event_type = request.args.get('event_type')
         if event_type:
             event_type = [int(i) for i in event_type.split(',')]
-            results = db.session.query(FOFScaleAlteration, FOFInfo.fof_name).filter(
+            results = db.session.query(FOFScaleAlteration, FOFInfo.fof_name, FOFInfo.desc_name).filter(
                 FOFScaleAlteration.investor_id == investor_id,
                 FOFScaleAlteration.manager_id == g.token.manager_id,
                 FOFScaleAlteration.event_type.in_(event_type),
@@ -166,7 +167,7 @@ class CustomerTrades(ApiViewHandler):
                 FOFInfo.manager_id == g.token.manager_id,
             )
         else:
-            results = db.session.query(FOFScaleAlteration, FOFInfo.fof_name).filter(
+            results = db.session.query(FOFScaleAlteration, FOFInfo.fof_name, FOFInfo.desc_name).filter(
                 FOFScaleAlteration.investor_id == investor_id,
                 FOFScaleAlteration.manager_id == g.token.manager_id,
                 FOFInfo.fof_id == FOFScaleAlteration.fof_id,
@@ -176,6 +177,7 @@ class CustomerTrades(ApiViewHandler):
         for i in results:
             d = i[0].to_dict()
             d['fof_name'] = i[1]
+            d['desc_name'] = i[2]
             df_list.append(d)
 
         df = pd.DataFrame(df_list)
@@ -219,6 +221,7 @@ class CustomerTradesPurRed(ApiViewHandler):
             data_dict['remark'] = sub.remark
 
         data_dict['fof_name'] = fof.fof_name
+        data_dict['desc_name'] = fof.desc_name
         return data_dict
 
     @login_required
@@ -248,6 +251,7 @@ class CustomerTradesDivCar(ApiViewHandler):
             return data_dict
 
         data_dict['fof_name'] = fof.fof_name
+        data_dict['desc_name'] = fof.desc_name
         return data_dict
 
     @login_required
