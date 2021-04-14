@@ -22,7 +22,7 @@ def get_contents(manager_id):
     for item in InfoToProduction.filter_by_query(manager_id=manager_id).all():
         content_productions[item.info_id].append({
             'fof_id': item.fof_id,
-            'fof_name': productions[item.fof_id],
+            'fof_name': productions.get(item.fof_id),
         })
 
     content_ids = FOFNotification.get_manager_content_ids(manager_id)
