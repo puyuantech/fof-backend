@@ -1,7 +1,7 @@
 from flask import g, request, current_app
+
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
-from bases.constants import StuffEnum
 from models import Token, User, ManagerUserMap
 from utils.decorators import params_required, login_required
 from apps.captchas.libs import check_img_captcha, check_sms_captcha
@@ -42,3 +42,18 @@ class AdminLoginAPI(ApiViewHandler):
             'token': token_dict,
         }
         return data
+
+
+class ResetAdminPassword(ApiViewHandler):
+
+    @params_required(*['new_password', 'old_password'])
+    @login_required
+    def post(self):
+        if not g.user.is_staff:
+            raise VerifyError('不可主动修改密码！')
+        if not g.user.check_password(self.input.old_password):
+            raise VerifyError('原密码不正确！')
+        g.user.password = self.input.new_password
+        g.user.save()
+        Token.clear(g.user.id)
+        return 'success'

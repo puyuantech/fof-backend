@@ -12,6 +12,7 @@ class CusProductions(ApiViewHandler):
     def get(self, investor_id):
         productions = FOFInfo.filter_by_query(
             manager_id=g.token.manager_id,
+            assect_type='production',
             is_on_sale=True,
         ).all()
 
