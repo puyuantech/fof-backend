@@ -27,7 +27,7 @@ def send_nav_msg(sub_task_id):
                 app_sec=task_from.get('app_sec'),
                 manager_id=task_from.get('manager_id'),
                 open_id=investor.get('wx_open_id'),
-                pro_name=nav_data.get('fof_name'),
+                pro_name=nav_data.get('desc_name'),
                 nav=nav_data.get('nav'),
                 acc_nav=nav_data.get('acc_nav'),
                 date=nav_data.get('date'),
@@ -53,7 +53,7 @@ def send_nav_msg(sub_task_id):
                 use_ssl=task_from.get('use_ssl'),
                 title='净值提醒',
                 send_to=investor.get('email'),
-                pro_name=nav_data.get('fof_name'),
+                pro_name=nav_data.get('desc_name'),
                 nav=nav_data.get('nav'),
                 acc_nav=nav_data.get('acc_nav'),
                 date=nav_data.get('date'),
@@ -67,7 +67,7 @@ def send_nav_msg(sub_task_id):
 
             sms_nav_template(
                 send_to=investor.get('mobile'),
-                pro_name=nav_data.get('fof_name'),
+                pro_name=nav_data.get('desc_name'),
                 nav=nav_data.get('nav'),
                 acc_nav=nav_data.get('acc_nav'),
                 date=nav_data.get('date'),
@@ -80,7 +80,7 @@ def send_nav_msg(sub_task_id):
                 manager_id=task_from.get('manager_id'),
                 investor_id=investor.get('investor_id'),
                 content={
-                    'fof_name': nav_data.get('fof_name'),
+                    'fof_name': nav_data.get('desc_name'),
                     'fof_id': nav_data.get('fof_id'),
                     'nav': nav_data.get('nav'),
                     'acc_nav': nav_data.get('acc_nav'),

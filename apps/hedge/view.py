@@ -11,7 +11,7 @@ from utils.decorators import params_required, login_required, admin_login_requir
 from utils.helper import generate_sql_pagination, replace_nan
 
 from surfing.util.calculator import Calculator as SurfingCalculator
-from surfing.data.manager.manager_fof import FOFDataManager
+from surfing.data.manager.manager_fof_lite import FOFDataManagerLite
 
 from .libs import update_hedge_fund_info, make_hedge_fund_info, update_hedge_value
 
@@ -120,7 +120,7 @@ class HedgeDetail(ApiViewHandler):
         if not req_file:
             raise VerifyError('Couldn\'t find any uploaded file')
 
-        status = FOFDataManager.upload_hedge_nav_data(
+        status = FOFDataManagerLite.upload_hedge_nav_data(
             req_file.read(),
             req_file.name,
             _id,

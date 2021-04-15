@@ -15,7 +15,7 @@ from utils.decorators import params_required, login_required, admin_login_requir
 from utils.helper import generate_sql_pagination, replace_nan, generate_hash_char
 from utils.caches import get_fund_collection_caches, get_hedge_fund_cache, get_fund_cache
 from surfing.util.calculator import Calculator as SurfingCalculator
-from surfing.data.manager.manager_fof import FOFDataManager
+from surfing.data.manager.manager_fof_lite import FOFDataManagerLite
 
 from bases.constants import StuffEnum
 from .libs import update_production_info, parse_trade_file, create_single_trade, update_trade, parse_nav_file, \
@@ -469,7 +469,7 @@ class ProductionInvestor(ApiViewHandler):
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.OPE_MANAGER, StuffEnum.FUND_MANAGER])
     def get(self, fof_id):
-        investor_return = FOFDataManager.get_investor_return(
+        investor_return = FOFDataManagerLite.get_investor_return(
             manager_id=g.token.manager_id,
             fof_id=fof_id,
         )

@@ -23,7 +23,8 @@ class ProNavMessageAPI(ApiViewHandler):
     @login_required
     def post(self, fof_id):
         nav_data = request.json.get('nav_data')
-        if nav_data.get('date') is None or nav_data.get('nav') is None or nav_data.get('acc_nav') is None or \
+        if nav_data.get('date') is None or nav_data.get('nav') is None or \
+                nav_data.get('acc_nav') is None or \
                 nav_data.get('fof_name') is None:
             raise VerifyError('净值格式不正确')
 
