@@ -21,6 +21,7 @@ from surfing.data.manager.manager_hedge_fund import HedgeFundDataManager
 from surfing.constant import FOFTradeStatus
 from openpyxl import load_workbook
 from xls2xlsx import XLS2XLSX
+from .mixin import ProMixin
 
 
 class NavCompare(ApiViewHandler):
@@ -52,6 +53,9 @@ class NavCompare(ApiViewHandler):
                 'results': [],
             }
         df = cal_df.set_index('datetime')
+
+        # nav_df = ProMixin().calc_fof_ret(fof_id)
+        # print(nav_df)
 
         cus = db.session.query(
             HedgeFundCustodianData.datetime,
