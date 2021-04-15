@@ -329,9 +329,13 @@ class ProductionTrades(ApiViewHandler):
             query = FOFAssetAllocation.filter_by_query(
                 fof_id=fof_id,
                 event_type=event_type,
+                manager_id=g.token.manager_id,
             )
         else:
-            query = FOFAssetAllocation.filter_by_query(fof_id=fof_id)
+            query = FOFAssetAllocation.filter_by_query(
+                fof_id=fof_id,
+                manager_id=g.token.manager_id,
+            )
         data = p.paginate(query)
 
         results = data['results']
@@ -344,6 +348,7 @@ class ProductionTrades(ApiViewHandler):
         df = parse_trade_file(fof_id)
 
         for d in df.to_dict(orient='records'):
+            d['manager_id'] = g.token.manager_id
             new = FOFAssetAllocation(**replace_nan(d))
             db.session.add(new)
         db.session.commit()

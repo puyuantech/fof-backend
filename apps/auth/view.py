@@ -144,7 +144,7 @@ class ChoseInvestor(ApiViewHandler):
 
         investor_dict = chose_investor(g.user, manager, investor_id=self.input.investor_id)
         token = Token.generate_token(g.user.id)
-        token.manager_id = self.input.manager_id
+        token.manager_id = g.token.manager_id
         token.investor_id = investor_dict['investor_id']
         token_dict = token.to_dict()
         token.save()
