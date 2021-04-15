@@ -12,23 +12,30 @@ from utils.helper import parse_date_counts
 from .constants import CONTENT_TYPE_TO_NOTIFICATION_TYPE
 
 
+def get_fofs(manager_id):
+    fofs = FOFInfo.filter_by_query(manager_id=manager_id).all()
+    return {fof.fof_id: fof.fof_name for fof in fofs}
+
+
+def get_productions(manager_id, model):
+    fofs = get_fofs(manager_id)
+    for item in model.filter_by_query(manager_id=manager_id).all():
+        if item.fof_id not in fofs:
+            continue
+        yield item, {'fof_id': item.fof_id, 'fof_name': fofs[item.fof_id]}
+
+
 def get_contents(manager_id):
     contents = InfoDetail.filter_by_query(manager_id=manager_id).filter(InfoDetail.info_type != 3).all()
 
-    productions = FOFInfo.filter_by_query(manager_id=manager_id).all()
-    productions = {production.fof_id: production.fof_name for production in productions}
-
-    content_productions = defaultdict(list)
-    for item in InfoToProduction.filter_by_query(manager_id=manager_id).all():
-        content_productions[item.info_id].append({
-            'fof_id': item.fof_id,
-            'fof_name': productions.get(item.fof_id),
-        })
+    productions = defaultdict(list)
+    for item, production in get_productions(manager_id, InfoToProduction):
+        productions[item.info_id].append(production)
 
     content_ids = FOFNotification.get_manager_content_ids(manager_id)
 
     return [{
-        'productions': content_productions[content.id],
+        'productions': productions[content.id],
         'notified': content.id in content_ids,
         **content.to_dict(),
     } for content in contents]
@@ -37,20 +44,14 @@ def get_contents(manager_id):
 def get_customers(manager_id):
     units = UnitMap.filter_by_query(manager_id=manager_id).all()
 
-    productions = FOFInfo.filter_by_query(manager_id=manager_id).all()
-    productions = {production.fof_id: production.fof_name for production in productions}
-
-    investor_productions = defaultdict(list)
-    for item in FOFInvestorPosition.filter_by_query(manager_id=manager_id).all():
-        investor_productions[item.investor_id].append({
-            'fof_id': item.fof_id,
-            'fof_name': productions.get(item.fof_id),
-        })
+    productions = defaultdict(list)
+    for item, production in get_productions(manager_id, FOFInvestorPosition):
+        productions[item.investor_id].append(production)
 
     investor_counts = FOFNotification.get_investor_counts(manager_id)
 
     return [{
-        'productions': investor_productions[unit.investor_id],
+        'productions': productions[unit.investor_id],
         'read_count': investor_counts.get(unit.investor_id, {}).get(True, 0),
         'unread_count': investor_counts.get(unit.investor_id, {}).get(False, 0),
         **unit.to_dict(),
