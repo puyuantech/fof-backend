@@ -269,6 +269,13 @@ class Token(BaseModel):
     def is_valid(self):
         return datetime.datetime.now() < self.expires_at
 
+    @classmethod
+    def clear(cls, user_id):
+        cls.filter_by_query(
+            show_deleted=True,
+            user_id=user_id,
+        ).delete()
+
     def refresh(self, refresh_key):
         if self.refresh_key == refresh_key:
             print(self.refresh_key)
