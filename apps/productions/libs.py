@@ -182,6 +182,7 @@ def create_single_trade(fof_id):
             status=request.json.get('status'),
             confirmed_date=request.json.get('confirmed_date'),
             deposited_date=request.json.get('deposited_date'),
+            water_line=request.json.get('water_line'),
         )
     except:
         current_app.logger.error(traceback.format_exc())
@@ -217,6 +218,7 @@ def update_trade(obj):
         'event_type',
         'asset_type',
         'nav',
+        'water_line',
     ]
     if request.json.get('fund_id'):
         fund_id = request.json.get('fund_id')
