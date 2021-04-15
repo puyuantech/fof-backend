@@ -29,5 +29,7 @@ class AddSubAccount(ApiViewHandler):
         ).first()
         if not ui_map:
             User.create_investor_sub_user(user.id, investor_id)
+        user.last_login_investor = investor_id
+        user.save()
 
         return 'success'
