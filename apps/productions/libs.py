@@ -171,6 +171,7 @@ def create_single_trade(fof_id):
 
         FOFAssetAllocation.create(
             fof_id=fof_id,
+            manager_id=g.token.manager_id,
             datetime=request.json.get('datetime'),
             fund_id=request.json.get('fund_id'),
             asset_type=asset_type,

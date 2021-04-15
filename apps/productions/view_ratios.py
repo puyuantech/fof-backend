@@ -129,6 +129,9 @@ class ProPeriodRetAPI(ApiViewHandler, ProMixin):
         """区间收益"""
         self.select_model(fof_id)
         df = self.calc_fof_ret(fof_id)
+        if len(df) < 1:
+            return {}
+
         df = df.dropna(subset=['all_nav'])
         if len(df) < 1:
             return {}
