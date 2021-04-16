@@ -7,6 +7,7 @@ api = Api(blu)
 
 api.add_resource(InformationAPI, '/info')
 api.add_resource(InformationDetailAPI, '/info/<int:_id>')
+api.add_resource(ProductionInformationAPI, '/production_infos/<string:fof_id>')
 
 api.add_resource(TemplateAPI, '/template')
 api.add_resource(TemplateDetailAPI, '/template/<int:_id>')

@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import datetime
 import jwt
+import random
+import string
+
 from decimal import Decimal
 from collections import Iterable, OrderedDict
 
@@ -181,6 +184,13 @@ def parse_date_counts(date_counts):
     return replace_nan(dates), list(counts)
 
 
+def generate_random_str(count: int):
+    src = string.ascii_letters + string.digits
+    sec = random.sample(src, count)
+    random.shuffle(sec)
+    return ''.join(sec)
+
+
 if __name__ == '__main__':
-    print(generate_hash_char(1))
+    print(generate_random_str(10))
 

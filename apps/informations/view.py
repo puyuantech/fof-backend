@@ -3,7 +3,7 @@ import datetime
 from flask import request, g
 from bases.view_mixin import *
 from bases.viewhandler import ApiViewHandler
-from models import InfoDetail, InfoTemplate
+from models import InfoDetail, InfoTemplate, InfoToProduction
 from utils.decorators import params_required
 from .libs import get_info_production, update_info_production
 
@@ -92,6 +92,24 @@ class InformationDetailAPI(ApiViewHandler, ViewDetailGet, ViewDetailUpdate, View
             'id': _id,
         }
         return
+
+
+class ProductionInformationAPI(ApiViewHandler):
+
+    @login_required
+    def get(self, fof_id):
+        objs = db.session.query(
+            InfoDetail
+        ).filter(
+            InfoToProduction.fof_id == fof_id,
+            InfoToProduction.manager_id == g.token.manager_id,
+            InfoToProduction.info_id == InfoDetail.id,
+            InfoDetail.is_effected == True,
+            InfoDetail.is_deleted == False,
+        ).order_by(
+            InfoDetail.effect_time.desc()
+        ).all()
+        return [i.to_dict() for i in objs]
 
 
 class TemplateAPI(ApiViewHandler, ViewList):

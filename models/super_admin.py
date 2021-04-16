@@ -81,3 +81,26 @@ class SuperToken(BaseModel):
         token = cls.get_by_id(token.id)
         return token
 
+
+class ApplyFile(BaseModel):
+    """
+    申请材料
+    """
+    __tablename__ = "admin_apply_file"
+
+    id = db.Column(db.Integer, primary_key=True)                        # 编号
+    rand_str = db.Column(db.String(127))                                # 随机编码
+    email = db.Column(db.String(63))                                    # 邮箱
+    mobile = db.Column(db.String(11))                                   # 手机号
+    manager_name = db.Column(db.String(127))                            # 机构名称
+    manager_id = db.Column(db.String(31))                               # 机构ID
+    manager_cred_type = db.Column(db.String(31))                        # 证件类型
+    manager_cred_file = db.Column(db.String(127))                       # 证件url
+    manager_cred_no = db.Column(db.String(127))                         # 证件号码
+    legal_person = db.Column(db.String(31))                             # 法人
+    lp_cred_type = db.Column(db.String(31))                             # 法人证件类型
+    lp_cred_file = db.Column(db.String(127))                            # 法人证件文件
+    lp_cred_no = db.Column(db.String(127))                              # 法人证件号码
+    authorization_file = db.Column(db.String(127))                      # 授权文件
+    admin_name = db.Column(db.String(15))                               # 管理人姓名
+    admin_cred_no = db.Column(db.String(63))                            # 管理人证件号码

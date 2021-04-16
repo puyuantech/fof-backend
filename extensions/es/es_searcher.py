@@ -120,3 +120,34 @@ class FundSearcher(Searcher):
         _ = s[offset: offset + limit].execute()
         count = _.hits.total
         return _.hits, count
+
+
+class FOFManagementSearcher(Searcher):
+
+    def get_usually_query_result(self, key_word, offset, limit):
+        must, must_not, should, filters = [], [], [], []
+        ss = self.doc_model.search()
+        zh_model = re.compile(u'[a-z]')
+
+        if re.compile(u'[0-9]').search(key_word):
+            should.append(Regexp(management_id='.*{}'.format(key_word)))
+            should.append(Regexp(management_id='.*{}.*'.format(key_word)))
+        elif zh_model.search(key_word):
+            should.append(MatchPhrasePrefix(management_name_pinyin=key_word))
+            should.append(MatchPhrasePrefix(management_name_first=key_word))
+        else:
+            should.append(Match(management_name=key_word))
+
+        should_match = 1  # if should else 0
+        s = ss.query(Q(
+            'bool',
+            must=must,
+            filter=filters,
+            must_not=must_not,
+            should=should,
+            minimum_should_match=should_match
+        ))
+
+        _ = s[offset: offset + limit].execute()
+        count = _.hits.total
+        return _.hits, count

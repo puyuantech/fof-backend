@@ -33,7 +33,7 @@ class CusProductions(ApiViewHandler):
                 data.append(results[i])
 
         for i in productions:
-            data.append(i)
+            data.append(productions[i])
 
         data = [i.to_dict() for i in data]
         return data
