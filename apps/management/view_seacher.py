@@ -29,7 +29,6 @@ class FOFFundSearcherAPI(ApiViewHandler):
 
 class FOFManagementSearcherAPI(ApiViewHandler):
 
-    @login_required
     def get(self, key_word):
         page = int(request.args.get('page', 0))
         page_size = int(request.args.get('page_size', 5))
