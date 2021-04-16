@@ -4,7 +4,7 @@ from .view import CusAPI, CustomerAPI, CustomerPosition, CustomerTrades, Custome
     CustomerPositionSingle, CustomerTradesDivCar, CustomerTradesPurRed
 from .view_tags import *
 from .view_position import PositionAnalysis
-from .view_account import AddSubAccount
+from .view_account import SubAccount
 from .view_prodictions   import CusProductions
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/customer')
@@ -25,5 +25,5 @@ api.add_resource(CustomerFile, '/download')
 api.add_resource(TagAPI, '/tag')
 api.add_resource(TagsAPI, '/tag/user')
 api.add_resource(TopTagsAPI, '/tag/top')
-api.add_resource(AddSubAccount, '/add_sub_account/<string:investor_id>')
+api.add_resource(SubAccount, '/add_sub_account/<string:investor_id>')
 api.add_resource(CusProductions, '/cus_productions/<string:investor_id>')

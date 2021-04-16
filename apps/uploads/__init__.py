@@ -10,4 +10,5 @@ api.add_resource(UploadImageAPI, '/image')
 api.add_resource(ParsePDFAPI, '/parse')
 api.add_resource(UploadPublicFileAPI, '/public_file')
 api.add_resource(UploadPrivateFileAPI, '/private_file')
-
+api.add_resource(ApplyUploadPrivateFileAPI, '/apply_private_file')
+api.add_resource(ApplyParseFileKey, '/apply_parse_file_key')
