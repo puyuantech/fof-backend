@@ -54,12 +54,13 @@ class NavCompare(ApiViewHandler):
             }
         df = cal_df.set_index('datetime')
 
-        # nav_df = ProMixin().calc_fof_ret(fof_id)
-        # print(nav_df)
+        nav_df = ProMixin().calc_fof_ret(fof_id)
+        if len(nav_df) > 0:
+            nav_df = nav_df.reindex(df.index)
+            df['cus_nav'] = nav_df['nav']
 
         cus = db.session.query(
             HedgeFundCustodianData.datetime,
-            HedgeFundCustodianData.nav,
             HedgeFundCustodianData.equity,
             HedgeFundCustodianData.total_shares,
             HedgeFundCustodianData.url,
@@ -70,14 +71,12 @@ class NavCompare(ApiViewHandler):
         if len(cus) > 0:
             cus_df = pd.DataFrame([{
                 'datetime': i[0],
-                'cus_nav': i[1],
-                'cus_mv': i[2],
-                'cus_volume': i[3],
-                'url': i[4],
+                'cus_mv': i[1],
+                'cus_volume': i[2],
+                'url': i[3],
             } for i in cus])
             cus_df = cus_df.set_index('datetime')
             cus_df = cus_df.reindex(df.index)
-            df['cus_nav'] = cus_df['cus_nav']
             df['cus_mv'] = cus_df['cus_mv']
             df['cus_volume'] = cus_df['cus_volume']
             df['url'] = cus_df['url']
@@ -108,13 +107,18 @@ class CalcPosition(ApiViewHandler):
 
         data = dict()
         fund_dict = get_fund_cache()
-        position = p.to_dict().get('position')
+        p = p.to_dict()
+        position = p.get('position')
         position = position or '[]'
         position = json.loads(position)
         for i in position:
             i['fund_name'] = fund_dict.get(i['fund_id'])
 
         data['position'] = position
+        data['other_equity'] = {
+            'other_assets': p.get('other_assets'),
+            'deposit_in_bank': p.get('deposit_in_bank'),
+        }
         return data
 
 
