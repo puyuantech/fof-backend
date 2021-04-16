@@ -40,6 +40,7 @@ def update_user_info(user):
     ]
     # if request.json.get('role_id') and request.json.get('role_id') == 1:
     #     raise VerifyError('不能添加管理员权限!')
+
     for i in columns:
         if request.json.get(i) is not None:
             user.update(commit=False, **{i: request.json.get(i)})
