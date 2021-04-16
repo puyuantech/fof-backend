@@ -10,6 +10,7 @@ from .view_contract import (ContractAPI, ContractListAPI, ContractTemplateAPI, R
 from .view_information import (InformationAPI, InvestorTokenAPI, FaceImageAPI, CertImageAPI,
                                RealNameAPI, RiskLevelAPI, ExperienceAPI, InfoTableAPI, CommitmentAPI)
 from .view_notification import NotificationMenuAPI, NotificationListAPI, NotificationReadListAPI
+from .view_position import PositionListAPI, PositionAnalysisAPI
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/investor')
 api = Api(blu)
@@ -49,3 +50,6 @@ api.add_resource(CommitmentAPI, '/information/commitment')
 api.add_resource(NotificationMenuAPI, '/notification/menu')
 api.add_resource(NotificationListAPI, '/notification/list')
 api.add_resource(NotificationReadListAPI, '/notification/read/list')
+
+api.add_resource(PositionListAPI, '/position/list')
+api.add_resource(PositionAnalysisAPI, '/position/analysis')
