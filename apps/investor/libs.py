@@ -1,4 +1,6 @@
 
+import pandas as pd
+
 from flask import g
 from typing import List
 
@@ -47,4 +49,13 @@ def fill_investor_contracts(manager_id, investor_contracts: List[dict]):
 def get_contract_url_key(contract_id, manager_id):
     contract_url = FOFTemplate().get_contract_download_url(contract_id, manager_id)
     return PdfStore().store_contract_pdf(g.user.id, contract_url, contract_id)
+
+
+def get_monthly(dates, mvs):
+    df = pd.DataFrame({'dates': dates, 'rates': mvs}).set_index('dates')
+    df = df.set_axis(pd.to_datetime(df.index), inplace=False).resample('1M').last()
+    df.index = [str(date)[:7] for date in df.index]
+    df.index.name = 'months'
+    df = df.pct_change(1).iloc[1:]
+    return df.reset_index().to_dict('list')
 
