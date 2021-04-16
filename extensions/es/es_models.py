@@ -46,3 +46,17 @@ class FOFFundSearchDoc(Document):
     class Index:
         name = 'fof_fund_search'
         label_name = 'es_test'
+
+
+class FOFManagementSearchDoc(Document):
+
+    management_id = Keyword()
+    management_name = Text(analyzer='ik_max_word')
+    management_name_pinyin = Text(analyzer='pinyin')
+    management_name_first = Text(analyzer='standard')
+    update_time = Date()
+    create_time = Date()
+
+    class Index:
+        name = 'fof_management_search'
+        label_name = 'es_test'

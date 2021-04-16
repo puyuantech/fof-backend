@@ -228,3 +228,18 @@ class FOFFundSearchBuilder(BaseIndexer):
             'update_time': datetime.datetime.now(),
             'create_time': datetime.datetime.now(),
         }
+
+
+class FOFManagementSearchBuilder(BaseIndexer):
+
+    @classmethod
+    def build_doc_param(cls, management_id, management_name):
+        return {
+            'management_id': management_id,
+            'management_name': management_name,
+            'management_name_pinyin': management_name,
+            'management_name_first': build_pinyin(management_name),
+            'update_time': datetime.datetime.now(),
+            'create_time': datetime.datetime.now(),
+        }
+
