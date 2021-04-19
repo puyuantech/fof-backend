@@ -17,11 +17,11 @@ def fill_investor_contract(investor_contract: dict):
     cert_num = InvestorCertification.get_effective_certification(
         investor_contract['investor_id'], investor_contract['manager_id']
     )['cert_num']
-    fof_info = FOFInfo.get_by_query(fof_id=investor_contract['fof_id'])
+    fof_info = FOFInfo.filter_by_query(fof_id=investor_contract['fof_id']).first()
 
     investor_contract.update({
         'cert_num': cert_num[:4] + '************' + cert_num[-2:],
-        'fof_name': fof_info.fof_name,
+        'fof_name': fof_info and fof_info.fof_name,
     })
     return investor_contract
 
