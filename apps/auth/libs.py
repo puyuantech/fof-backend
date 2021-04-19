@@ -18,6 +18,7 @@ def get_user_investors(user, manager_id):
     investors = db.session.query(
         UserInvestorMap.map_type,
         InvestorInfo,
+        UnitMap.name,
     ).filter(
         UserInvestorMap.user_id == user.id,
         InvestorInfo.investor_id == UserInvestorMap.investor_id,
@@ -29,6 +30,7 @@ def get_user_investors(user, manager_id):
     for i in investors:
         d = i[1].to_dict()
         d['map_type'] = i[0]
+        d['map_name'] = i[2]
         d['manager_id'] = manager_id
         ret.append(d)
     return ret
