@@ -81,3 +81,12 @@ class InvestorOperationAPI(ApiViewHandler):
             response_data='',
             response_status=None,
         )
+
+
+class InvestorOperationsListAPI(ApiViewHandler):
+
+    @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
+    def get(self):
+        results = db.session.query(distinct(InvestorOperation.action)).all()
+        data = [i[0] for i in results]
+        return data
