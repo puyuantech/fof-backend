@@ -16,20 +16,23 @@ Token = namedtuple('Token', ['token', 'expires_at'])
 class ManagerToken(metaclass=Singleton):
 
     def __init__(self):
-        self.host = settings['HAI_FENG_HOST']
+        self.url = settings['HAI_FENG_HOST'] + '/v2/auth/getToken'
         self.tokens = {}
 
     def generate_new_token(self, user_id, secret):
-        endpoint = '/v2/auth/getToken'
-        now = datetime.datetime.now()
-        response = requests.post(self.host + endpoint, json={'userId': user_id, 'secret': secret}, timeout=5)
+        response = requests.post(
+            url=self.url,
+            json={'userId': user_id, 'secret': secret},
+            timeout=5,
+            headers={'userId': str(user_id)},
+        )
         data = response.json()
         if data['success'] != 1:
             current_app.logger.error(f'[ManagerToken] Failed to get token! (data){data}')
             return
 
         token = data['data']['token']
-        expires_at = now + datetime.timedelta(hours=12)
+        expires_at = datetime.datetime.now() + datetime.timedelta(hours=12)
         return Token(token, expires_at)
 
     def get_token(self, manager_id, manager_secret=None):

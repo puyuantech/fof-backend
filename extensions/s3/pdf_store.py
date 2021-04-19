@@ -70,6 +70,21 @@ class PdfStore:
         except:
             raise LogicError(f'保存合同失败！(err_msg){traceback.format_exc()}')
 
+    def store_template_pdf(self, url, template_id, suffix=''):
+        try:
+            image_id = uuid.uuid1().hex
+            file_path = os.path.join(self.store_path, f'pdf_from_haifeng_{template_id}{suffix}')
+            file_key = f'fof_info/template_{template_id}_{image_id}{suffix}'
+
+            self.save_response_content(url, file_path)
+            self.upload_to_s3(file_path, file_key)
+            self.clear_temp_file(file_path)
+
+            return file_key
+
+        except:
+            raise LogicError(f'保存合同模板失败！(err_msg){traceback.format_exc()}')
+
     def create_pre_signed_url(self,  object_name, bucket_name=settings['AWS_PRIVATE_BUCKET_NAME'], expiration=3600):
         """Generate a presigned URL to share an S3 object
 
