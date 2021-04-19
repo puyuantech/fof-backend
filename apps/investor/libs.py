@@ -34,7 +34,7 @@ def fill_investor_contracts(manager_id, investor_contracts: List[dict]):
     }
 
     for investor_contract in investor_contracts:
-        investor_contract.update(fofs.pop(investor_contract['fof_id']))
+        investor_contract.update(fofs.pop(investor_contract['fof_id'], {}))
 
     for fof_id, fof_info in fofs.items():
         investor_contracts.append({
