@@ -31,6 +31,7 @@ def update_production_info(obj):
         'incentive_fee_type',
         'incentive_fee_str',
         'strategy_type',
+        'sub_strategy_type',
         'risk_type',
         'is_on_sale',
         'benchmark',

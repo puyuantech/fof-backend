@@ -76,6 +76,7 @@ class ProductionsAPI(ApiViewHandler):
             'incentive_fee_type': request.json.get('incentive_fee_type'),
             'incentive_fee_str': request.json.get('incentive_fee_str'),
             'strategy_type': request.json.get('strategy_type'),
+            'sub_strategy_type': request.json.get('sub_strategy_type'),
             'risk_type': request.json.get('risk_type'),
             'is_fof': request.json.get('is_fof'),
             'is_on_sale': request.json.get('is_on_sale'),
@@ -94,6 +95,15 @@ class ProductionsAPI(ApiViewHandler):
         ).one_or_none():
             raise VerifyError('ID 重复')
         obj = FOFInfo.create(**data)
+
+        FOFNav.create(
+            manager_id=manager_id,
+            fof_id=request.json.get('fof_id'),
+            datetime=request.json.get('established_date'),
+            nav=1,
+            acc_net_value=1,
+            adjusted_nav=1,
+        )
 
         g.user_operation = '添加产品'
         g.user_operation_params = {'fof_id': obj.fof_id}

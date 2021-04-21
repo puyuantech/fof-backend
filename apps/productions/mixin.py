@@ -6,7 +6,7 @@ from flask import request, g
 from utils.helper import generate_sql_pagination, replace_nan
 from utils.decorators import login_required
 from bases.globals import db
-from models import FOFInfo, FOFNav, FOFNavPublic
+from models import FOFInfo, FOFNav, FOFNavPublic, FOFUnconfirmedNav
 
 
 class ViewDetailMixin:
@@ -93,7 +93,7 @@ class ProMixin:
                 manager_id='1',
             )
 
-    def calc_fof_ret(self, fof_id):
+    def calc_fof_ret(self, fof_id, unconfirmed=False):
         start_date = None if not request.args.get('start_date') else \
             datetime.datetime.strptime(request.args.get('start_date'), '%Y-%m-%d')
         end_date = None if not request.args.get('end_date') else \
@@ -108,6 +108,13 @@ class ProMixin:
         df = df_pub.copy()
         for i in df_pri.index:
             df = df.append(df_pri.loc[i, :], ignore_index=True)
+
+        # 获取未确认净值
+        if unconfirmed:
+            df['is_unconfirmed'] = True
+            df_unc = self.get_unconfirmed_nav(fof_id)
+            for i in df_unc.index:
+                df = df.append(df_unc.loc[i, :], ignore_index=True)
 
         df = df.drop_duplicates(subset=['datetime'], keep='last')
         df = df.set_index('datetime')
@@ -176,5 +183,31 @@ class ProMixin:
             'adjusted_nav': i[4],
         } for i in results])
 
+        df['datetime'] = pd.to_datetime(df['datetime'])
+        return df
+
+    def get_unconfirmed_nav(self, fof_id):
+        results = db.session.query(
+            FOFUnconfirmedNav.datetime,
+            FOFUnconfirmedNav.nav,
+            FOFUnconfirmedNav.acc_net_value,
+        ).filter(
+            FOFUnconfirmedNav.fof_id == fof_id,
+            FOFUnconfirmedNav.manager_id == g.token.manager_id,
+            FOFUnconfirmedNav.is_deleted == False,
+        ).order_by(
+            FOFUnconfirmedNav.datetime.asc()
+        ).all()
+
+        if len(results) < 1:
+            return pd.DataFrame([])
+
+        df = pd.DataFrame([{
+            'datetime': i[0],
+            'nav': i[1],
+            'acc_net_value': i[2],
+        } for i in results])
+
+        df['is_unconfirmed'] = False
         df['datetime'] = pd.to_datetime(df['datetime'])
         return df

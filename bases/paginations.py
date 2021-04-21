@@ -18,7 +18,7 @@ class BasePagination:
 
 class SQLPagination(BasePagination):
 
-    def paginate(self, query, call_back=None, equal_filter=None, range_filter=None):
+    def paginate(self, query, call_back=None, equal_filter=None, range_filter=None, contains_filter=None):
 
         if range_filter:
             for i in range_filter:
@@ -34,6 +34,12 @@ class SQLPagination(BasePagination):
                 j = str(i).split('.')[1]
                 if request.args.get(j) is not None and request.args.get(j) != '':
                     query = query.filter_by(**{j: request.args.get(j)})
+
+        if contains_filter:
+            for i in contains_filter:
+                j = str(i).split('.')[1]
+                if request.args.get(j) is not None and request.args.get(j) != '':
+                    query = query.filter(i.contains(request.args.get(j)))
 
         if self.ordering:
             query = query.order_by(*[text(i) for i in self.ordering])

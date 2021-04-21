@@ -6,7 +6,7 @@ from flask import make_response, request, g
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from bases.globals import db
-from models import FOFNav, FOFInfo
+from models import FOFNav, FOFInfo, FOFUnconfirmedNav
 from utils.decorators import login_required
 from utils.helper import replace_nan
 from surfing.util.calculator import Calculator
@@ -64,6 +64,37 @@ class NavUpdateAPI(ApiViewHandler):
             'fof_id': fof_id,
             'dates': dates_str,
         }
+
+        if method == 'confirm':
+
+            db.session.query(
+                FOFNav
+            ).filter(
+                FOFNav.fof_id == fof_id,
+                FOFNav.manager_id == g.token.manager_id,
+                FOFNav.datetime.in_(dates),
+            ).delete(synchronize_session=False)
+
+            db.session.query(
+                FOFUnconfirmedNav
+            ).filter(
+                FOFUnconfirmedNav.fof_id == fof_id,
+                FOFUnconfirmedNav.manager_id == g.token.manager_id,
+                FOFUnconfirmedNav.datetime.in_(dates),
+            ).update({
+                'is_deleted': True,
+            }, synchronize_session='fetch')
+
+            for i in nav_data:
+                new = FOFNav(
+                    fof_id=fof_id,
+                    nav=i['单位净值'],
+                    acc_net_value=i.get('累计净值'),
+                    datetime=i['日期'],
+                    manager_id=g.token.manager_id,
+                )
+                db.session.add(new)
+            db.session.commit()
 
         if method == 'part':
 
