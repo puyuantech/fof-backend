@@ -235,7 +235,10 @@ class CustomerTradesPurRed(ApiViewHandler):
         data = p.paginate(
             query,
             call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x if self.add_investor_info(i.to_dict())],
-            equal_filter=[HedgeFundInvestorPurAndRedemp.event_type],
+            equal_filter=[
+                HedgeFundInvestorPurAndRedemp.event_type,
+                HedgeFundInvestorPurAndRedemp.fof_id,
+            ],
         )
         return data
 

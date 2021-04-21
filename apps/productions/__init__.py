@@ -81,6 +81,7 @@ api.add_resource(
 # ratios
 api.add_resource(ProInfoAPI, '/ratios/info/<string:fof_id>')
 api.add_resource(ProManagementAPI, '/ratios/management/<string:fof_id>')
+api.add_resource(ProUnCommitNavAPI, '/ratios/unconfirmed_nav/<string:fof_id>')
 api.add_resource(ProNavAPI, '/ratios/nav/<string:fof_id>')
 api.add_resource(ProMonthlyRetAPI, '/ratios/monthly_ret/<string:fof_id>')
 api.add_resource(ProPeriodRetAPI, '/ratios/period_ret/<string:fof_id>')

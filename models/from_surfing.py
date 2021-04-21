@@ -22,6 +22,7 @@ from surfing.data.view.basic_models import HedgeFundAlias as SurfingHedgeFundAli
 
 from surfing.data.view.derived_models import FOFPosition as SurfingFOFPosition
 from surfing.data.view.derived_models import FOFNav as SurfingFOFNav
+from surfing.data.view.derived_models import FOFUnconfirmedNav as SurfingFOFUnconfirmedNav
 from surfing.data.view.derived_models import FOFNavCalc as SurfingFOFNavCalc
 from surfing.data.view.derived_models import FOFNavPublic as SurfingFOFNavPublic
 from surfing.data.view.derived_models import FOFPositionDetail as SurfingFOFPositionDetail
@@ -101,6 +102,12 @@ class FOFPosition(SurfingFOFPosition, BaseModel):
 
 
 class FOFNav(SurfingFOFNav, BaseModel):
+    __bind_key__ = 'derived'
+    __table_args__ = {'extend_existing': True}
+
+
+class FOFUnconfirmedNav(SurfingFOFUnconfirmedNav, BaseModel):
+    __tablename__ = 'fof_nav_unconfirmed'
     __bind_key__ = 'derived'
     __table_args__ = {'extend_existing': True}
 

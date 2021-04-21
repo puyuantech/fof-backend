@@ -9,7 +9,7 @@ from utils.decorators import login_required
 from utils.helper import replace_nan
 from utils.ratios import draw_down_underwater, monthly_return, yearly_return
 from utils.helper import select_periods
-from models import FOFNavPublic, FOFInfo, FOFNav, Management, ManagementFund, FOFTag
+from models import Management, ManagementFund, FOFTag, FOFUnconfirmedNav
 from surfing.util.calculator import Calculator
 from .mixin import ProMixin
 
@@ -75,6 +75,34 @@ class ProManagementAPI(ApiViewHandler, ProMixin):
             return {}
 
         return m.to_dict()
+
+
+class ProUnCommitNavAPI(ApiViewHandler, ProMixin):
+
+    @login_required
+    def get(self, fof_id):
+        """净值"""
+        self.select_model(fof_id)
+        period = select_periods()
+
+        df = self.calc_fof_ret(fof_id, unconfirmed=True)
+        if len(df) < 1:
+            return {}
+
+        if period:
+            df = df.resample(period).last().fillna(method='ffill')
+
+        df = df.reset_index()
+        df = df[[
+            'datetime',
+            'adjusted_nav',
+            'nav',
+            'acc_net_value',
+            'is_unconfirmed'
+        ]]
+        df['ret'] = df['adjusted_nav'] / df['adjusted_nav'].shift(1) - 1
+        data = df.to_dict(orient='list')
+        return replace_nan(data)
 
 
 class ProNavAPI(ApiViewHandler, ProMixin):

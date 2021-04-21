@@ -211,7 +211,10 @@ class TradesDivAndCarryAPI(ApiViewHandler):
         data = p.paginate(
             query,
             call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x],
-            equal_filter=[HedgeFundInvestorDivAndCarry.event_type],
+            equal_filter=[
+                HedgeFundInvestorDivAndCarry.event_type,
+                HedgeFundInvestorDivAndCarry.fof_id,
+            ],
         )
         return data
 
