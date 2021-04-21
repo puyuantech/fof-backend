@@ -15,3 +15,4 @@ from .manager import *
 from .contract import *
 from .message import *
 from .notification import *
+from .portfolio import *
