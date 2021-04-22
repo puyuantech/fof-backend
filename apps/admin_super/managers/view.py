@@ -6,6 +6,7 @@ from bases.exceptions import VerifyError
 from bases.constants import StuffEnum
 from models import ManagerInfo, User, ManagerUserMap, ApplyFile, ApplyStatus
 from apps.admin_super.decorators import admin_super_login_required
+from utils.celery_tasks import send_sign_msg
 from utils.decorators import params_required
 from utils.helper import generate_sql_pagination
 
@@ -160,4 +161,6 @@ class SignApplyAPI(ApiViewHandler):
                 VerifyError('请填写失败原因！')
             obj.sign_status = ApplyFile.SignEnum.FAILED
             obj.failed_reason = failed_reason
+            obj.save()
+            send_sign_msg.delay(obj.apply_id, obj.id)
             return

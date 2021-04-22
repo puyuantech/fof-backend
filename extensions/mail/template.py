@@ -32,3 +32,32 @@ def mail_nav_template(server, username, password, port, use_ssl, sender, title, 
         '''
     m.send(msg)
     return True
+
+
+def mail_admin_sign_template(server, username, password, port, use_ssl, sender, title, send_to, name, err_msg):
+    m = Mail(
+        server=server,
+        username=username,
+        password=password,
+        port=port,
+        use_ssl=use_ssl,
+        default_sender=username,
+    )
+    msg = Message(
+        title,
+        recipients=[send_to],
+        sender=(sender, username)
+    )
+    current_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    msg.html = f'''
+        <div>尊敬的用户您好:</div>
+        <br>
+        <div>您申请的入驻: <span style="color: #173177;font-size:120%;font-weight:bold;">{name}</span></div>
+        <div>审核未通过: <span style="color: #173177;font-size:120%;font-weight:bold;">{err_msg}</span></div>
+        <br>
+        <hr>
+        <div>来自: {sender} </div>
+        <div>时间: {current_date} </div>
+        '''
+    m.send(msg)
+    return True
