@@ -196,6 +196,7 @@ class UnitMap(BaseModel):
     status = db.Column(db.Integer)                                      # 客户审核状态
     sponsor = db.Column(db.String(20))                                  # 推荐人
     salesman = db.Column(db.String(20))                                 # 销售人员
+    latest_time = db.Column(db.DATETIME)                                # 最后操作时间
 
     def update_columns(self, request):
         columns = [
