@@ -20,7 +20,7 @@ def mail_captcha_code(server, username, password, port, use_ssl, sender, title, 
     msg.html = f'''
         <div>尊敬的用户您好:</div>
         <br>
-        <div>您的验证码为: <span style="color: #173177;font-size:120%;font-weight:bold;">{code} 请妥善保管</span></div>
+        <div>您的验证码为: <span style="color: #173177;font-size:120%;font-weight:bold;">{code}</span> 请妥善保管</div>
         <br>
         <hr>
         <div>来自: {sender} </div>
