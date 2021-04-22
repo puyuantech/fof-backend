@@ -2,6 +2,7 @@ import uuid
 import datetime
 
 from bases.dbwrapper import BaseModel, db
+from bases.base_enmu import EnumBase
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -88,6 +89,11 @@ class ApplyFile(BaseModel):
     """
     __tablename__ = "admin_apply_file"
 
+    class SignEnum(EnumBase):
+        PENDING = 0
+        FAILED = 1
+        SUCCESS = 2
+
     id = db.Column(db.Integer, primary_key=True)                        # 编号
     rand_str = db.Column(db.String(127))                                # 随机编码
     email = db.Column(db.String(63))                                    # 邮箱
@@ -102,5 +108,34 @@ class ApplyFile(BaseModel):
     lp_cred_file = db.Column(db.String(127))                            # 法人证件文件
     lp_cred_no = db.Column(db.String(127))                              # 法人证件号码
     authorization_file = db.Column(db.String(127))                      # 授权文件
-    admin_name = db.Column(db.String(15))                               # 管理人姓名
-    admin_cred_no = db.Column(db.String(63))                            # 管理人证件号码
+    service_file = db.Column(db.String(127))                            # 服务协议
+    pu_yuan_auth_file = db.Column(db.String(127))                       # 璞元授权文件
+    admin_name = db.Column(db.String(15))                               # 签约人姓名
+    admin_cred_no = db.Column(db.String(63))                            # 签约人证件号码
+    admin_cred_type = db.Column(db.String(31))                          # 签约人证件类型
+    admin_cred_file = db.Column(db.String(127))                         # 签约人证件文件
+    sign_stage = db.Column(db.Integer, default=1)                       # 提交阶段  1 ｜ 2
+
+
+class ApplyStatus(BaseModel):
+    """
+    申请状态
+    """
+    __tablename__ = "admin_apply_status"
+
+    class SignEnum(EnumBase):
+        PENDING = 0
+        FAILED = 1
+        SUCCESS = 2
+
+    id = db.Column(db.Integer, primary_key=True)                        # 编号
+    apply_id = db.Column(db.Integer, db.ForeignKey('admin_apply_file.id'))
+    file = db.relationship('ApplyFile', backref='status')
+    manager_cred = db.Column(db.BOOLEAN, default=False)
+    lp_cred = db.Column(db.BOOLEAN, default=False)
+    admin_cred = db.Column(db.BOOLEAN, default=False)
+    service_cred = db.Column(db.BOOLEAN, default=False)
+    hf_success = db.Column(db.BOOLEAN, default=False)
+    sign_status = db.Column(db.Integer)                                 # 审核状态
+    failed_reason = db.Column(db.String(127))                           # 失败原因
+

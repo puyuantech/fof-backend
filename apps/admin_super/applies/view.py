@@ -46,8 +46,11 @@ class AppliesAPI(ApiViewHandler):
         'lp_cred_file',
         'lp_cred_no',
         'authorization_file',
+        'service_file',
         'admin_name',
         'admin_cred_no',
+        'admin_cred_type',
+        'admin_cred_file',
     ])
     def put(self):
         obj = ApplyFile.get_by_query(
@@ -62,8 +65,11 @@ class AppliesAPI(ApiViewHandler):
         obj.lp_cred_file = self.input.lp_cred_file
         obj.lp_cred_no = self.input.lp_cred_no
         obj.authorization_file = self.input.authorization_file
+        obj.service_file = self.input.service_file
         obj.admin_name = self.input.admin_name
         obj.admin_cred_no = self.input.admin_cred_no
-
+        obj.admin_cred_type = self.input.admin_cred_type
+        obj.admin_cred_file = self.input.admin_cred_file
+        obj.sign_stage = 2
         obj.save()
         return 'success'
