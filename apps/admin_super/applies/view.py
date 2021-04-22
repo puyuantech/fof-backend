@@ -1,9 +1,24 @@
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
-from models import ApplyFile
+from models import ApplyFile, ManagerInfo
 from utils.decorators import params_required
 from utils.helper import generate_random_str
 from apps.captchas.libs import check_sms_captcha
+
+
+class AppliesCheckEmailAPI(ApiViewHandler):
+
+    @params_required(*['email'])
+    def post(self):
+        if self.is_valid_password(self.input.email):
+            raise VerifyError('邮箱格式不正确')
+        if ManagerInfo.filter_by_query(
+            show_deleted=True,
+            email=self.input.email
+        ).first():
+            return '已存在'
+
+        return
 
 
 class AppliesAPI(ApiViewHandler):

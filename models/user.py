@@ -226,8 +226,17 @@ class ManagerInfo(BaseModel):
     """
     __tablename__ = 'user_manager_info'
 
+    class IDType(EnumBase):
+        备案证明 = 1
+        组织机构代码 = 2
+        社会统一信用代码 = 3
+        工商注册号 = 4
+        其他证件 = 5
+
     manager_id = db.Column(db.String(32), primary_key=True)         # 代码
     name = db.Column(db.String(127))                                # 名称
+    email = db.Column(db.String(127), unique=True)                  # 邮箱
+    mobile = db.Column(db.String(11))                               # 手机号
     id_type = db.Column(db.Integer)                                 # 凭证类型
     id_number = db.Column(db.String(127))                           # 凭证编码
     address = db.Column(db.String(255))                             # 地址

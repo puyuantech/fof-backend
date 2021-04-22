@@ -4,12 +4,28 @@ from models import CeleryTaskLogs, MessageTaskSub, FOFNotification, ApplyFile, A
 from bases.globals import celery
 from bases.globals import settings
 from extensions.wx.msg_manager import wx_nav_template
-from extensions.mail.template import mail_nav_template, mail_admin_sign_template
+from extensions.mail.template import mail_nav_template, mail_admin_failed_sign_template, \
+    mail_admin_success_sign_template, mail_captcha_code
 from extensions.mengwang.sms import sms_nav_template
 
 
 @celery.task()
-def send_sign_msg(apply_id, status_id):
+def send_captcha_code_msg(send_to, code):
+    mail_captcha_code(
+        settings['MAIL_SERVER'],
+        settings['MAIL_EMAIL'],
+        settings['MAIL_PASSWORD'],
+        settings['MAIL_PORT'],
+        settings['MAIL_SSL'],
+        settings['MAIL_SENDER'],
+        '邮箱验证',
+        send_to,
+        code,
+    )
+
+
+@celery.task()
+def send_sign_failed_msg(apply_id, status_id):
     t = ApplyFile.get_by_id(apply_id)
     if not t:
         raise Exception('No correct apply file')
@@ -17,17 +33,38 @@ def send_sign_msg(apply_id, status_id):
     if not s:
         raise Exception('No correct apply status')
 
-    mail_admin_sign_template(
+    mail_admin_failed_sign_template(
         settings['MAIL_SERVER'],
         settings['MAIL_EMAIL'],
         settings['MAIL_PASSWORD'],
         settings['MAIL_PORT'],
         settings['MAIL_SSL'],
         settings['MAIL_SENDER'],
-        '入驻提醒',
+        '审核通知',
         t.email,
         t.manager_name,
         s.failed_reason,
+    )
+
+
+@celery.task()
+def send_sign_success_msg(apply_id, admin_name, admin_password):
+    t = ApplyFile.get_by_id(apply_id)
+    if not t:
+        raise Exception('No correct apply file')
+
+    mail_admin_success_sign_template(
+        settings['MAIL_SERVER'],
+        settings['MAIL_EMAIL'],
+        settings['MAIL_PASSWORD'],
+        settings['MAIL_PORT'],
+        settings['MAIL_SSL'],
+        settings['MAIL_SENDER'],
+        '审核通知',
+        t.email,
+        t.manager_name,
+        admin_name,
+        admin_password,
     )
 
 
