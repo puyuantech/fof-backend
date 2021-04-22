@@ -1,4 +1,4 @@
-from models import CaptchaCode, MobileCode
+from models import CaptchaCode, MobileCode, CaptchaEmail
 from bases.exceptions import VerifyError
 from bases.globals import settings
 from extensions.aliyun.sms.AliyunSMS import AliyunSMS
@@ -24,6 +24,22 @@ def check_sms_captcha(verification_key, verification_code):
 
     instance = MobileCode.filter_by_query(
         mobile=verification_key,
+        value=verification_code,
+    ).first()
+    if not instance:
+        raise VerifyError('验证码错误！')
+    if not instance.is_valid(verification_code):
+        raise VerifyError('验证码已过期')
+
+    instance.delete()
+
+
+def check_email_captcha(verification_key, verification_code):
+    if settings['DEV'] is True and verification_code == '9527':
+        return
+
+    instance = CaptchaEmail.filter_by_query(
+        email=verification_key,
         value=verification_code,
     ).first()
     if not instance:

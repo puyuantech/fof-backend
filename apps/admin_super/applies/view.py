@@ -3,7 +3,7 @@ from bases.exceptions import VerifyError
 from models import ApplyFile, ManagerInfo
 from utils.decorators import params_required
 from utils.helper import generate_random_str
-from apps.captchas.libs import check_sms_captcha
+from apps.captchas.libs import check_email_captcha
 
 
 class AppliesCheckEmailAPI(ApiViewHandler):
@@ -28,9 +28,9 @@ class AppliesAPI(ApiViewHandler):
         if self.is_valid_password(self.input.email):
             raise VerifyError('邮箱格式不正确')
 
-        check_sms_captcha(
+        check_email_captcha(
             verification_code=self.input.code,
-            verification_key=self.input.mobile,
+            verification_key=self.input.email,
         )
 
         sec = generate_random_str(30)
