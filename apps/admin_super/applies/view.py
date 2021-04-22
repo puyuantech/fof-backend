@@ -1,6 +1,6 @@
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
-from models import ApplyFile, ManagerInfo
+from models import ApplyFile, ManagerInfo, ApplyStatus
 from utils.decorators import params_required
 from utils.helper import generate_random_str
 from apps.captchas.libs import check_email_captcha
@@ -10,8 +10,8 @@ class AppliesCheckEmailAPI(ApiViewHandler):
 
     @params_required(*['email'])
     def post(self):
-        if self.is_valid_password(self.input.email):
-            raise VerifyError('邮箱格式不正确')
+        if not self.is_valid_email(self.input.email):
+            return '邮箱格式不正确'
         if ManagerInfo.filter_by_query(
             show_deleted=True,
             email=self.input.email
@@ -87,4 +87,8 @@ class AppliesAPI(ApiViewHandler):
         obj.admin_cred_file = self.input.admin_cred_file
         obj.sign_stage = 2
         obj.save()
+        ApplyStatus.create(
+            apply_id=obj.id,
+            sign_status=ApplyStatus.SignEnum.PENDING,
+        )
         return 'success'
