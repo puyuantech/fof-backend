@@ -41,7 +41,7 @@ class FundRetAPI(ApiViewHandler):
 class FundIndexAPI(ApiViewHandler):
 
     @login_required
-    def post(self):
+    def get(self):
         data = PortfolioIdValidation.get_valid_data(self.input)
         trade_history = get_trade_history(**data)
         return {
@@ -64,7 +64,7 @@ class FundPosAPI(ApiViewHandler):
 class ResolveDateAPI(ApiViewHandler):
 
     @login_required
-    def post(self):
+    def get(self):
         data = PortfolioIdValidation.get_valid_data(self.input)
         trade_history = get_trade_history(**data)
         df = PortfolioDataApi().get_port_ret_resolve_date_range(trade_history)
