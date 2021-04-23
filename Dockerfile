@@ -11,4 +11,4 @@ COPY . /app
 WORKDIR /app
 RUN pip install surfing --upgrade --no-cache
 
-CMD ["gunicorn", "-w", "1", "-k", "gevent", "-b", "0.0.0.0:8005", "manager:app"]
+CMD ["gunicorn", "-w", "3", "-k", "gevent", "-b", "0.0.0.0:8005", "manager:app"]

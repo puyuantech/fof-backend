@@ -98,6 +98,14 @@ def ERROR_RSP(data=None, msg=None, code=None, status_code=400):
     return _RESPONSE(data, msg, code, status_code)
 
 
+def validate_date(date_text):
+    try:
+        datetime.datetime.strptime(date_text, '%Y-%m-%d')
+    except ValueError:
+        return False
+    return True
+
+
 def replace_nan(obj):
 
     if type(obj) == str:
