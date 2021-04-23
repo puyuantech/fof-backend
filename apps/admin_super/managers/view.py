@@ -81,7 +81,14 @@ class ManagerAPI(ApiViewHandler):
         return
 
 
-class SignAppliesAPI(ApiViewHandler):
+class SignApplyFileAPI(ApiViewHandler):
+    @admin_super_login_required
+    def get(self, _id):
+        obj = ApplyFile.get_by_id(_id)
+        return obj.to_dict()
+
+
+class SignApplyFilesAPI(ApiViewHandler):
 
     @admin_super_login_required
     def get(self):
