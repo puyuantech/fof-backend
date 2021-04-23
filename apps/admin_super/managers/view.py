@@ -85,21 +85,31 @@ class SignAppliesAPI(ApiViewHandler):
 
     @admin_super_login_required
     def get(self):
+        sign_status = request.args.get('sign_status', None)
         p = generate_sql_pagination()
-        query = db.session.query(
-            ApplyFile,
-            ApplyStatus,
-        ).filter(
-            ApplyFile.id == ApplyStatus.apply_id,
-            ApplyFile.sign_stage == 2,
-        )
+        if sign_status:
+            query = db.session.query(
+                ApplyFile,
+                ApplyStatus,
+            ).filter(
+                ApplyFile.id == ApplyStatus.apply_id,
+                ApplyFile.sign_stage == 2,
+                ApplyStatus.sign_status == int(sign_status),
+            )
+        else:
+            query = db.session.query(
+                ApplyFile,
+                ApplyStatus,
+            ).filter(
+                ApplyFile.id == ApplyStatus.apply_id,
+                ApplyFile.sign_stage == 2,
+            )
         data = p.paginate(
             query,
             call_back=lambda x: [{
                 'applies': i[0].to_dict(),
                 'status': i[1].to_dict(),
             } for i in x],
-            equal_filter=[ApplyStatus.sign_status]
         )
         return data
 
