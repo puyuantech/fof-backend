@@ -157,11 +157,12 @@ class SignApplyAPI(ApiViewHandler):
     @admin_super_login_required
     def put(self, _id):
         obj = ApplyStatus.get_by_id(_id)
-        if not all([obj.manager_cred, obj.lp_cred, obj.admin_cred, obj.service_cred, obj.hf_success]):
-            raise VerifyError('认证流程未完成')
         apply = ApplyFile.get_by_id(obj.apply_id)
 
         if self.input.sign_status == ApplyFile.SignEnum.SUCCESS:
+            if not all([obj.manager_cred, obj.lp_cred, obj.admin_cred, obj.service_cred, obj.hf_success]):
+                raise VerifyError('认证流程未完成')
+
             if ManagerInfo.filter_by_query(
                 show_deleted=True,
                 email=apply.email,
