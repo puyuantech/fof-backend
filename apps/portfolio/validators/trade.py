@@ -33,3 +33,7 @@ class PortfolioTradeValidation(TradeHistoryValidation):
     portfolio_name: constr(min_length=1, max_length=32)
     benchmark_info: List[BenchmarkValidation]
 
+
+class PortfolioUpdateValidation(PortfolioTradeValidation):
+    portfolio_id: int
+
