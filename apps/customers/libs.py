@@ -4,9 +4,9 @@ import pandas as pd
 import io
 from flask import request, current_app, g
 
-from models import User, FOFScaleAlteration, FOFInvestorData, InvestorTag, InvestorInfo, UserInvestorMap
+from models import User, FOFScaleAlteration, FOFInvestorData, InvestorTag, InvestorInfo, UserInvestorMap, UnitMap
 from bases.exceptions import VerifyError
-from bases.constants import StuffEnum
+from utils.helper import validate_date
 
 
 def get_user_by_username(username):
@@ -59,13 +59,17 @@ def get_investor_info(unit):
     return data_dict
 
 
-def register_investor_user(mobile):
+def register_investor_user(mobile, get_map=False):
+    if not mobile:
+        raise VerifyError('手机号不存在')
     investor = InvestorInfo.get_by_mobile(mobile)
 
     if not investor:
         user, investor = User.create_main_user_investor(mobile)
 
     unit_map = investor.check_manager_map(g.token.manager_id)
+    if unit_map and get_map:
+        return unit_map
     if unit_map:
         raise VerifyError('手机号已存在！')
     unit_map = investor.create_manager_map(g.token.manager_id, mobile=mobile)
@@ -198,3 +202,58 @@ def update_trade(obj):
     obj.save()
     return obj
 
+
+def parse_customer_file():
+    req_file = request.files.get('file')
+    if not req_file:
+        raise VerifyError('Couldn\'t find any uploaded file')
+
+    # 解析文件
+    try:
+        df = pd.read_excel(
+            io.BytesIO(req_file.read()),
+            dtype={'日期': str, '产品ID': str},
+        )
+        if '联系方式' not in df.columns:
+            raise VerifyError('联系方式为必填项！')
+
+        if '证件类型' in df.columns:
+            df['证件类型'] = df['证件类型'].apply(lambda x: UnitMap.CredType.parse(x))
+
+        if '首次签约时间' in df.columns:
+            for i in df['首次签约时间']:
+                if i and not validate_date(i):
+                    raise VerifyError('注册日期格式错误')
+
+        df = df.rename(columns={
+            '联系方式': 'mobile',
+            '姓名': 'name',
+            '证件类型': 'cred_type',
+            '证件号码': 'cred',
+            '通讯地址': 'address',
+            '净值接收邮箱': 'email',
+            '来源': 'origin',
+            '首次签约时间': 'sign_date',
+        })
+        columns = [
+            'mobile',
+            'name',
+            'cred_type',
+            'cred',
+            'address',
+            'email',
+            'origin',
+            'sign_date',
+        ]
+        for i in columns:
+            if i not in df.columns:
+                df[i] = None
+
+    except VerifyError as e:
+        current_app.logger.error(traceback.format_exc())
+        raise VerifyError(e.msg)
+    except:
+        current_app.logger.error(traceback.format_exc())
+        raise VerifyError('解析失败')
+
+    return df

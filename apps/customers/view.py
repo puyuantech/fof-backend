@@ -1,6 +1,7 @@
 import pandas as pd
 import io
 import datetime
+import traceback
 from flask import request, g, views, make_response
 
 from models import User, FOFInvestorPosition, FOFScaleAlteration, FOFInfo, UnitMap, \
@@ -12,7 +13,7 @@ from bases.constants import StuffEnum
 from utils.helper import generate_sql_pagination, replace_nan
 from utils.decorators import params_required, admin_login_required, login_required
 from .libs import get_investor_info, register_investor_user, update_user_info, update_trade, parse_trade_file, \
-    create_single_trade
+    create_single_trade, parse_customer_file
 
 
 class CusAPI(ApiViewHandler):
@@ -50,6 +51,59 @@ class CusAPI(ApiViewHandler):
             'unit_map_id': unit_map.id,
         }
         return 'success'
+
+
+class CusByFileAPI(ApiViewHandler):
+
+    def get(self):
+        df = pd.DataFrame(data=[], columns=['联系方式', '姓名', '证件类型', '证件号码', '通讯地址', '净值接收邮箱', '来源', '首次签约时间'])
+
+        out = io.BytesIO()
+        writer = pd.ExcelWriter(out, engine='xlsxwriter')
+        df.to_excel(excel_writer=writer, index=False, sheet_name='sheet0')
+        writer.save()
+        file_name = 'investor_template.xlsx'
+        response = make_response(out.getvalue())
+        response.headers["Content-Disposition"] = "attachment; filename=%s" % file_name
+        response.headers["Content-type"] = "application/x-xls"
+        writer.close()
+        return response
+
+    @admin_login_required([StuffEnum.ADMIN, StuffEnum.FUND_MANAGER, StuffEnum.OPE_MANAGER])
+    def post(self):
+        df = parse_customer_file()
+
+        df['is_success'] = True
+        df['failed_reason'] = ''
+
+        for i in df.index:
+            try:
+                d = df.loc[i, :].to_dict()
+                d = replace_nan(d)
+                print(d)
+                unit_map = register_investor_user(
+                    d.get('mobile'),
+                    get_map=True,
+                )
+
+                unit_map.name = d.get('name')
+                unit_map.cred_type = d.get('cred_type')
+                unit_map.cred = d.get('cred')
+                unit_map.address = d.get('address')
+                unit_map.email = d.get('email')
+                unit_map.origin = d.get('origin')
+                unit_map.sign_date = d.get('sign_date')
+                unit_map.save()
+
+            except VerifyError as e:
+                df['is_success'] = False
+                df['failed_reason'] = e.msg
+            except Exception as e:
+                print(traceback.format_exc())
+                df['is_success'] = False
+                df['failed_reason'] = '创建错误'
+        print(df)
+        return replace_nan(df.to_dict(orient='records'))
 
 
 class CustomerAPI(ApiViewHandler):

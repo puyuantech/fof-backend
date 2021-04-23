@@ -117,6 +117,7 @@ class SignApplyFilesAPI(ApiViewHandler):
                 'applies': i[0].to_dict(),
                 'status': i[1].to_dict(),
             } for i in x],
+            contains_filter=[ApplyFile.manager_name, ApplyFile.admin_name, ApplyFile.email],
         )
         return data
 
@@ -125,8 +126,13 @@ class SignStatusAPI(ApiViewHandler):
 
     @admin_super_login_required
     def get(self, _id):
-        obj = ApplyStatus.get_by_id(_id)
-        return obj.to_dict()
+        s = ApplyStatus.get_by_id(_id)
+        f = ApplyFile.get_by_id(s.apply_id)
+
+        return {
+            'applies': f.to_dict(),
+            'status': s.to_dict(),
+        }
 
     @admin_super_login_required
     def put(self, _id):

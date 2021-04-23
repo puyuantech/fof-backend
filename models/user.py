@@ -180,6 +180,12 @@ class UnitMap(BaseModel):
         INSTITUTION = 2
         PRODUCTION = 3
 
+    class CredType(EnumBase):
+        身份证 = 1
+        港澳通行证 = 2
+        护照 = 3
+        军官证 = 4
+
     id = db.Column(db.Integer, primary_key=True)
     manager_id = db.Column(db.String(32), db.ForeignKey('user_manager_info.manager_id'), nullable=False)
     investor_id = db.Column(db.String(32), db.ForeignKey('user_investor_info.investor_id'), nullable=False)
