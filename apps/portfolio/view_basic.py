@@ -47,7 +47,7 @@ class PortfolioStatsAPI(ApiViewHandler):
         df = PortfolioDataApi().get_portfolio_stats(fund_nav, index_id=data['index_id'])
         if df is None:
             return
-        return df.reset_index().to_dict('list')
+        return replace_nan(df.reset_index().to_dict('list'))
 
 
 class FundWeightAPI(ApiViewHandler):
