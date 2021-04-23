@@ -92,7 +92,6 @@ class SignAppliesAPI(ApiViewHandler):
         ).filter(
             ApplyFile.id == ApplyStatus.apply_id,
             ApplyFile.sign_stage == 2,
-            ApplyStatus.sign_status == ApplyStatus.SignEnum.PENDING,
         )
         data = p.paginate(
             query,
@@ -100,6 +99,7 @@ class SignAppliesAPI(ApiViewHandler):
                 'applies': i[0].to_dict(),
                 'status': i[1].to_dict(),
             } for i in x],
+            equal_filter=[ApplyStatus.sign_status]
         )
         return data
 
