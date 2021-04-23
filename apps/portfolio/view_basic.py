@@ -45,6 +45,8 @@ class PortfolioStatsAPI(ApiViewHandler):
 
         fund_nav = PortfolioDataApi().get_portfolio_nav(trade_history)['净值']
         df = PortfolioDataApi().get_portfolio_stats(fund_nav, index_id=data['index_id'])
+        if df is None:
+            return
         return df.reset_index().to_dict('list')
 
 
