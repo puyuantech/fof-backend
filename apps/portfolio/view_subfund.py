@@ -78,5 +78,6 @@ class RetResolveAPI(ApiViewHandler):
         data = RetResolveValidation.get_valid_data(self.input)
         trade_history = get_trade_history(data.pop('portfolio_id'))
         share_list = PortfolioDataApi().get_portfolio_nav(trade_history)['持有信息']
-        return PortfolioDataApi().get_port_ret_resolve(share_list, **data)
+        df = PortfolioDataApi().get_port_ret_resolve(share_list, **data)
+        return replace_nan(df)
 
