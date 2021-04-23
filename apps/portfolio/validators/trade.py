@@ -11,6 +11,7 @@ class FundValidation(BaseValidation):
     fund_id: constr(min_length=8, max_length=8)
     weight: float
     fund_type: str
+    fund_name: str = None
 
 
 class TradeValidation(BaseValidation):
