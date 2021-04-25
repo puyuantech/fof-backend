@@ -46,26 +46,31 @@ class TradesPurRedAPI(ApiViewHandler):
         p = generate_sql_pagination()
 
         custodian_name = request.args.get('custodian_name')
+
         if custodian_name:
             fof = db.session.query(
                 FOFInfo.fof_id,
             ).filter(
                 FOFInfo.manager_id == g.token.manager_id,
                 FOFInfo.custodian_name.contains(custodian_name),
+                FOFInfo.is_deleted == False,
+            ).all()
+            fof_ids = [i[0] for i in fof]
+        else:
+            fof = db.session.query(
+                FOFInfo.fof_id,
+            ).filter(
+                FOFInfo.manager_id == g.token.manager_id,
+                FOFInfo.is_deleted == False,
             ).all()
             fof_ids = [i[0] for i in fof]
 
-            query = db.session.query(
-                HedgeFundInvestorPurAndRedemp
-            ).filter(
-                HedgeFundInvestorPurAndRedemp.manager_id == g.token.manager_id,
-                HedgeFundInvestorPurAndRedemp.fof_id.in_(fof_ids),
-            )
-        else:
-
-            query = HedgeFundInvestorPurAndRedemp.filter_by_query(
-                manager_id=g.token.manager_id,
-            )
+        query = db.session.query(
+            HedgeFundInvestorPurAndRedemp
+        ).filter(
+            HedgeFundInvestorPurAndRedemp.manager_id == g.token.manager_id,
+            HedgeFundInvestorPurAndRedemp.fof_id.in_(fof_ids),
+        )
         data = p.paginate(
             query,
             call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x if self.add_investor_info(i.to_dict())],
@@ -114,19 +119,24 @@ class TradesDivCarAPI(ApiViewHandler):
             ).filter(
                 FOFInfo.manager_id == g.token.manager_id,
                 FOFInfo.custodian_name.contains(custodian_name),
+                FOFInfo.is_deleted == False,
+            ).all()
+            fof_ids = [i[0] for i in fof]
+        else:
+            fof = db.session.query(
+                FOFInfo.fof_id,
+            ).filter(
+                FOFInfo.manager_id == g.token.manager_id,
+                FOFInfo.is_deleted == False,
             ).all()
             fof_ids = [i[0] for i in fof]
 
-            query = db.session.query(
-                HedgeFundInvestorDivAndCarry
-            ).filter(
-                HedgeFundInvestorDivAndCarry.manager_id == g.token.manager_id,
-                HedgeFundInvestorDivAndCarry.fof_id.in_(fof_ids),
-            )
-        else:
-            query = HedgeFundInvestorDivAndCarry.filter_by_query(
-                manager_id=g.token.manager_id,
-            )
+        query = db.session.query(
+            HedgeFundInvestorDivAndCarry
+        ).filter(
+            HedgeFundInvestorDivAndCarry.manager_id == g.token.manager_id,
+            HedgeFundInvestorDivAndCarry.fof_id.in_(fof_ids),
+        )
         data = p.paginate(
             query,
             call_back=lambda x: [self.add_investor_info(i.to_dict()) for i in x if self.add_investor_info(i.to_dict())],

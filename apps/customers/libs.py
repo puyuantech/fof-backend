@@ -42,11 +42,12 @@ def get_investor_info(unit):
 
     investor_data = FOFInvestorData.filter_by_query(
         investor_id=unit.investor_id,
-    ).first()
+        manager_id=g.token.manager_id,
+    ).all()
     if not investor_data:
         data_dict['total_investment'] = None
     else:
-        data_dict['total_investment'] = investor_data.total_investment
+        data_dict['total_investment'] = sum([i.total_investment for i in investor_data if i.total_investment])
 
     investor_map = UserInvestorMap.filter_by_query(
         investor_id=unit.investor_id,
@@ -212,28 +213,38 @@ def parse_customer_file():
     try:
         df = pd.read_excel(
             io.BytesIO(req_file.read()),
-            dtype={'日期': str, '产品ID': str},
+            dtype={'首次签约时间': str, '手机号码*': str},
         )
-        if '联系方式' not in df.columns:
-            raise VerifyError('联系方式为必填项！')
+        if '手机号码*' not in df.columns:
+            raise VerifyError('手机号码为必填项！')
 
-        if '证件类型' in df.columns:
-            df['证件类型'] = df['证件类型'].apply(lambda x: UnitMap.CredType.parse(x))
+        if '证件号码*' not in df.columns:
+            raise VerifyError('证件号码为必填项！')
+
+        if '姓名*' not in df.columns:
+            raise VerifyError('姓名为必填项！')
+
+        if '证件类型*' in df.columns:
+            df['证件类型*'] = df['证件类型*'].apply(lambda x: UnitMap.CredType.parse(x))
+
+        if '客户状态' in df.columns:
+            df['客户状态'] = df['客户状态'].apply(lambda x: UnitMap.CusStatus.parse(x))
 
         if '首次签约时间' in df.columns:
             for i in df['首次签约时间']:
-                if i and not validate_date(i):
-                    raise VerifyError('注册日期格式错误')
+                if not pd.isna(i) and not validate_date(i):
+                    raise VerifyError('首次签约时间错误')
 
         df = df.rename(columns={
-            '联系方式': 'mobile',
-            '姓名': 'name',
-            '证件类型': 'cred_type',
-            '证件号码': 'cred',
+            '手机号码*': 'mobile',
+            '姓名*': 'name',
+            '证件类型*': 'cred_type',
+            '证件号码*': 'cred',
             '通讯地址': 'address',
-            '净值接收邮箱': 'email',
+            '邮箱': 'email',
             '来源': 'origin',
             '首次签约时间': 'sign_date',
+            '客户状态': 'status',
         })
         columns = [
             'mobile',
@@ -244,6 +255,7 @@ def parse_customer_file():
             'email',
             'origin',
             'sign_date',
+            'status',
         ]
         for i in columns:
             if i not in df.columns:

@@ -3,6 +3,7 @@ import io
 import datetime
 import traceback
 from flask import request, g, views, make_response
+from sqlalchemy import distinct
 
 from models import User, FOFInvestorPosition, FOFScaleAlteration, FOFInfo, UnitMap, \
     HedgeFundInvestorDivAndCarry, HedgeFundInvestorPurAndRedempSub, HedgeFundInvestorPurAndRedemp
@@ -12,7 +13,7 @@ from bases.exceptions import VerifyError
 from bases.constants import StuffEnum
 from utils.helper import generate_sql_pagination, replace_nan
 from utils.decorators import params_required, admin_login_required, login_required
-from .libs import get_investor_info, register_investor_user, update_user_info, update_trade, parse_trade_file, \
+from .libs import get_investor_info, register_investor_user, update_trade, parse_trade_file, \
     create_single_trade, parse_customer_file
 
 
@@ -27,8 +28,9 @@ class CusAPI(ApiViewHandler):
         data = p.paginate(
             query,
             call_back=lambda x: [get_investor_info(i) for i in x],
-            equal_filter=[UnitMap.name, UnitMap.cred, UnitMap.mobile, UnitMap.sponsor, UnitMap.status, UnitMap.salesman],
+            equal_filter=[UnitMap.cred, UnitMap.mobile, UnitMap.sponsor, UnitMap.status, UnitMap.salesman],
             range_filter=[UnitMap.sign_date],
+            contains_filter=[UnitMap.name, UnitMap.mobile],
         )
         return data
 
@@ -53,10 +55,19 @@ class CusAPI(ApiViewHandler):
         return 'success'
 
 
+class CusAdviserAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        results = db.session.query(distinct(UnitMap.salesman)).all()
+        data = [i[0] for i in results if i[0]]
+        return data
+
+
 class CusByFileAPI(ApiViewHandler):
 
     def get(self):
-        df = pd.DataFrame(data=[], columns=['联系方式', '姓名', '证件类型', '证件号码', '通讯地址', '净值接收邮箱', '来源', '首次签约时间'])
+        df = pd.DataFrame(data=[], columns=['手机号码*', '姓名*', '证件类型*', '证件号码*', '通讯地址', '邮箱', '来源', '首次签约时间', '客户状态'])
 
         out = io.BytesIO()
         writer = pd.ExcelWriter(out, engine='xlsxwriter')
@@ -93,6 +104,7 @@ class CusByFileAPI(ApiViewHandler):
                 unit_map.email = d.get('email')
                 unit_map.origin = d.get('origin')
                 unit_map.sign_date = d.get('sign_date')
+                unit_map.status = d.get('status')
                 unit_map.save()
 
             except VerifyError as e:

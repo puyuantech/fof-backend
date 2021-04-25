@@ -101,7 +101,7 @@ def ERROR_RSP(data=None, msg=None, code=None, status_code=400):
 def validate_date(date_text):
     try:
         datetime.datetime.strptime(date_text, '%Y-%m-%d')
-    except ValueError:
+    except:
         return False
     return True
 

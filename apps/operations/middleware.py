@@ -1,12 +1,30 @@
 import json
+import datetime
 from flask import request, g, current_app
-from models import User, Operation, Token
+from models import Operation, Token
+from models import UnitMap, InvestorInfo, User, UserInvestorMap
+from bases.globals import db
 
 
 def user_operation_log_middleware(app):
 
     @app.after_request
     def after_request(response):
+
+        # 记录投资者最后操作时间
+        if hasattr(g, 'user') and hasattr(g, 'token'):
+            user = g.user
+            token = g.token
+            if not user.is_staff:
+                obj = db.session.query(UnitMap).filter(
+                    UserInvestorMap.user_id == user.id,
+                    InvestorInfo.investor_id == UserInvestorMap.investor_id,
+                    UnitMap.investor_id == InvestorInfo.investor_id,
+                    UnitMap.manager_id == token.manager_id,
+                ).first()
+                if obj:
+                    obj.latest_time = datetime.datetime.now()
+                    obj.save()
 
         if not hasattr(g, 'user_operation'):
             return response
