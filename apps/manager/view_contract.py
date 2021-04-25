@@ -41,6 +41,7 @@ class FOFListAPI(ApiViewHandler):
             {
                 'fof_id': fof.fof_id,
                 'fof_name': fof.fof_name,
+                'desc_name': fof.desc_name,
             }
             for fof in fofs
         ]
