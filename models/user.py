@@ -186,6 +186,13 @@ class UnitMap(BaseModel):
         护照 = 3
         军官证 = 4
 
+    class CusStatus(EnumBase):
+        已注册 = 1
+        已预约 = 2
+        正在签约 = 3
+        完成签约 = 4
+        在管 = 4
+
     id = db.Column(db.Integer, primary_key=True)
     manager_id = db.Column(db.String(32), db.ForeignKey('user_manager_info.manager_id'), nullable=False)
     investor_id = db.Column(db.String(32), db.ForeignKey('user_investor_info.investor_id'), nullable=False)

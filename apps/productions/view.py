@@ -1,6 +1,5 @@
 import pandas as pd
 import json
-import time
 import datetime
 import traceback
 
@@ -45,8 +44,9 @@ class ProductionsAPI(ApiViewHandler):
         )
         data = p.paginate(
             query,
-            equal_filter=[FOFInfo.fof_name, FOFInfo.fof_id, FOFInfo.strategy_type, FOFInfo.is_fof, FOFInfo.fof_status, FOFInfo.asset_type, FOFInfo.is_on_sale],
-            range_filter=[FOFInfo.established_date]
+            equal_filter=[FOFInfo.fof_name, FOFInfo.fof_id, FOFInfo.is_fof, FOFInfo.fof_status, FOFInfo.asset_type, FOFInfo.is_on_sale],
+            range_filter=[FOFInfo.established_date],
+            multi_filter=[FOFInfo.strategy_type],
         )
         return data
 

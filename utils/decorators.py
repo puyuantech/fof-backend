@@ -11,6 +11,7 @@ def login_required(func):
         user, token = TokenAuthentication().authenticate(request)
         if not user:
             raise AuthError('请先登录')
+
         g.user = user
         g.token = token
 
