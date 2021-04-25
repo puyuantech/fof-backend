@@ -11,7 +11,7 @@ class FundRetValidation(PortfolioWithTimeValidation):
 
 
 class FundPosValidation(PortfolioIdValidation):
-    fund_id: constr(min_length=8, max_length=8)
+    fund_id: constr(min_length=1)
     index_id: constr(min_length=1)
 
 
