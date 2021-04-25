@@ -55,6 +55,7 @@ class FOFTemplate:
 
         templates = self.get_templates(products[fof_id])
         if not templates:
+            current_app.logger.info(f'[FOFTemplate] product no templates (fof_id){fof_id}')
             return False
 
         template_ids = db.session.query(ContractTemplate.template_id).all()
@@ -77,6 +78,7 @@ class FOFTemplate:
                 manager_id=self.manager_id,
                 template_type=template_type,
                 template_url_key=template_url_key,
+                signed=(template['contractTemplateStatus'] == 2),
             ).save(commit=False)
 
         db.session.commit()

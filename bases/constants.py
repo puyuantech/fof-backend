@@ -90,3 +90,10 @@ class FOFNotificationType(EnumBase):
     ROADSHOW_INFO = 'roadshow_info' # 路演信息
     SYSTEM_NEWS = 'system_news'     # 系统公告
 
+
+class TemplateStatus(EnumBase):
+    NOSTART = 'no_start'      # 未开始
+    PROCESSING = 'processing' # 处理中
+    SIGNING = 'signing'       # 待签署
+    COMPLETED = 'completed'   # 已完成
+
