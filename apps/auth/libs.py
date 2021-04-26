@@ -24,6 +24,7 @@ def get_user_investors(user, manager_id):
         InvestorInfo.investor_id == UserInvestorMap.investor_id,
         UnitMap.investor_id == UserInvestorMap.investor_id,
         UnitMap.manager_id == manager_id,
+        UnitMap.is_deleted == False,
     ).all()
 
     ret = []

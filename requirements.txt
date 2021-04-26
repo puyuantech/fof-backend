@@ -30,3 +30,5 @@ babel
 six
 xls2xlsx
 packaging
+cassandra-driver == 3.24.0
+uwsgidecorators
