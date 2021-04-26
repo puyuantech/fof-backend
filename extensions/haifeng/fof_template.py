@@ -22,6 +22,7 @@ class FOFTemplate:
         headers = ManagerToken().get_headers(self.manager_id)
         response = requests.post(self.host + endpoint, json=params, timeout=5, headers=headers)
         data = response.json()
+        current_app.logger.info(f'[FOFTemplate] (endpoint){endpoint} (data){data}')
         if data['success'] != 1:
             current_app.logger.error(f'[FOFTemplate] Failed! (endpoint){endpoint} (data){data}')
             return
@@ -58,9 +59,10 @@ class FOFTemplate:
             current_app.logger.info(f'[FOFTemplate] product no templates (fof_id){fof_id}')
             return False
 
-        template_ids = db.session.query(ContractTemplate.template_id).all()
-        template_ids = set(template_id for template_id, in template_ids)
+        template_ids = ContractTemplate.filter_by_query().all()
+        template_ids = set(template_id.template_id for template_id in template_ids)
 
+        flag = False
         for template in templates:
             template_type = HaiFengTemplateType.read(template['contractTemplateType'])
             if not template_type:
@@ -70,6 +72,8 @@ class FOFTemplate:
                 continue
 
             template_url = self.get_template_download_url(template_id)
+            if not template_url:
+                continue
             template_url_key = PdfStore().store_template_pdf(template_url, template_id)
 
             ContractTemplate(
@@ -80,9 +84,11 @@ class FOFTemplate:
                 template_url_key=template_url_key,
                 signed=(template['contractTemplateStatus'] == 2),
             ).save(commit=False)
+            flag = True
 
-        db.session.commit()
-        return True
+        if flag:
+            db.session.commit()
+        return flag
 
     def get_template_download_url(self, template_id) -> 'str | None':
         template_detail = self.get_template_detail(template_id)

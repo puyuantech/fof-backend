@@ -16,7 +16,7 @@ class ProductionTemplate(BaseModel):
         templates = []
         if self.template_status in (TemplateStatus.SIGNING, TemplateStatus.COMPLETED):
             templates = ContractTemplate.get_templates(self.fof_id, self.manager_id)
-            if self.template_status == TemplateStatus.SIGNING and all(template['signed'] for template in templates):
+            if self.template_status == TemplateStatus.SIGNING and templates and all(template['signed'] for template in templates):
                 self.update(template_status=TemplateStatus.COMPLETED)
 
         db.session.refresh(self)
