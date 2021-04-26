@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Api
 
-from .view_certification import CertificationTokenAPI, CertificationListAPI
+from .view_certification import CertificationListAPI
 from .view_content import ContentListAPI
 from .view_contract import ContractListAPI, FOFListAPI, FOFStartAPI, FOFTemplatesAPI
 from .view_customer import CustomerListAPI, CustomerNotificationAPI
@@ -11,7 +11,6 @@ from .view_notification import NotificationAPI, NotificationStatisticsAPI
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/manager')
 api = Api(blu)
 
-api.add_resource(CertificationTokenAPI, '/certification/token')
 api.add_resource(CertificationListAPI, '/certification/list')
 
 api.add_resource(ContentListAPI, '/content/list')

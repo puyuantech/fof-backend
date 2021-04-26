@@ -46,8 +46,8 @@ def fill_investor_contracts(manager_id, investor_contracts: List[dict]):
     return investor_contracts
 
 
-def get_contract_url_key(contract_id, manager_id):
-    contract_url = FOFTemplate(manager_id).get_contract_download_url(contract_id)
+def get_contract_url_key(contract_id):
+    contract_url = FOFTemplate().get_contract_download_url(contract_id)
     return PdfStore().store_contract_pdf(g.user.id, contract_url, contract_id)
 
 
