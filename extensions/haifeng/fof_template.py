@@ -81,6 +81,7 @@ class FOFTemplate:
                 fof_id=fof_id,
                 manager_id=self.manager_id,
                 template_type=template_type,
+                template_name=template['contractTemplateName'],
                 template_url_key=template_url_key,
                 signed=(template['contractTemplateStatus'] == 2),
             ).save(commit=False)
