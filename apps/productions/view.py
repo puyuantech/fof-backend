@@ -9,7 +9,7 @@ from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from models import FOFInfo, FOFNav, FOFNavPublic, FOFAssetAllocation, FOFPosition, FOFInvestorPosition, User, \
-    FOFScaleAlteration, UnitMap, WeChatUnionID, UserInvestorMap
+    FOFScaleAlteration, UnitMap, WeChatUnionID, UserInvestorMap, FOFCalcStatus
 from utils.decorators import params_required, login_required, admin_login_required
 from utils.helper import generate_sql_pagination, replace_nan, generate_hash_char
 from utils.caches import get_fund_collection_caches, get_hedge_fund_cache, get_fund_cache
@@ -117,7 +117,14 @@ class ProductionAPI(ApiViewHandler, ProMixin):
     @login_required
     def get(self, _id):
         obj = self.select_model(fof_id=_id)
-        return obj.to_dict()
+        data = obj.to_dict()
+        s = FOFCalcStatus.filter_by_query(
+            fof_id=_id,
+            manager_id=g.token.manager_id,
+        ).first()
+        if s:
+            data.update(s.to_dict())
+        return data
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.OPE_MANAGER])
     def put(self, _id):

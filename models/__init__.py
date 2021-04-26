@@ -1,6 +1,6 @@
 from .user import *
 from .captcha import *
-from .productions import HedgeComment, HedgeFavorite, HedgeAllocation
+from .productions import HedgeComment, HedgeFavorite, HedgeAllocation, FOFCalcStatus
 from .market import *
 from .wechat import *
 from .from_surfing import *
