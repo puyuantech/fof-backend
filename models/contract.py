@@ -42,6 +42,7 @@ class ContractTemplate(BaseModel):
     fof_id = db.Column(db.String(16), index=True)
     manager_id = db.Column(db.String(32))
     template_type = db.Column(db.String(16))     # 模板类型: ContractTemplateType
+    template_name = db.Column(db.String(128))    # 模板名称
     template_url_key = db.Column(db.String(128)) # 模板文件
     signed = db.Column(db.Boolean)               # 是否签署
 
