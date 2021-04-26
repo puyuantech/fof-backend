@@ -62,7 +62,7 @@ class FOFStartAPI(ApiViewHandler):
             template_status=TemplateStatus.PROCESSING,
             **data,
         )
-        if FOFTemplate(g.token.manager_id).save_fof_template(**data):
+        if FOFTemplate().save_fof_template(g.token.manager_id, **data):
             production_template.update(template_status=TemplateStatus.SIGNING)
         return production_template.get_detail()
 
@@ -74,7 +74,7 @@ class FOFTemplatesAPI(ApiViewHandler):
         data = FOFStartValidation.get_valid_data(self.input)
         production_template = ProductionTemplate.get_by_query(manager_id=g.token.manager_id, **data)
 
-        if production_template.template_status == TemplateStatus.PROCESSING and FOFTemplate(g.token.manager_id).save_fof_template(**data):
+        if production_template.template_status == TemplateStatus.PROCESSING and FOFTemplate().save_fof_template(g.token.manager_id, **data):
             production_template.update(template_status=TemplateStatus.SIGNING)
         return production_template.get_detail()
 

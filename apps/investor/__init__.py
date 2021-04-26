@@ -7,8 +7,9 @@ from .view_content import ContentStatisticsAPI
 from .view_contract import (ContractAPI, ContractListAPI, ContractTemplateAPI, RiskDiscloseAPI,
                             FundContractAPI, ProtocolAPI, FundMatchingAPI, VideoAPI, LookbackAPI,
                             BookAPI, SignAPI)
-from .view_information import (InformationAPI, InvestorTokenAPI, FaceImageAPI, CertImageAPI,
-                               RealNameAPI, RiskLevelAPI, ExperienceAPI, InfoTableAPI, CommitmentAPI)
+from .view_haifeng import HaiFengTokenAPI, HaiFengHeadersAPI
+from .view_information import (InformationAPI, FaceImageAPI, CertImageAPI, RealNameAPI,
+                               RiskLevelAPI, ExperienceAPI, InfoTableAPI, CommitmentAPI)
 from .view_notification import NotificationMenuAPI, NotificationListAPI, NotificationReadListAPI
 from .view_position import PositionListAPI, PositionAnalysisAPI
 
@@ -37,8 +38,10 @@ api.add_resource(LookbackAPI, '/contract/lookback')
 api.add_resource(BookAPI, '/contract/book')
 api.add_resource(SignAPI, '/contract/sign')
 
+api.add_resource(HaiFengTokenAPI, '/haifeng/token')
+api.add_resource(HaiFengHeadersAPI, '/haifeng/headers')
+
 api.add_resource(InformationAPI, '/information')
-api.add_resource(InvestorTokenAPI, '/information/token')
 api.add_resource(FaceImageAPI, '/information/face_image')
 api.add_resource(CertImageAPI, '/information/cert_image')
 api.add_resource(RealNameAPI, '/information/real_name')

@@ -9,23 +9,24 @@ from bases.globals import db, settings
 from extensions.s3.pdf_store import PdfStore
 from models import ContractTemplate
 
-from .manager_token import ManagerToken
+from .haifeng_token import HaiFengToken
 
 
 class FOFTemplate:
 
-    def __init__(self, manager_id):
-        self.host = settings['HAI_FENG_HOST']
-        self.manager_id = manager_id
+    def __init__(self):
+        self.host = settings['HAI_FENG']['host']
 
     def _request(self, endpoint, params=None):
-        headers = ManagerToken().get_headers(self.manager_id)
+        headers = HaiFengToken().get_headers()
         response = requests.post(self.host + endpoint, json=params, timeout=5, headers=headers)
+
         data = response.json()
         current_app.logger.info(f'[FOFTemplate] (endpoint){endpoint} (data){data}')
         if data['success'] != 1:
             current_app.logger.error(f'[FOFTemplate] Failed! (endpoint){endpoint} (data){data}')
             return
+
         return data['data']
 
     def get_products(self) -> 'list | None':
@@ -47,7 +48,7 @@ class FOFTemplate:
         params = {'contractId': contract_id}
         return self._request(endpoint, params)
 
-    def save_fof_template(self, fof_id):
+    def save_fof_template(self, manager_id, fof_id):
         products = self.get_products()
         products = {product['productCode']: product['productId'] for product in products}
         if fof_id not in products:
@@ -79,7 +80,7 @@ class FOFTemplate:
             ContractTemplate(
                 template_id=template_id,
                 fof_id=fof_id,
-                manager_id=self.manager_id,
+                manager_id=manager_id,
                 template_type=template_type,
                 template_name=template['contractTemplateName'],
                 template_url_key=template_url_key,
