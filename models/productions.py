@@ -1,8 +1,9 @@
 from bases.dbwrapper import BaseModel
+from bases.base_enmu import EnumBase
 from sqlalchemy.dialects.mysql import DOUBLE, TEXT, CHAR, INTEGER, DATE, DATETIME, BOOLEAN, SMALLINT, VARCHAR
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy import Index
+from bases.dbwrapper import db
 
 
 # class FOFInfo(BaseModel):
@@ -148,6 +149,30 @@ from sqlalchemy import Index
 #     net_asset_value = Column(DOUBLE(asdecimal=False))                                # 单位净值
 #     acc_unit_value = Column(DOUBLE(asdecimal=False))                                 # 累计净值
 #     v_net_value = Column(DOUBLE(asdecimal=False))                                    # 虚拟净值
+
+
+class FOFCalcStatus(BaseModel):
+    """
+    fof 计算
+    """
+    __tablename__ = 'fof_calc_status'
+
+    class StatusEnum(EnumBase):
+        PENDING = 0
+        SUCCESS = 1
+        FAILED = 2
+
+    id = db.Column(db.INTEGER, primary_key=True, autoincrement=True)
+    fof_id = db.Column(db.CHAR(16))
+    manager_id = db.Column(db.VARCHAR(32))
+    status = db.Column(db.INTEGER, default=0)
+    failed_reason = db.Column(db.TEXT)
+
+    def to_dict(self, fields_list=None, remove_fields_list=None, remove_deleted=True):
+        return {
+            'calc_status': self.status,
+            'calc_failed_reason': self.failed_reason,
+        }
 
 
 class HedgeComment(BaseModel):
