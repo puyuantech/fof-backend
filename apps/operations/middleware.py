@@ -15,7 +15,7 @@ def user_operation_log_middleware(app):
         if hasattr(g, 'user') and hasattr(g, 'token'):
             user = g.user
             token = g.token
-            if not user.is_staff:
+            if hasattr(user, 'is_staff') and not user.is_staff:
                 obj = db.session.query(UnitMap).filter(
                     UserInvestorMap.user_id == user.id,
                     InvestorInfo.investor_id == UserInvestorMap.investor_id,
