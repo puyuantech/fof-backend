@@ -23,10 +23,11 @@ class FlaskCas(object):
     def init_app(self, app, **kwargs):
         config = app.config.copy()
 
-        self.username = config['CAS']['username']
-        self.password = config['CAS']['password']
-        self.hosts = config['CAS']['hosts']
-        self.default_key_space = config['CAS']['default_key_space']
+        if config.get('CAS'):
+            self.username = config['CAS']['username']
+            self.password = config['CAS']['password']
+            self.hosts = config['CAS']['hosts']
+            self.default_key_space = config['CAS']['default_key_space']
 
         if not hasattr(app, "extensions"):
             app.extensions = {}
