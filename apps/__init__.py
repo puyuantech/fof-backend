@@ -1,13 +1,14 @@
 import os
 
 from flask import Flask
-from bases.globals import db, settings, cache, celery
+from bases.globals import db, settings, cache, celery, cas
 from bases.converter import RegexConverter, PathConverter
 
 
 def register_extensions(app):
     db.init_app(app)
     cache.init_app(app)
+    cas.init_app(app)
     celery.config_from_object(app.config)
     return app
 

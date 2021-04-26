@@ -4,6 +4,7 @@ import datetime
 import jwt
 import random
 import string
+import json
 
 from decimal import Decimal
 from collections import Iterable, OrderedDict
@@ -104,6 +105,12 @@ def validate_date(date_text):
     except:
         return False
     return True
+
+
+def json_str_to_dict(data):
+    if not data:
+        return None
+    return json.loads(data)
 
 
 def replace_nan(obj):

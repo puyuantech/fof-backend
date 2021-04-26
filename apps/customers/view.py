@@ -2,7 +2,7 @@ import pandas as pd
 import io
 import datetime
 import traceback
-from flask import request, g, views, make_response
+from flask import request, g, make_response
 from sqlalchemy import distinct
 
 from models import User, FOFInvestorPosition, FOFScaleAlteration, FOFInfo, UnitMap, \
