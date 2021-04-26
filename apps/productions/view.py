@@ -585,9 +585,17 @@ class ProductionPosition(ApiViewHandler):
         mutual_fund = get_fund_collection_caches()
         hedge_fund = get_hedge_fund_cache()
 
-        position = db.session.query(FOFPosition).filter(
+        date_str = request.args.get('date')
+
+        query = db.session.query(FOFPosition).filter(
             FOFPosition.fof_id == fof_id,
-        ).order_by(FOFPosition.datetime.desc()).limit(1).first()
+        )
+        if date_str:
+            query = query.filter(
+                FOFPosition.datetime <=date_str
+            )
+
+        position = query.order_by(FOFPosition.datetime.desc()).limit(1).first()
         if not position:
             return []
         df = pd.DataFrame(json.loads(position.position))
