@@ -124,6 +124,8 @@ class ProductionAPI(ApiViewHandler, ProMixin):
         ).first()
         if s:
             data.update(s.to_dict())
+        else:
+            data['calc_status'] = FOFCalcStatus.StatusEnum.SUCCESS
         return data
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.OPE_MANAGER])
