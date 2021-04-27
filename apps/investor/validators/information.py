@@ -5,23 +5,23 @@ from typing import Optional, List
 from typing_extensions import Literal
 
 from bases.constants import RISK_LEVEL_EXPIRE_DAY
-from bases.validation import InvestorValidation
+from bases.validation import BaseValidation
 
 
-class FaceImageValidation(InvestorValidation):
+class FaceImageValidation(BaseValidation):
     """sync with InvestorInformation"""
     face_image_url_key: constr(max_length=128) # 人脸识别照片
     face_image_verify_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class CertImageValidation(InvestorValidation):
+class CertImageValidation(BaseValidation):
     """sync with InvestorInformation"""
     cert_front_image_url_key: constr(max_length=128) # 证件正面照片
     cert_back_image_url_key: constr(max_length=128)  # 证件反面照片
     cert_image_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class UserInfoValidation(InvestorValidation):
+class UserInfoValidation(BaseValidation):
     """sync with InvestorInformation"""
     name: constr(max_length=10)                          # 姓名
     email: constr(max_length=64)                         # 邮箱
@@ -43,14 +43,14 @@ class UserInfoValidation(InvestorValidation):
     investor_answers: List[str]                          # 合格投资者测评结果
 
 
-class RealNameValidation(InvestorValidation):
+class RealNameValidation(BaseValidation):
     """sync with InvestorInformation"""
     # secret: constr(max_length=128) = None # 海峰用户密钥
     real_name_verify: bool                  # 实名认证结果
     real_name_verify_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class RiskLevelValidation(InvestorValidation):
+class RiskLevelValidation(BaseValidation):
     """sync with InvestorInformation"""
     risk_level_answers: List[str] # 风险测评结果
     risk_level_verify_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
@@ -59,14 +59,14 @@ class RiskLevelValidation(InvestorValidation):
     )
 
 
-class ExperienceValidation(InvestorValidation):
+class ExperienceValidation(BaseValidation):
     """sync with InvestorInformation"""
     asset_image_url_key: constr(max_length=128)      # 资产规模照片
     experience_image_url_key: constr(max_length=128) # 投资经历照片
     experience_verify_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class InfoTableValidation(InvestorValidation):
+class InfoTableValidation(BaseValidation):
     """sync with InvestorInformation"""
     info_table: constr(max_length=128)                # 投资者信息表链接
     info_table_url_key: constr(max_length=128) = None # 投资者信息表文件
@@ -74,7 +74,7 @@ class InfoTableValidation(InvestorValidation):
     info_table_verify_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class CommitmentValidation(InvestorValidation):
+class CommitmentValidation(BaseValidation):
     """sync with InvestorInformation"""
     commitment: constr(max_length=128)                # 合格投资者承诺函链接
     commitment_url_key: constr(max_length=128) = None # 合格投资者承诺函文件
