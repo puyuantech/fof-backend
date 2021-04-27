@@ -1,4 +1,6 @@
 
+from flask import g
+
 from bases.exceptions import LogicError
 from bases.viewhandler import ApiViewHandler
 from extensions.haifeng.fof_template import FOFTemplate
@@ -6,7 +8,7 @@ from models import InvestorInformation, RiskQuestion, RiskAnswer
 from utils.decorators import login_required
 
 from .constants import INVESTOR_CERTIFICATION_QUESTIONS
-from .validators.information import (InvestorValidation, FaceImageValidation, CertImageValidation, UserInfoValidation, RealNameValidation,
+from .validators.information import (FaceImageValidation, CertImageValidation, UserInfoValidation, RealNameValidation,
                                      RiskLevelValidation, ExperienceValidation, InfoTableValidation, CommitmentValidation)
 
 
@@ -14,8 +16,7 @@ class InformationAPI(ApiViewHandler):
 
     @login_required
     def get(self):
-        data = InvestorValidation.get_valid_data(self.input)
-        return InvestorInformation.get_investor_information(**data)
+        return InvestorInformation.get_investor_information(g.token.investor_id)
 
 
 class FaceImageAPI(ApiViewHandler):
@@ -23,7 +24,7 @@ class FaceImageAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = FaceImageValidation.get_valid_data(self.input)
-        return InvestorInformation.update_investor_information(**data)
+        return InvestorInformation.update_investor_information(g.token.investor_id, **data)
 
 
 class CertImageAPI(ApiViewHandler):
@@ -31,7 +32,7 @@ class CertImageAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = CertImageValidation.get_valid_data(self.input)
-        return InvestorInformation.update_investor_information(**data)
+        return InvestorInformation.update_investor_information(g.token.investor_id, **data)
 
 
 class UserInfoAPI(ApiViewHandler):
@@ -46,7 +47,7 @@ class UserInfoAPI(ApiViewHandler):
         message = FOFTemplate().register_investor(data)
         if message is not None:
             raise LogicError(message)
-        return InvestorInformation.update_investor_information(**data)
+        return InvestorInformation.update_investor_information(g.token.investor_id, **data)
 
 
 class RealNameAPI(ApiViewHandler):
@@ -54,7 +55,7 @@ class RealNameAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = RealNameValidation.get_valid_data(self.input)
-        return InvestorInformation.update_investor_information(**data)
+        return InvestorInformation.update_investor_information(g.token.investor_id, **data)
 
 
 class RiskLevelAPI(ApiViewHandler):
@@ -70,13 +71,14 @@ class RiskLevelAPI(ApiViewHandler):
         risk_level = RiskQuestion.get_risk_level_by_score(risk_level_score)
 
         RiskAnswer.create(
-            investor_id=data['investor_id'],
+            investor_id=g.token.investor_id,
             risk_level_answers=data['risk_level_answers'],
             risk_level=risk_level,
             risk_level_score=risk_level_score,
         )
 
         return InvestorInformation.update_investor_information(
+            investor_id=g.token.investor_id,
             risk_level=risk_level,
             risk_level_score=risk_level_score,
             **data
@@ -88,7 +90,7 @@ class ExperienceAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = ExperienceValidation.get_valid_data(self.input)
-        return InvestorInformation.update_investor_information(**data)
+        return InvestorInformation.update_investor_information(g.token.investor_id, **data)
 
 
 class InfoTableAPI(ApiViewHandler):
@@ -97,7 +99,7 @@ class InfoTableAPI(ApiViewHandler):
     def post(self):
         data = InfoTableValidation.get_valid_data(self.input)
         data['info_table_url_key'] = data.pop('info_table')
-        return InvestorInformation.update_investor_information(**data)
+        return InvestorInformation.update_investor_information(g.token.investor_id, **data)
 
 
 class CommitmentAPI(ApiViewHandler):
@@ -106,5 +108,5 @@ class CommitmentAPI(ApiViewHandler):
     def post(self):
         data = CommitmentValidation.get_valid_data(self.input)
         data['commitment_url_key'] = data.pop('commitment')
-        return InvestorInformation.update_investor_information(**data)
+        return InvestorInformation.update_investor_information(g.token.investor_id, **data)
 
