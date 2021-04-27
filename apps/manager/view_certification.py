@@ -1,7 +1,6 @@
 
 from bases.validation import ManagerValidation
 from bases.viewhandler import ApiViewHandler
-from extensions.haifeng.haifeng_token import HaiFengToken
 from models import InvestorCertification
 from utils.decorators import login_required
 from utils.helper import generate_sql_pagination
