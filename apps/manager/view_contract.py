@@ -3,7 +3,6 @@ from flask import g
 
 from bases.constants import TemplateStatus
 from bases.exceptions import LogicError
-from bases.validation import ManagerValidation
 from bases.viewhandler import ApiViewHandler
 from extensions.haifeng.fof_template import FOFTemplate
 from models import InvestorContract, FOFInfo, ProductionTemplate
@@ -16,10 +15,9 @@ class ContractListAPI(ApiViewHandler):
 
     @login_required
     def get(self):
-        data = ManagerValidation.get_valid_data(self.input)
-        investor_contracts = InvestorContract.get_manager_contracts(**data)
+        investor_contracts = InvestorContract.get_manager_contracts(g.token.manager_id)
 
-        fofs = FOFInfo.filter_by_query(manager_id=data['manager_id']).all()
+        fofs = FOFInfo.filter_by_query(manager_id=g.token.manager_id).all()
         fofs = {fof.fof_id: fof.fof_name for fof in fofs}
 
         return [
