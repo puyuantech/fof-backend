@@ -1,15 +1,15 @@
 
 from pydantic import constr
 
-from bases.validation import UnitValidation
+from bases.validation import InvestorValidation
 
 
-class ApproveValidation(UnitValidation):
+class ApproveValidation(InvestorValidation):
     """sync with InvestorCertification"""
     is_professional: bool = False # 是否是专业投资者
 
 
-class UnapproveValidation(UnitValidation):
+class UnapproveValidation(InvestorValidation):
     """sync with InvestorCertification"""
     error_message: constr(max_length=128) = None # 认证失败信息
 

@@ -33,6 +33,5 @@ class UnitValidation(BaseValidation):
 
 class ContractValidation(BaseValidation):
     investor_id: constr(max_length=32)
-    manager_id: constr(max_length=32)
     fof_id: constr(max_length=16)
 

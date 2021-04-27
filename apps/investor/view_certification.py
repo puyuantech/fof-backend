@@ -1,42 +1,41 @@
 
 from flask import g
+
 from bases.viewhandler import ApiViewHandler
 from models import InvestorCertification
 from utils.decorators import login_required
 
-from .validators.certification import UnitValidation, ApproveValidation, UnapproveValidation
+from .validators.certification import InvestorValidation, ApproveValidation, UnapproveValidation
 
 
 class LatestAPI(ApiViewHandler):
 
     @login_required
     def get(self):
-        data = UnitValidation.get_valid_data(self.input)
-        return InvestorCertification.get_latest_certification(**data)
+        data = InvestorValidation.get_valid_data(self.input)
+        return InvestorCertification.get_latest_certification(manager_id=g.token.manager_id, **data)
 
 
 class EffectiveAPI(ApiViewHandler):
 
     @login_required
     def get(self):
-        data = UnitValidation.get_valid_data(self.input)
-        return InvestorCertification.get_effective_certification(**data)
+        data = InvestorValidation.get_valid_data(self.input)
+        return InvestorCertification.get_effective_certification(manager_id=g.token.manager_id, **data)
 
 
 class ApplyAPI(ApiViewHandler):
 
     @login_required
     def post(self):
-        data = UnitValidation.get_valid_data(self.input)
-        return InvestorCertification.apply_certification(**data)
+        return InvestorCertification.apply_certification(g.token.investor_id, g.token.manager_id)
 
 
 class SubmitAPI(ApiViewHandler):
 
     @login_required
     def post(self):
-        data = UnitValidation.get_valid_data(self.input)
-        return InvestorCertification.submit_certification(**data)
+        return InvestorCertification.submit_certification(g.token.investor_id, g.token.manager_id)
 
 
 class ApproveAPI(ApiViewHandler):
@@ -48,7 +47,7 @@ class ApproveAPI(ApiViewHandler):
         g.user_operation_params = {
             'investor_id': data.get('investor_id'),
         }
-        return InvestorCertification.approve_certification(**data)
+        return InvestorCertification.approve_certification(manager_id=g.token.manager_id, **data)
 
 
 class UnapproveAPI(ApiViewHandler):
@@ -60,13 +59,12 @@ class UnapproveAPI(ApiViewHandler):
         g.user_operation_params = {
             'investor_id': data.get('investor_id'),
         }
-        return InvestorCertification.unapprove_certification(**data)
+        return InvestorCertification.unapprove_certification(manager_id=g.token.manager_id, **data)
 
 
 class ReapplyAPI(ApiViewHandler):
 
     @login_required
     def post(self):
-        data = UnitValidation.get_valid_data(self.input)
-        return InvestorCertification.reapply_certification(**data)
+        return InvestorCertification.reapply_certification(g.token.investor_id, g.token.manager_id)
 
