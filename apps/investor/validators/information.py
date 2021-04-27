@@ -2,6 +2,7 @@ import datetime
 
 from pydantic import Field, conint, constr
 from typing import Optional, List
+from typing_extensions import Literal
 
 from bases.constants import RISK_LEVEL_EXPIRE_DAY
 from bases.validation import InvestorValidation
@@ -20,28 +21,32 @@ class CertImageValidation(InvestorValidation):
     cert_image_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
+class UserInfoValidation(InvestorValidation):
+    """sync with InvestorInformation"""
+    name: constr(max_length=10)                          # 姓名
+    email: constr(max_length=64)                         # 邮箱
+    nationality: constr(max_length=32)                   # 国籍
+    gender: conint(ge=1, le=2)                           # 性别(1: 男, 2: 女)
+    age: int                                             # 年龄
+    mobile_phone: constr(max_length=20)                  # 手机
+    landline_phone: Optional[constr(max_length=20)]      # 座机
+    profession: constr(max_length=32)                    # 职业
+    job: constr(max_length=32)                           # 职务
+    postcode: Optional[constr(max_length=20)]            # 邮编
+    address: Optional[constr(max_length=256)]            # 住址
+
+    cert_type: Literal['身份证', '社保卡', '护照', '军官证', # 证件类型
+                       '港澳通行证', '台胞证', '其他证件']
+    cert_num: constr(max_length=32)                      # 证件编号
+    cert_expire_date: datetime.date                      # 证件过期时间(input: '%Y-%m-%d')
+
+    investor_answers: List[str]                          # 合格投资者测评结果
+
+
 class RealNameValidation(InvestorValidation):
     """sync with InvestorInformation"""
-    name: constr(max_length=10)                     # 姓名
-    email: Optional[constr(max_length=64)]          # 邮箱
-    nationality: constr(max_length=32)              # 国籍
-    gender: conint(ge=1, le=2)                      # 性别(1: 男, 2: 女)
-    age: int                                        # 年龄
-    mobile_phone: constr(max_length=20)             # 手机
-    landline_phone: Optional[constr(max_length=20)] # 座机
-    profession: constr(max_length=32)               # 职业
-    job: constr(max_length=32)                      # 职务
-    postcode: Optional[constr(max_length=20)]       # 邮编
-    address: Optional[constr(max_length=256)]       # 住址
-
-    cert_type: constr(max_length=10)                # 证件类型
-    cert_num: constr(max_length=32)                 # 证件编号
-    cert_expire_date: datetime.date                 # 证件过期时间(input: '%Y-%m-%d')
-
-    investor_answers: List[str]                     # 合格投资者测评结果
-
-    secret: constr(max_length=128) = None           # 海峰用户密钥
-    real_name_verify: bool                          # 实名认证结果
+    # secret: constr(max_length=128) = None # 海峰用户密钥
+    real_name_verify: bool                  # 实名认证结果
     real_name_verify_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 

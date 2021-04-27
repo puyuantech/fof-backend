@@ -3,7 +3,7 @@ import requests
 
 from flask import current_app
 
-from bases.constants import HaiFengTemplateType
+from bases.constants import HaiFengTemplateType, HaiFengCertType
 from bases.exceptions import LogicError
 from bases.globals import db, settings
 from extensions.s3.pdf_store import PdfStore
@@ -103,4 +103,20 @@ class FOFTemplate:
         if not contract_detail:
             raise LogicError('获取合同文件失败!')
         return contract_detail['contractFileUrl']
+
+    ############
+    # Investor #
+    ############
+
+    def register_investor(self, investor_info: dict):
+        endpoint = '/v2/InfoProvision/setIndividualInfo'
+        params = {
+            'individualId': investor_info['investor_id'],
+            'individualName': investor_info['name'],
+            'individualCertType': HaiFengCertType.parse(investor_info['cert_type']),
+            'individualCertNum': investor_info['cert_num'],
+            'individualPhoneNum': investor_info['mobile_phone'],
+            'individualEmail': investor_info['email'],
+        }
+        return self._request(endpoint, params)
 

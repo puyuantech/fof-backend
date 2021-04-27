@@ -97,3 +97,13 @@ class TemplateStatus(EnumBase):
     SIGNING = 'signing'       # 待签署
     COMPLETED = 'completed'   # 已完成
 
+
+class HaiFengCertType(EnumBase):
+    身份证 = 1
+    社保卡 = 2
+    护照 = 3
+    军官证 = 4
+    港澳通行证 = 5
+    台胞证 = 6
+    其他证件 = 7
+

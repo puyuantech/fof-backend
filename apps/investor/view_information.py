@@ -1,11 +1,11 @@
 
 from bases.viewhandler import ApiViewHandler
-from extensions.haifeng.haifeng_token import HaiFengToken
+from extensions.haifeng.fof_template import FOFTemplate
 from models import InvestorInformation, RiskQuestion, RiskAnswer
 from utils.decorators import login_required
 
 from .constants import INVESTOR_CERTIFICATION_QUESTIONS
-from .validators.information import (InvestorValidation, FaceImageValidation, CertImageValidation, RealNameValidation,
+from .validators.information import (InvestorValidation, FaceImageValidation, CertImageValidation, UserInfoValidation, RealNameValidation,
                                      RiskLevelValidation, ExperienceValidation, InfoTableValidation, CommitmentValidation)
 
 
@@ -33,11 +33,20 @@ class CertImageAPI(ApiViewHandler):
         return InvestorInformation.update_investor_information(**data)
 
 
-class RealNameAPI(ApiViewHandler):
+class UserInfoAPI(ApiViewHandler):
 
     @login_required
     def get(self):
         return INVESTOR_CERTIFICATION_QUESTIONS
+
+    @login_required
+    def post(self):
+        data = UserInfoValidation.get_valid_data(self.input)
+        FOFTemplate().register_investor(data)
+        return InvestorInformation.update_investor_information(**data)
+
+
+class RealNameAPI(ApiViewHandler):
 
     @login_required
     def post(self):
