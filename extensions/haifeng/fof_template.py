@@ -17,36 +17,66 @@ class FOFTemplate:
     def __init__(self):
         self.host = settings['HAI_FENG']['host']
 
+    def _parse_data(self, data):
+        if data['success'] != 1:
+            current_app.logger.error(f'[FOFTemplate] Failed! (data){data}')
+            return
+        return data['data']
+
     def _request(self, endpoint, params=None):
         headers = HaiFengToken().get_headers()
         response = requests.post(self.host + endpoint, json=params, timeout=5, headers=headers)
 
         data = response.json()
         current_app.logger.info(f'[FOFTemplate] (endpoint){endpoint} (data){data}')
-        if data['success'] != 1:
-            current_app.logger.error(f'[FOFTemplate] Failed! (endpoint){endpoint} (data){data}')
-            return
+        return data
 
-        return data['data']
+    ###########
+    # Manager #
+    ###########
 
     def get_products(self) -> 'list | None':
         endpoint = '/v2/contract/getProductList'
-        return self._request(endpoint)
+        return self._parse_data(self._request(endpoint))
 
     def get_templates(self, product_id: int) -> 'list | None':
         endpoint = '/v2/contract/getTemplateListByProduct'
         params = {'productId': product_id}
-        return self._request(endpoint, params)
+        return self._parse_data(self._request(endpoint, params))
 
     def get_template_detail(self, template_id) -> 'dict | None':
         endpoint = '/v2/contract/getTemplateInfo'
         params = {'contractTemplateId': template_id}
-        return self._request(endpoint, params)
+        return self._parse_data(self._request(endpoint, params))
 
     def get_contract_detail(self, contract_id) -> 'dict | None':
         endpoint = '/v2/contract/getContractInfo'
         params = {'contractId': contract_id}
-        return self._request(endpoint, params)
+        return self._parse_data(self._request(endpoint, params))
+
+    ############
+    # Investor #
+    ############
+
+    def register_investor(self, investor_info: dict):
+        endpoint = '/v2/InfoProvision/setIndividualInfo'
+        params = {
+            'individualId': investor_info['investor_id'],
+            'individualName': investor_info['name'],
+            'individualCertType': HaiFengCertType.parse(investor_info['cert_type']),
+            'individualCertNum': investor_info['cert_num'],
+            'individualPhoneNum': investor_info['mobile_phone'],
+            'individualEmail': investor_info['email'],
+        }
+        data = self._request(endpoint, params)
+
+        if data['success'] != 1:
+            current_app.logger.error(f'[register_investor] Failed! (data){data}')
+            return data['message']
+
+    ############
+    # Function #
+    ############
 
     def save_fof_template(self, manager_id, fof_id):
         products = self.get_products()
@@ -103,20 +133,4 @@ class FOFTemplate:
         if not contract_detail:
             raise LogicError('获取合同文件失败!')
         return contract_detail['contractFileUrl']
-
-    ############
-    # Investor #
-    ############
-
-    def register_investor(self, investor_info: dict):
-        endpoint = '/v2/InfoProvision/setIndividualInfo'
-        params = {
-            'individualId': investor_info['investor_id'],
-            'individualName': investor_info['name'],
-            'individualCertType': HaiFengCertType.parse(investor_info['cert_type']),
-            'individualCertNum': investor_info['cert_num'],
-            'individualPhoneNum': investor_info['mobile_phone'],
-            'individualEmail': investor_info['email'],
-        }
-        return self._request(endpoint, params)
 

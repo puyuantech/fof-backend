@@ -1,4 +1,5 @@
 
+from bases.exceptions import LogicError
 from bases.viewhandler import ApiViewHandler
 from extensions.haifeng.fof_template import FOFTemplate
 from models import InvestorInformation, RiskQuestion, RiskAnswer
@@ -42,7 +43,9 @@ class UserInfoAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = UserInfoValidation.get_valid_data(self.input)
-        FOFTemplate().register_investor(data)
+        message = FOFTemplate().register_investor(data)
+        if message is not None:
+            raise LogicError(message)
         return InvestorInformation.update_investor_information(**data)
 
 
