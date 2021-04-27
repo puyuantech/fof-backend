@@ -7,9 +7,6 @@ from bases.exceptions import LogicError
 
 class InvestorMixin:
 
-    face_image_url_key = db.Column(db.String(128))  # 人脸识别照片
-    face_image_verify_time = db.Column(db.DateTime) # 人脸识别时间
-
     name = db.Column(db.String(10))           # 姓名
     email = db.Column(db.String(64))          # 邮箱
     nationality = db.Column(db.String(32))    # 国籍
@@ -35,6 +32,8 @@ class InvestorMixin:
 
     real_name_verify = db.Column(db.Boolean, default=False) # 实名认证结果
     real_name_verify_time = db.Column(db.DateTime)          # 实名认证时间
+    real_name_image_url_key = db.Column(db.String(128))     # 实名认证照片
+    real_name_bank_card = db.Column(db.String(32))          # 实名认证银行卡号
 
     risk_level = db.Column(db.String(4))            # 风险承受能力
     risk_level_score = db.Column(db.Integer)        # 风险测评得分

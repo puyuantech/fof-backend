@@ -8,7 +8,7 @@ from .view_contract import (ContractAPI, ContractListAPI, ContractTemplateAPI, R
                             FundContractAPI, ProtocolAPI, FundMatchingAPI, VideoAPI, LookbackAPI,
                             BookAPI, SignAPI)
 from .view_haifeng import HaiFengTokenAPI, HaiFengHeadersAPI
-from .view_information import (InformationAPI, FaceImageAPI, CertImageAPI, UserInfoAPI, RealNameAPI,
+from .view_information import (InformationAPI, CertImageAPI, UserInfoAPI, RealNameAPI,
                                RiskLevelAPI, ExperienceAPI, InfoTableAPI, CommitmentAPI)
 from .view_notification import NotificationMenuAPI, NotificationListAPI, NotificationReadListAPI
 from .view_position import PositionListAPI, PositionAnalysisAPI
@@ -42,7 +42,6 @@ api.add_resource(HaiFengTokenAPI, '/haifeng/token')
 api.add_resource(HaiFengHeadersAPI, '/haifeng/headers')
 
 api.add_resource(InformationAPI, '/information')
-api.add_resource(FaceImageAPI, '/information/face_image')
 api.add_resource(CertImageAPI, '/information/cert_image')
 api.add_resource(UserInfoAPI, '/information/user_info')
 api.add_resource(RealNameAPI, '/information/real_name')

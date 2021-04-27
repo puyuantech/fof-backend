@@ -58,10 +58,10 @@ class FOFTemplate:
     # Investor #
     ############
 
-    def register_investor(self, investor_info: dict):
+    def register_investor(self, investor_id, investor_info: dict):
         endpoint = '/v2/InfoProvision/setIndividualInfo'
         params = {
-            'individualId': investor_info['investor_id'],
+            'individualId': investor_id,
             'individualName': investor_info['name'],
             'individualCertType': HaiFengCertType.parse(investor_info['cert_type']),
             'individualCertNum': investor_info['cert_num'],

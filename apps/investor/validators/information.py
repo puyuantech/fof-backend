@@ -8,12 +8,6 @@ from bases.constants import RISK_LEVEL_EXPIRE_DAY
 from bases.validation import BaseValidation
 
 
-class FaceImageValidation(BaseValidation):
-    """sync with InvestorInformation"""
-    face_image_url_key: constr(max_length=128) # 人脸识别照片
-    face_image_verify_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
-
-
 class CertImageValidation(BaseValidation):
     """sync with InvestorInformation"""
     cert_front_image_url_key: constr(max_length=128) # 证件正面照片
@@ -45,8 +39,10 @@ class UserInfoValidation(BaseValidation):
 
 class RealNameValidation(BaseValidation):
     """sync with InvestorInformation"""
-    # secret: constr(max_length=128) = None # 海峰用户密钥
-    real_name_verify: bool                  # 实名认证结果
+    real_name_verify: bool                                 # 实名认证结果
+    real_name_image: Optional[constr(max_length=128)]      # 人脸识别照片链接
+    real_name_image_url_key: constr(max_length=128) = None # 人脸识别照片
+    real_name_bank_card: Optional[constr(max_length=32)]   # 人脸识别银行卡号
     real_name_verify_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 

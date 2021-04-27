@@ -8,8 +8,8 @@ from models import InvestorInformation, RiskQuestion, RiskAnswer
 from utils.decorators import login_required
 
 from .constants import INVESTOR_CERTIFICATION_QUESTIONS
-from .validators.information import (FaceImageValidation, CertImageValidation, UserInfoValidation, RealNameValidation,
-                                     RiskLevelValidation, ExperienceValidation, InfoTableValidation, CommitmentValidation)
+from .validators.information import (CertImageValidation, UserInfoValidation, RealNameValidation, RiskLevelValidation,
+                                     ExperienceValidation, InfoTableValidation, CommitmentValidation)
 
 
 class InformationAPI(ApiViewHandler):
@@ -17,14 +17,6 @@ class InformationAPI(ApiViewHandler):
     @login_required
     def get(self):
         return InvestorInformation.get_investor_information(g.token.investor_id)
-
-
-class FaceImageAPI(ApiViewHandler):
-
-    @login_required
-    def post(self):
-        data = FaceImageValidation.get_valid_data(self.input)
-        return InvestorInformation.update_investor_information(g.token.investor_id, **data)
 
 
 class CertImageAPI(ApiViewHandler):
@@ -44,7 +36,7 @@ class UserInfoAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = UserInfoValidation.get_valid_data(self.input)
-        message = FOFTemplate().register_investor(data)
+        message = FOFTemplate().register_investor(g.token.investor_id, data)
         if message is not None:
             raise LogicError(message)
         return InvestorInformation.update_investor_information(g.token.investor_id, **data)
@@ -55,6 +47,7 @@ class RealNameAPI(ApiViewHandler):
     @login_required
     def post(self):
         data = RealNameValidation.get_valid_data(self.input)
+        data['real_name_image_url_key'] = data.pop('real_name_image')
         return InvestorInformation.update_investor_information(g.token.investor_id, **data)
 
 
