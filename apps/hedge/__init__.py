@@ -10,6 +10,3 @@ api.add_resource(HedgeAPI, '/<string:_id>')
 api.add_resource(HedgeDetail, '/detail/<string:_id>')
 api.add_resource(HedgeCommentAPI, '/comment/<string:_id>')
 api.add_resource(HedgeSingleChangeAPI, '/single_change')
-
-
-

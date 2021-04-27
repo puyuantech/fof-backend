@@ -54,6 +54,9 @@ class ProductionsAPI(ApiViewHandler):
     @params_required(*['fof_id'])
     def post(self):
         manager_id = g.token.manager_id if request.json.get('is_private') else '1'
+        asset_type = request.json.get('asset_type')
+        if asset_type not in ['production', 'hedge', 'sub']:
+            raise VerifyError('asset_type Error')
         data = {
             'fof_id': request.json.get('fof_id'),
             'manager_id': g.token.manager_id if request.json.get('is_private') else '1',
@@ -573,17 +576,18 @@ class ProductionPosition(ApiViewHandler):
         def helper(x):
             try:
                 if x['asset_type'] == '1':
-                    x['fund_name'] = mutual_fund.loc[x['fund_id'], 'fund_name']
                     x['order_book_id'] = mutual_fund.loc[x['fund_id'], 'order_book_id']
+                    x['fund_name'] = mutual_fund.loc[x['fund_id'], 'fund_name']
                 if x['asset_type'] == '2':
-                    x['fund_name'] = hedge_fund.loc[x['fund_id'], 'fund_name']
                     x['order_book_id'] = hedge_fund.loc[x['fund_id'], 'order_book_id']
+                    x['fund_name'] = hedge_fund.loc[x['fund_id'], 'desc_name']
             except KeyError:
                 pass
             return x
 
         mutual_fund = get_fund_collection_caches()
         hedge_fund = get_hedge_fund_cache()
+        hedge_fund = hedge_fund[hedge_fund['manager_id'] == g.token.manager_id]
 
         date_str = request.args.get('date')
 
@@ -592,7 +596,7 @@ class ProductionPosition(ApiViewHandler):
         )
         if date_str:
             query = query.filter(
-                FOFPosition.datetime <=date_str
+                FOFPosition.datetime <= date_str,
             )
 
         position = query.order_by(FOFPosition.datetime.desc()).limit(1).first()
@@ -607,5 +611,8 @@ class ProductionPosition(ApiViewHandler):
         df['amount'] = df['share'] * df['nav']
         df['sum_amount'] = df['amount'].sum() + df['total_current']
         df['weight'] = df['amount'] / df['sum_amount']
+        df['order_book_id'] = None
+        df['fund_name'] = None
+
         df = df.apply(helper, axis=1)
         return replace_nan(df.to_dict(orient='records'))

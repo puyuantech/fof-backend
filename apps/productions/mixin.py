@@ -102,19 +102,20 @@ class ProMixin:
         df_pub = self.get_public_nav(fof_id)
         df_pri = self.get_private_nav(fof_id)
 
-        if len(df_pub) < 1 and len(df_pri) < 1:
-            return []
-
         df = df_pub.copy()
-        for i in df_pri.index:
-            df = df.append(df_pri.loc[i, :], ignore_index=True)
+        if len(df_pri) > 0:
+            for i in df_pri.index:
+                df = df.append(df_pri.loc[i, :], ignore_index=True)
 
+        df['is_unconfirmed'] = True
         # 获取未确认净值
         if unconfirmed:
-            df['is_unconfirmed'] = True
             df_unc = self.get_unconfirmed_nav(fof_id)
             for i in df_unc.index:
                 df = df.append(df_unc.loc[i, :], ignore_index=True)
+
+        if len(df) < 1:
+            return []
 
         df = df.drop_duplicates(subset=['datetime'], keep='last')
         df = df.set_index('datetime')
@@ -145,7 +146,13 @@ class ProMixin:
         ).all()
 
         if len(results) < 1:
-            return pd.DataFrame([])
+            return pd.DataFrame([], columns=[
+                'datetime',
+                'acc_ret',
+                'acc_net_value',
+                'nav',
+                'adjusted_nav',
+            ])
 
         df = pd.DataFrame([{
             'datetime': i[0],

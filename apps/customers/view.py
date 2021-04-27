@@ -91,7 +91,7 @@ class CusByFileAPI(ApiViewHandler):
             try:
                 d = df.loc[i, :].to_dict()
                 d = replace_nan(d)
-                print(d)
+
                 unit_map = register_investor_user(
                     d.get('mobile'),
                     get_map=True,
@@ -114,7 +114,7 @@ class CusByFileAPI(ApiViewHandler):
                 print(traceback.format_exc())
                 df['is_success'] = False
                 df['failed_reason'] = '创建错误'
-        print(df)
+
         return replace_nan(df.to_dict(orient='records'))
 
 
