@@ -41,6 +41,7 @@ def update_production_info(obj):
         'desc_name',
         'open_date',
         'custodian_name',
+        'fund_status',
     ]
     for i in columns:
         if request.json.get(i) is not None:

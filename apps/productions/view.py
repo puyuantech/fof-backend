@@ -87,8 +87,9 @@ class ProductionsAPI(ApiViewHandler):
             'fof_manager': request.json.get('fof_manager'),
             'benchmark_index': request.json.get('benchmark_index'),
             'desc_name': request.json.get('desc_name'),
-            'custodian_name': request.json.get('custodian_name'),
             'open_date': request.json.get('open_date'),
+            'custodian_name': request.json.get('custodian_name'),
+            'fund_status': request.json.get('fund_status'),
         }
         if FOFInfo.filter_by_query(
             fof_id=self.input.fof_id,

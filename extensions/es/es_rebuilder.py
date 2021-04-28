@@ -44,8 +44,8 @@ def re_build():
     fof_fund_search_rebuilder()
     print('fof fund rebuilder done!')
 
-    fof_management_search_rebuilder()
-    print('fof management rebuilder done!')
+    # fof_management_search_rebuilder()
+    # print('fof management rebuilder done!')
 
 
 if __name__ == '__main__':
