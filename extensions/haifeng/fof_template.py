@@ -107,13 +107,14 @@ class FOFTemplate:
     ############
 
     def save_fof_template(self, manager_id, fof_id):
+        # TODO: use products[fof_id]
         # products = self.get_products(manager_id)
         # products = {product['productCode']: product['productId'] for product in products}
         # if fof_id not in products:
         #     current_app.logger.info(f'[FOFTemplate] product not found (fof_id){fof_id}')
         #     return False
 
-        # templates = self.get_templates(products[fof_id])
+        # templates = self.get_templates(manager_id, products[fof_id])
         templates = self.get_templates(manager_id, 2064)
         if not templates:
             current_app.logger.info(f'[FOFTemplate] product no templates (fof_id){fof_id}')

@@ -284,8 +284,10 @@ class InvestorContract(BaseModel):
             raise LogicError('签约已完成！')
 
         self.update(**data)
-        if all((self.risk_disclose_verify, self.fund_contract_verify, self.protocol_verify,
-                self.fund_matching_verify, self.video_verify, self.lookback_verify)):
+        # TODO: cancel hide some contracts
+        # if all((self.risk_disclose_verify, self.fund_contract_verify, self.protocol_verify,
+        #         self.fund_matching_verify, self.video_verify, self.lookback_verify)):
+        if all((self.fund_contract_verify, self.protocol_verify)):
             self.update(contract_status=ContractStatus.SIGNED)
         return self.get_contract()
 
