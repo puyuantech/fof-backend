@@ -71,8 +71,6 @@ class ProductionsAPI(ApiViewHandler):
             'custodian_fee': request.json.get('custodian_fee'),
             'administrative_fee': request.json.get('administrative_fee'),
             'lock_up_period': request.json.get('lock_up_period'),
-            'incentive_fee_mode': request.json.get('incentive_fee_mode'),
-            'incentive_fee': request.json.get('incentive_fee'),
             'current_deposit_rate': request.json.get('current_deposit_rate'),
             'initial_raised_fv': request.json.get('initial_raised_fv', 1),
             'initial_net_value': request.json.get('initial_net_value'),
