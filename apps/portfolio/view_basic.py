@@ -30,7 +30,7 @@ class PortfolioNavAPI(ApiViewHandler):
 
         trade_history = get_trade_history(data.pop('portfolio_id'))
         fund_nav = PortfolioDataApi().get_portfolio_nav(trade_history)['净值']
-        df = PortfolioDataApi().get_portfolio_mv(fund_nav, **data)
+        df = PortfolioDataApi().get_portfolio_mv(fund_nav, trade_history=trade_history, **data)
 
         df['data'] = replace_nan(df['data'].reset_index().to_dict('list'))
         return df
@@ -44,7 +44,7 @@ class PortfolioStatsAPI(ApiViewHandler):
         trade_history = get_trade_history(data['portfolio_id'])
 
         fund_nav = PortfolioDataApi().get_portfolio_nav(trade_history)['净值']
-        df = PortfolioDataApi().get_portfolio_stats(fund_nav, index_id=data['index_id'])
+        df = PortfolioDataApi().get_portfolio_stats(fund_nav, data['index_id'], trade_history)
         if df is None:
             return
         return replace_nan(df.reset_index().to_dict('list'))
