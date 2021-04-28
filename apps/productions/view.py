@@ -87,6 +87,7 @@ class ProductionsAPI(ApiViewHandler):
             'fof_manager': request.json.get('fof_manager'),
             'benchmark_index': request.json.get('benchmark_index'),
             'desc_name': request.json.get('desc_name'),
+            'custodian_name': request.json.get('custodian_name'),
             'open_date': request.json.get('open_date'),
         }
         if FOFInfo.filter_by_query(
