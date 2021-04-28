@@ -2,7 +2,7 @@
 from flask import g
 from bases.validation import FOFValidation, ContractValidation
 from bases.viewhandler import ApiViewHandler
-from models import InvestorContract, ContractTemplate
+from models import InvestorContract, ProductionContract
 from utils.decorators import login_required
 
 from .libs import fill_investor_contract, fill_investor_contracts, get_contract_url_key
@@ -32,7 +32,12 @@ class ContractTemplateAPI(ApiViewHandler):
     @login_required
     def get(self):
         data = FOFValidation.get_valid_data(self.input)
-        return ContractTemplate.get_template_ids(**data)
+        contracts = ProductionContract.filter_by_query(
+            investor_id=g.token.investor_id,
+            manager_id=g.token.manager_id,
+            **data
+        ).all()
+        return {contract.template_type: contract.to_dict() for contract in contracts}
 
 
 class RiskDiscloseAPI(ApiViewHandler):
