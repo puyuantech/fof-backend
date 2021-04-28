@@ -56,3 +56,24 @@ class ContractTemplate(BaseModel):
         templates = cls.filter_by_query(fof_id=fof_id, manager_id=manager_id).all()
         return [template.to_dict() for template in templates]
 
+
+class ProductionContract(BaseModel):
+    """产品合同(管理人已签署)"""
+    __tablename__ = 'production_contract'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    investor_id = db.Column(db.String(32))
+    manager_id = db.Column(db.String(32))
+    fof_id = db.Column(db.String(16))
+
+    template_id = db.Column(db.Integer)
+    template_type = db.Column(db.String(16))      # 模板类型: ContractTemplateType
+
+    contract_id = db.Column(db.Integer)
+    contract_url_key = db.Column(db.String(128))  # 合同文件
+    union_key = db.Column(db.String(128))         # 合同unionKey
+
+    signed = db.Column(db.Boolean, default=False) # 是否签署
+    sign_time = db.Column(db.DATETIME)            # 签署时间
+

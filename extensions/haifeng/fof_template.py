@@ -3,11 +3,11 @@ import requests
 
 from flask import current_app
 
-from bases.constants import HaiFengTemplateType, HaiFengCertType
+from bases.constants import HaiFengTemplateType, HaiFengCertType, TemplateStatus
 from bases.exceptions import LogicError
 from bases.globals import db, settings
 from extensions.s3.pdf_store import PdfStore
-from models import ContractTemplate
+from models import ContractTemplate, ProductionTemplate, ProductionContract
 
 from .haifeng_token import HaiFengToken
 
@@ -35,24 +35,37 @@ class FOFTemplate:
     # Manager #
     ###########
 
-    def get_products(self) -> 'list | None':
+    def get_products(self, manager_id) -> 'list | None':
         endpoint = '/v2/contract/getProductList'
-        return self._parse_data(self._request(endpoint))
+        params = {'extId': manager_id}
+        return self._parse_data(self._request(endpoint, params))
 
-    def get_templates(self, product_id: int) -> 'list | None':
+    def get_templates(self, manager_id, product_id: int) -> 'list | None':
         endpoint = '/v2/contract/getTemplateListByProduct'
-        params = {'productId': product_id}
+        params = {'extId': manager_id, 'productId': product_id}
         return self._parse_data(self._request(endpoint, params))
 
-    def get_template_detail(self, template_id) -> 'dict | None':
+    def get_template_detail(self, manager_id, template_id) -> 'dict | None':
         endpoint = '/v2/contract/getTemplateInfo'
-        params = {'contractTemplateId': template_id}
+        params = {'extId': manager_id, 'contractTemplateId': template_id}
         return self._parse_data(self._request(endpoint, params))
+
+    def get_template_download_url(self, manager_id, template_id) -> 'str | None':
+        template_detail = self.get_template_detail(manager_id, template_id)
+        if not template_detail:
+            return
+        return template_detail['downloadUrl']
 
     def get_contract_detail(self, contract_id) -> 'dict | None':
         endpoint = '/v2/contract/getContractInfo'
         params = {'contractId': contract_id}
         return self._parse_data(self._request(endpoint, params))
+
+    def get_contract_download_url(self, contract_id) -> str:
+        contract_detail = self.get_contract_detail(contract_id)
+        if not contract_detail:
+            raise LogicError('获取合同文件失败!')
+        return contract_detail['contractFileUrl']
 
     ############
     # Investor #
@@ -74,18 +87,34 @@ class FOFTemplate:
             current_app.logger.error(f'[register_investor] Failed! (data){data}')
             return data['message']
 
+    def generate_contract(self, manager_id, template_id, investor_id) -> 'int | None':
+        endpoint = '/v2/InfoProvision/setContractInfo'
+        params = {
+            'extId': manager_id,
+            'individualId': investor_id,
+            'investorType': 1, # 1: 个人; 2: 机构
+            'contractTemplateId': template_id,
+        }
+        data = self._request(endpoint, params)
+
+        if data['success'] != 1:
+            current_app.logger.error(f'[generate_contract] Failed! (data){data}')
+            return
+        return data['data']['contractId']
+
     ############
     # Function #
     ############
 
     def save_fof_template(self, manager_id, fof_id):
-        products = self.get_products()
-        products = {product['productCode']: product['productId'] for product in products}
-        if fof_id not in products:
-            current_app.logger.info(f'[FOFTemplate] product not found (fof_id){fof_id}')
-            return False
+        # products = self.get_products(manager_id)
+        # products = {product['productCode']: product['productId'] for product in products}
+        # if fof_id not in products:
+        #     current_app.logger.info(f'[FOFTemplate] product not found (fof_id){fof_id}')
+        #     return False
 
-        templates = self.get_templates(products[fof_id])
+        # templates = self.get_templates(products[fof_id])
+        templates = self.get_templates(manager_id, 2064)
         if not templates:
             current_app.logger.info(f'[FOFTemplate] product no templates (fof_id){fof_id}')
             return False
@@ -102,7 +131,7 @@ class FOFTemplate:
             if template_id in template_ids:
                 continue
 
-            template_url = self.get_template_download_url(template_id)
+            template_url = self.get_template_download_url(manager_id, template_id)
             if not template_url:
                 continue
             template_url_key = PdfStore().store_template_pdf(template_url, template_id)
@@ -122,15 +151,33 @@ class FOFTemplate:
             db.session.commit()
         return flag
 
-    def get_template_download_url(self, template_id) -> 'str | None':
-        template_detail = self.get_template_detail(template_id)
-        if not template_detail:
-            return
-        return template_detail['downloadUrl']
+    def generate_contracts(self, investor_id, manager_id, fof_id):
+        production_template = ProductionTemplate.filter_by_query(fof_id=fof_id, manager_id=manager_id).first()
+        if not production_template:
+            raise LogicError('产品合同模板未上架！')
+        if production_template.template_status != TemplateStatus.COMPLETED:
+            raise LogicError('产品合同模板未签署完成！')
 
-    def get_contract_download_url(self, contract_id) -> str:
-        contract_detail = self.get_contract_detail(contract_id)
-        if not contract_detail:
-            raise LogicError('获取合同文件失败!')
-        return contract_detail['contractFileUrl']
+        templates = ContractTemplate.get_template_ids(fof_id)
+        for template_type, template_id in templates.items():
+            contract_id = self.generate_contract(manager_id, template_id, investor_id)
+            if not contract_id:
+                raise LogicError('生成投资者产品合同失败！')
+            contract_detail = self.get_contract_detail(contract_id)
+            if not contract_detail:
+                raise LogicError('获取产品合同详情失败！')
+            contract_url_key = PdfStore().store_contract_pdf(investor_id, contract_detail['contractFileUrl'], contract_id)
+
+            ProductionContract(
+                investor_id=investor_id,
+                manager_id=manager_id,
+                fof_id=fof_id,
+                template_id=template_id,
+                template_type=template_type,
+                contract_id=contract_id,
+                contract_url_key=contract_url_key,
+                union_key=contract_detail['unionKey'],
+            ).save(commit=False)
+
+        db.session.commit()
 

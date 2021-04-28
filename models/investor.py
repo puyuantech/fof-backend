@@ -314,6 +314,8 @@ class InvestorContract(BaseModel):
         if self.contract_status != ContractStatus.BOOKED:
             raise LogicError('预约已处理！')
 
+        from extensions.haifeng.fof_template import FOFTemplate
+        FOFTemplate().generate_contracts(investor_id, manager_id, fof_id)
         self.update(contract_status=ContractStatus.SIGNING)
         return self.get_contract()
 
