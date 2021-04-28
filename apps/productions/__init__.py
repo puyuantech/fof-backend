@@ -14,6 +14,7 @@ from .view_trades import *
 from .view_nav import *
 from .view_tags import ProTagAPI
 from .view_custodian import NavCompare, CusNavFileHtml, UploadCusNav, CalcPosition, CusPosition, CalcTrades, FundAliasAPI
+from .view_search import FOFHasNav, FOFForHedge
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/production')
 api = Api(blu)
@@ -113,3 +114,6 @@ api.add_resource(CusPosition, '/cus_position/<string:fof_id>/<string:date_str>')
 api.add_resource(CalcTrades, '/calc_trades/<string:fof_id>/<string:date_str>')
 api.add_resource(FundAliasAPI, '/fund_alias')
 
+# search
+api.add_resource(FOFHasNav, '/has_nav_fof')
+api.add_resource(FOFForHedge, '/fof_hedge_fof')

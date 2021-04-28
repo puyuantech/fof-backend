@@ -25,13 +25,27 @@ def get_hedge_fund_cache():
     from bases.globals import db
     from models import FOFInfo
 
+    def replace_fund_name(x):
+        if x['desc_name']:
+            return x
+
+        if not x['fof_name']:
+            return x
+        x['desc_name'] = x['fof_name'].replace('证券投资私募基金', '')
+        x['desc_name'] = x['fof_name'].replace('私募证券投资基金', '')
+        x['desc_name'] = x['fof_name'].replace('市场基金', '')
+        x['desc_name'] = x['fof_name'].replace('证券投资基金', '')
+        return x
+
     results = db.session.query(
         FOFInfo,
     ).filter(
         FOFInfo.manager_id != '1',
+        FOFInfo.is_deleted == False,
     ).all()
 
     df = pd.DataFrame([i.to_dict() for i in results])
+    df = df.apply(replace_fund_name, axis=1)
     df['order_book_id'] = df['fof_id']
     return df.set_index('fof_id')
 
@@ -47,7 +61,7 @@ def get_fund_cache():
         data[i] = mutual_fund.loc[i, 'fund_name']
 
     for i in hedge_fund.index:
-        data[i] = hedge_fund.loc[i, 'fof_name']
+        data[i] = hedge_fund.loc[i, 'desc_name']
 
     return data
 
