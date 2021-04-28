@@ -1,6 +1,6 @@
 
 from flask import g
-from bases.validation import FOFValidation, ContractValidation
+from bases.validation import InvestorValidation, FOFValidation, ContractValidation
 from bases.viewhandler import ApiViewHandler
 from models import InvestorContract, ProductionContract
 from utils.decorators import login_required
@@ -23,7 +23,8 @@ class ContractListAPI(ApiViewHandler):
 
     @login_required
     def get(self):
-        investor_contracts = InvestorContract.get_investor_contracts(g.token.investor_id, g.token.manager_id)
+        data = InvestorValidation.get_valid_data(self.input)
+        investor_contracts = InvestorContract.get_investor_contracts(manager_id=g.token.manager_id, **data)
         return fill_investor_contracts(g.token.manager_id, investor_contracts)
 
 
