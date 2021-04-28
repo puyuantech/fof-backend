@@ -65,6 +65,53 @@ class NavUpdateAPI(ApiViewHandler):
             'dates': dates_str,
         }
 
+        if method == 'delete':
+
+            db.session.query(
+                FOFNav
+            ).filter(
+                FOFNav.fof_id == fof_id,
+                FOFNav.manager_id == g.token.manager_id,
+                FOFNav.datetime.in_(dates),
+            ).delete(synchronize_session=False)
+
+            db.session.query(
+                FOFUnconfirmedNav
+            ).filter(
+                FOFUnconfirmedNav.fof_id == fof_id,
+                FOFUnconfirmedNav.manager_id == g.token.manager_id,
+                FOFUnconfirmedNav.datetime.in_(dates),
+            ).delete(synchronize_session=False)
+
+        if method == 'cancel':
+
+            db.session.query(
+                FOFNav
+            ).filter(
+                FOFNav.fof_id == fof_id,
+                FOFNav.manager_id == g.token.manager_id,
+                FOFNav.datetime.in_(dates),
+            ).delete(synchronize_session=False)
+
+            db.session.query(
+                FOFUnconfirmedNav
+            ).filter(
+                FOFUnconfirmedNav.fof_id == fof_id,
+                FOFUnconfirmedNav.manager_id == g.token.manager_id,
+                FOFUnconfirmedNav.datetime.in_(dates),
+            ).delete(synchronize_session=False)
+
+            for i in nav_data:
+                new = FOFUnconfirmedNav(
+                    fof_id=fof_id,
+                    nav=i['单位净值'],
+                    acc_net_value=i.get('累计净值'),
+                    datetime=i['日期'],
+                    manager_id=g.token.manager_id,
+                )
+                db.session.add(new)
+            db.session.commit()
+
         if method == 'confirm':
 
             db.session.query(
@@ -81,9 +128,7 @@ class NavUpdateAPI(ApiViewHandler):
                 FOFUnconfirmedNav.fof_id == fof_id,
                 FOFUnconfirmedNav.manager_id == g.token.manager_id,
                 FOFUnconfirmedNav.datetime.in_(dates),
-            ).update({
-                'is_deleted': True,
-            }, synchronize_session='fetch')
+            ).delete(synchronize_session=False)
 
             for i in nav_data:
                 new = FOFNav(

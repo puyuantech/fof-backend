@@ -28,6 +28,8 @@ class NavCompare(ApiViewHandler):
 
     @login_required
     def get(self, fof_id):
+        is_not_page = request.args.get('is_not_page')
+
         calc = db.session.query(
             FOFNavCalc.datetime,
             FOFNavCalc.nav,
@@ -83,6 +85,11 @@ class NavCompare(ApiViewHandler):
 
         df = df.reset_index()
         df = df.sort_values('datetime', ascending=False)
+
+        if is_not_page:
+            df = df[['nav', 'cus_nav', 'datetime']]
+            df = df.sort_values('datetime')
+            return replace_nan(df.to_dict(orient='list'))
 
         s = DataFrameDictSerializer()
         data = s.to_representation(df)

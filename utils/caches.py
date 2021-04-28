@@ -23,27 +23,45 @@ def get_fund_collection_caches():
 def get_hedge_fund_cache():
     import pandas as pd
     from bases.globals import db
-    from models import HedgeFundInfo
+    from models import FOFInfo
+
+    def replace_fund_name(x):
+        if x['desc_name']:
+            return x
+
+        if not x['fof_name']:
+            return x
+        x['desc_name'] = x['fof_name'].replace('证券投资私募基金', '')
+        x['desc_name'] = x['fof_name'].replace('私募证券投资基金', '')
+        x['desc_name'] = x['fof_name'].replace('市场基金', '')
+        x['desc_name'] = x['fof_name'].replace('证券投资基金', '')
+        return x
 
     results = db.session.query(
-        HedgeFundInfo,
+        FOFInfo,
+    ).filter(
+        FOFInfo.manager_id != '1',
+        FOFInfo.is_deleted == False,
     ).all()
+
     df = pd.DataFrame([i.to_dict() for i in results])
-    df['order_book_id'] = df['fund_id']
-    return df.set_index('fund_id')
+    df = df.apply(replace_fund_name, axis=1)
+    df['order_book_id'] = df['fof_id']
+    return df.set_index('fof_id')
 
 
-@cache.memoize(timeout=30, make_name='get_fund_cache')
 def get_fund_cache():
+    from flask import g
     data = dict()
     mutual_fund = get_fund_collection_caches()
     hedge_fund = get_hedge_fund_cache()
+    hedge_fund = hedge_fund[hedge_fund['manager_id'] == g.token.manager_id]
 
     for i in mutual_fund.index:
         data[i] = mutual_fund.loc[i, 'fund_name']
 
     for i in hedge_fund.index:
-        data[i] = hedge_fund.loc[i, 'fund_name']
+        data[i] = hedge_fund.loc[i, 'desc_name']
 
     return data
 

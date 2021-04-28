@@ -78,6 +78,8 @@ class IndexPeriodRetAPI(ApiViewHandler):
             ('close',),
         )
         df = df.set_index('datetime')
+        if len(df) < 1:
+            return {}
         data = Calculator.get_recent_ret(df.index, df['close']).__dict__
         return replace_nan(data)
 
