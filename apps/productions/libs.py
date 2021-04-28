@@ -40,6 +40,7 @@ def update_production_info(obj):
         'fof_manager',
         'desc_name',
         'open_date',
+        'custodian_name',
     ]
     for i in columns:
         if request.json.get(i) is not None:
