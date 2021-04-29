@@ -107,7 +107,8 @@ class ProMixin:
             for i in df_pri.index:
                 df = df.append(df_pri.loc[i, :], ignore_index=True)
 
-        df['is_unconfirmed'] = True
+        df['is_unconfirmed'] = False
+
         # 获取未确认净值
         if unconfirmed:
             df_unc = self.get_unconfirmed_nav(fof_id)
@@ -215,6 +216,6 @@ class ProMixin:
             'acc_net_value': i[2],
         } for i in results])
 
-        df['is_unconfirmed'] = False
+        df['is_unconfirmed'] = True
         df['datetime'] = pd.to_datetime(df['datetime'])
         return df

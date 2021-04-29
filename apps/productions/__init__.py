@@ -5,6 +5,7 @@ from .view import ProductionsAPI, ProductionAPI, ProductionNav, \
     ProductionTrades, ProductionPosition, \
     ProductionInvestor, ProductionTradesSingle, \
     ProductionInvestorTrades, ProductionInvestorTradesSingle, CreateProductionID
+from .view import ProductionStructureAPI, ProductionStructureChangeAPI
 from .view_subsidiary import *
 from .view_subsidiary2 import *
 from .view_refresh import ProductionRefresh, ProductionPublicRefresh
@@ -22,6 +23,10 @@ api = Api(blu)
 api.add_resource(ProductionsAPI, '')
 api.add_resource(ProductionAPI, '/<string:_id>')
 api.add_resource(CreateProductionID, '/create_id')
+
+# 分级
+api.add_resource(ProductionStructureAPI, '/structure/<string:main_id>')
+api.add_resource(ProductionStructureChangeAPI, '/structure_change/<string:sub_id>')
 
 api.add_resource(ProductionNavPublic, '/display/<string:fof_id>')
 api.add_resource(ProductionNavPublicSingle, '/display_single/<string:fof_id>')
