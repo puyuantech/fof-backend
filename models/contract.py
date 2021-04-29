@@ -3,9 +3,9 @@ from bases.constants import TemplateStatus
 from bases.dbwrapper import db, BaseModel
 
 
-class ProductionTemplate(BaseModel):
+class ProductionSignStatus(BaseModel):
     """产品合同模板状态"""
-    __tablename__ = 'production_template'
+    __tablename__ = 'production_sign_status'
 
     id = db.Column(db.Integer, primary_key=True)
     fof_id = db.Column(db.String(16))
