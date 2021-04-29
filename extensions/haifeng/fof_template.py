@@ -28,7 +28,7 @@ class FOFTemplate:
         response = requests.post(self.host + endpoint, json=params, timeout=5, headers=headers)
 
         data = response.json()
-        current_app.logger.info(f'[FOFTemplate] (endpoint){endpoint} (data){data}')
+        current_app.logger.info(f'[FOFTemplate] (endpoint){endpoint} (data){data} (params){params}')
         return data
 
     ###########
