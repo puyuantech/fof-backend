@@ -7,7 +7,7 @@ from bases.constants import HaiFengTemplateType, HaiFengCertType, TemplateStatus
 from bases.exceptions import LogicError
 from bases.globals import db, settings
 from extensions.s3.pdf_store import PdfStore
-from models import ContractTemplate, ProductionTemplate, ProductionContract
+from models import ContractTemplate, ProductionSignStatus, ProductionContract
 
 from .haifeng_token import HaiFengToken
 
@@ -153,7 +153,7 @@ class FOFTemplate:
         return flag
 
     def generate_contracts(self, investor_id, manager_id, fof_id):
-        production_template = ProductionTemplate.filter_by_query(fof_id=fof_id, manager_id=manager_id).first()
+        production_template = ProductionSignStatus.filter_by_query(fof_id=fof_id, manager_id=manager_id).first()
         if not production_template:
             raise LogicError('产品合同模板未上架！')
         if production_template.template_status != TemplateStatus.COMPLETED:
