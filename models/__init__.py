@@ -12,7 +12,7 @@ from .investor import *
 from .risk_level import *
 from .management import *
 from .manager import *
-from .contract import *
+from .production import *
 from .message import *
 from .notification import *
 from .portfolio import *

@@ -5,7 +5,7 @@ from bases.constants import TemplateStatus
 from bases.exceptions import LogicError
 from bases.viewhandler import ApiViewHandler
 from extensions.haifeng.fof_template import FOFTemplate
-from models import InvestorContract, FOFInfo, ProductionSignStatus
+from models import FOFInfo, InvestorContract, ProductionSignStatus
 from utils.decorators import login_required
 
 from .validators.contract import FOFStartValidation

@@ -7,7 +7,7 @@ from bases.constants import HaiFengTemplateType, HaiFengCertType, TemplateStatus
 from bases.exceptions import LogicError
 from bases.globals import db, settings
 from extensions.s3.pdf_store import PdfStore
-from models import ContractTemplate, ProductionSignStatus, ProductionContract
+from models import ProductionContract, ProductionSignStatus, ProductionTemplate
 
 from .haifeng_token import HaiFengToken
 
@@ -120,7 +120,7 @@ class FOFTemplate:
             current_app.logger.info(f'[FOFTemplate] product no templates (fof_id){fof_id}')
             return False
 
-        template_ids = ContractTemplate.filter_by_query().all()
+        template_ids = ProductionTemplate.filter_by_query().all()
         template_ids = set(template_id.template_id for template_id in template_ids)
 
         flag = False
@@ -137,7 +137,7 @@ class FOFTemplate:
                 continue
             template_url_key = PdfStore().store_template_pdf(template_url, template_id)
 
-            ContractTemplate(
+            ProductionTemplate(
                 template_id=template_id,
                 fof_id=fof_id,
                 manager_id=manager_id,
@@ -159,7 +159,7 @@ class FOFTemplate:
         if production_template.template_status != TemplateStatus.COMPLETED:
             raise LogicError('产品合同模板未签署完成！')
 
-        templates = ContractTemplate.get_template_ids(fof_id)
+        templates = ProductionTemplate.get_template_ids(fof_id)
         for template_type, template_id in templates.items():
             contract_id = self.generate_contract(manager_id, template_id, investor_id)
             if not contract_id:
