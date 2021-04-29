@@ -90,6 +90,7 @@ class ProductionsAPI(ApiViewHandler):
             'open_date': request.json.get('open_date'),
             'custodian_name': request.json.get('custodian_name'),
             'fund_status': request.json.get('fund_status'),
+            'is_structured': request.json.get('is_structured'),
         }
         if FOFInfo.filter_by_query(
             fof_id=self.input.fof_id,
@@ -129,6 +130,17 @@ class ProductionAPI(ApiViewHandler, ProMixin):
             data.update(s.to_dict())
         else:
             data['calc_status'] = FOFCalcStatus.StatusEnum.SUCCESS
+
+        if obj.is_structured:
+            subs = db.session.query(
+                FOFInfo
+            ).filter(
+                FOFInfo.main_fof_id == obj.fof_id,
+                FOFInfo.manager_id == g.token.manager_id,
+                FOFInfo.is_deleted == False,
+            ).order_by(FOFInfo.fof_id.asc()).all()
+            data['structure'] = [i.to_dict() for i in subs]
+
         return data
 
     @admin_login_required([StuffEnum.ADMIN, StuffEnum.OPE_MANAGER])
@@ -147,6 +159,127 @@ class ProductionAPI(ApiViewHandler, ProMixin):
         g.user_operation = '删除产品'
         g.user_operation_params = {'fof_id': _id}
         obj = self.select_model(fof_id=_id)
+        obj.logic_delete()
+
+
+class ProductionCalcStatusAPI(ApiViewHandler, ProMixin):
+
+    @login_required
+    def get(self, _id):
+        self.select_model(fof_id=_id)
+        s = FOFCalcStatus.filter_by_query(
+            fof_id=_id,
+            manager_id=g.token.manager_id,
+        ).first()
+        if s:
+            data = s.to_dict()
+        else:
+            data = {
+                'calc_status': FOFCalcStatus.StatusEnum.SUCCESS,
+            }
+        return data
+
+
+class ProductionStructureAPI(ApiViewHandler, ProMixin):
+
+    @params_required(*['structure_type'])
+    @login_required
+    def post(self, main_id):
+        """创建分级基金"""
+        main_obj = self.select_model(fof_id=main_id)
+        main_obj.is_structured = True
+        main_obj.save()
+
+        manager_id = g.token.manager_id if request.json.get('is_private') else '1'
+        fof_id = main_id + '_' + request.json.get('structure_type')
+        fof_name = main_obj.fof_name + '_' + request.json.get('structure_type')
+
+        asset_type = request.json.get('asset_type')
+        if asset_type not in ['production', 'hedge', 'sub']:
+            raise VerifyError('asset_type Error')
+        data = {
+            'fof_id': fof_id,
+            'manager_id': g.token.manager_id if request.json.get('is_private') else '1',
+            'datetime': request.json.get('datetime'),
+            'fof_name': fof_name,
+            'admin': request.json.get('admin'),
+            'established_date': request.json.get('established_date'),
+            'fof_status': request.json.get('fof_status'),
+            'subscription_fee': request.json.get('subscription_fee'),
+            'redemption_fee': request.json.get('redemption_fee'),
+            'management_fee': request.json.get('management_fee'),
+            'custodian_fee': request.json.get('custodian_fee'),
+            'administrative_fee': request.json.get('administrative_fee'),
+            'lock_up_period': request.json.get('lock_up_period'),
+            'current_deposit_rate': request.json.get('current_deposit_rate'),
+            'initial_raised_fv': request.json.get('initial_raised_fv', 1),
+            'initial_net_value': request.json.get('initial_net_value'),
+            'incentive_fee_type': request.json.get('incentive_fee_type'),
+            'incentive_fee_str': request.json.get('incentive_fee_str'),
+            'strategy_type': request.json.get('strategy_type'),
+            'sub_strategy_type': request.json.get('sub_strategy_type'),
+            'risk_type': request.json.get('risk_type'),
+            'is_fof': request.json.get('is_fof'),
+            'is_on_sale': request.json.get('is_on_sale'),
+            'benchmark': request.json.get('benchmark'),
+            'asset_type': request.json.get('asset_type'),
+            'nav_freq': request.json.get('nav_freq'),
+            'fof_manager': request.json.get('fof_manager'),
+            'benchmark_index': request.json.get('benchmark_index'),
+            'desc_name': request.json.get('desc_name'),
+            'open_date': request.json.get('open_date'),
+            'custodian_name': request.json.get('custodian_name'),
+            'fund_status': request.json.get('fund_status'),
+            'main_fof_id': main_id,
+        }
+        if FOFInfo.filter_by_query(
+                fof_id=fof_id,
+                manager_id=manager_id,
+                show_deleted=True
+        ).one_or_none():
+            raise VerifyError('ID 重复')
+        obj = FOFInfo.create(**data)
+
+        FOFNav.create(
+            manager_id=manager_id,
+            fof_id=request.json.get('fof_id'),
+            datetime=request.json.get('established_date'),
+            nav=1,
+            acc_net_value=1,
+            adjusted_nav=1,
+        )
+
+        g.user_operation = '添加分级产品'
+        g.user_operation_params = {
+            'fof_id': obj.fof_id,
+            'main_id': main_id,
+        }
+        return {
+            'id': obj.fof_id,
+        }
+
+
+class ProductionStructureChangeAPI(ApiViewHandler, ProMixin):
+
+    @admin_login_required([StuffEnum.ADMIN, StuffEnum.OPE_MANAGER])
+    def put(self, sub_id):
+        obj = FOFInfo.filter_by_query(
+            fof_id=sub_id,
+            manager_id=g.token.manager_id,
+        ).first()
+        update_production_info(obj)
+
+        g.user_operation = '编辑分级产品详情'
+        g.user_operation_params = {
+            'fof_id': sub_id,
+        }
+        return
+
+    @login_required
+    def delete(self, sub_id):
+        g.user_operation = '删除分级产品'
+        g.user_operation_params = {'fof_id': sub_id}
+        obj = self.select_model(fof_id=sub_id)
         obj.logic_delete()
 
 
