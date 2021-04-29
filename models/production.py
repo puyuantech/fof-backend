@@ -15,7 +15,7 @@ class ProductionSignStatus(BaseModel):
     def get_detail(self):
         templates = []
         if self.template_status in (TemplateStatus.SIGNING, TemplateStatus.COMPLETED):
-            templates = ContractTemplate.get_templates(self.fof_id, self.manager_id)
+            templates = ProductionTemplate.get_templates(self.fof_id, self.manager_id)
             if self.template_status == TemplateStatus.SIGNING and templates and all(template['signed'] for template in templates):
                 self.update(template_status=TemplateStatus.COMPLETED)
 
@@ -34,9 +34,9 @@ class ProductionSignStatus(BaseModel):
         return fof_infos
 
 
-class ContractTemplate(BaseModel):
+class ProductionTemplate(BaseModel):
     """合同模板"""
-    __tablename__ = 'contract_template'
+    __tablename__ = 'production_template'
 
     template_id = db.Column(db.Integer, primary_key=True)
     fof_id = db.Column(db.String(16), index=True)
