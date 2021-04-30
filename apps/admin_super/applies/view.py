@@ -1,3 +1,4 @@
+from flask import request
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError
 from models import ApplyFile, ManagerInfo, ApplyStatus
@@ -85,6 +86,10 @@ class AppliesAPI(ApiViewHandler):
         obj.admin_cred_no = self.input.admin_cred_no
         obj.admin_cred_type = self.input.admin_cred_type
         obj.admin_cred_file = self.input.admin_cred_file
+        if request.json.get('basic_account'):
+            obj.basic_account = request.json.get('basic_account')
+            obj.basic_account_name = request.json.get('basic_account_name')
+            obj.basic_account_address = request.json.get('basic_account_address')
         obj.sign_stage = 2
         obj.save()
         ApplyStatus.create(
