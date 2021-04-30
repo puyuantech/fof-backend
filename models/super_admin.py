@@ -114,6 +114,9 @@ class ApplyFile(BaseModel):
     admin_cred_no = db.Column(db.String(63))                            # 签约人证件号码
     admin_cred_type = db.Column(db.String(31))                          # 签约人证件类型
     admin_cred_file = db.Column(db.String(127))                         # 签约人证件文件
+    basic_account = db.Column(db.String(127))                           # 对公账户账号
+    basic_account_name = db.Column(db.String(127))                      # 对公账户名称
+    basic_account_address = db.Column(db.String(127))                   # 对公账户开户行
     sign_stage = db.Column(db.Integer, default=1)                       # 提交阶段  1 ｜ 2
 
 

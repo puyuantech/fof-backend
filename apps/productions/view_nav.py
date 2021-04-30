@@ -220,6 +220,8 @@ class NavUpdateAPI(ApiViewHandler):
             obj.net_asset_value = float(df.iloc[-1]['net_asset_value'])
             obj.acc_unit_value = float(df.iloc[-1]['acc_unit_value'])
             obj.adjusted_net_value = float(df.iloc[-1]['adj_nav'])
+            obj.last_increase_rate = float(ratios.last_increase_rate) if ratios.last_increase_rate else None
+            obj.last_before_date = df.iloc[-2]['datetime'] if len(df) > 2 else None
             obj.save()
 
         except Exception as e:

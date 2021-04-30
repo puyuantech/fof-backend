@@ -66,6 +66,9 @@ class AppliesAPI(ApiViewHandler):
         'admin_cred_no',
         'admin_cred_type',
         'admin_cred_file',
+        'basic_account',
+        'basic_account_name',
+        'basic_account_address',
     ])
     def put(self):
         obj = ApplyFile.get_by_query(
@@ -85,6 +88,9 @@ class AppliesAPI(ApiViewHandler):
         obj.admin_cred_no = self.input.admin_cred_no
         obj.admin_cred_type = self.input.admin_cred_type
         obj.admin_cred_file = self.input.admin_cred_file
+        obj.basic_account = self.input.basic_account
+        obj.basic_account_name = self.input.basic_account_name
+        obj.basic_account_address = self.input.basic_account_address
         obj.sign_stage = 2
         obj.save()
         ApplyStatus.create(
