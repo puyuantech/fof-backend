@@ -84,6 +84,20 @@ def save_template(manager_id, fof_id):
     print(FOFTemplate().save_fof_template(manager_id, fof_id))
 
 
+@manager.command
+def sync_cas_tables():
+    from bases.globals import cas
+    from extensions.cas.cas_init import sync_cas_table
+    cas.init_conn()
+    sync_cas_table()
+
+
+@manager.command
+def update_portfolios():
+    from apps.portfolio.libs import daily_update_portfolio_infos
+    daily_update_portfolio_infos()
+
+
 if __name__ == '__main__':
     manager.run()
 

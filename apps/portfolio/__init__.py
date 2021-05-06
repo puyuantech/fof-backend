@@ -4,7 +4,7 @@ from flask_restful import Api
 from .view_asset import FundNavAPI, IndexInfoAPI, RollingCorrAPI, RollingBetaAPI
 from .view_basic import BenchmarkInfoAPI, PortfolioNavAPI, PortfolioStatsAPI, FundWeightAPI
 from .view_income import RetDistributionAPI
-from .view_info import PortfolioStatusAPI
+from .view_info import PortfolioInfoListAPI, PortfolioStatusAPI
 from .view_subfund import FundAlphaAPI, FundRetAPI, FundIndexAPI, FundPosAPI, ResolveDateAPI, RetResolveAPI
 from .view_trade import IndexListAPI, PortfolioTradeAPI, PortfolioTradeListAPI
 from .view_withdraw import FundMddAPI, CurMddAPI
@@ -24,6 +24,7 @@ api.add_resource(FundWeightAPI, '/basic/fund_weight')
 
 api.add_resource(RetDistributionAPI, '/income/ret_distribution')
 
+api.add_resource(PortfolioInfoListAPI, '/info/list')
 api.add_resource(PortfolioStatusAPI, '/info/status')
 
 api.add_resource(FundAlphaAPI, '/subfund/fund_alpha')
