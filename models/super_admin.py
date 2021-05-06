@@ -103,6 +103,8 @@ class ApplyFile(BaseModel):
     manager_cred_type = db.Column(db.String(31))                        # 证件类型
     manager_cred_file = db.Column(db.String(127))                       # 证件url
     manager_cred_no = db.Column(db.String(127))                         # 证件号码
+    manager_bank_card_no = db.Column(db.String(127))                    # 对公账户卡号
+    manager_bank_short_name = db.Column(db.String(127))                 # 对公帐号开户行简称
     legal_person = db.Column(db.String(31))                             # 法人
     lp_cred_type = db.Column(db.String(31))                             # 法人证件类型
     lp_cred_file = db.Column(db.String(127))                            # 法人证件文件
