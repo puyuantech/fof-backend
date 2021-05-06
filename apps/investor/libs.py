@@ -27,7 +27,7 @@ def fill_investor_contract(investor_contract: dict):
 
 
 def fill_investor_contracts(manager_id, investor_contracts: List[dict]):
-    fofs = FOFInfo.filter_by_query(manager_id=manager_id).all()
+    fofs = FOFInfo.filter_by_query(manager_id=manager_id, asset_type='production').all()
     fofs = {
         fof.fof_id: {'fof_name': fof.fof_name, 'risk_type': fof.risk_type}
         for fof in fofs
