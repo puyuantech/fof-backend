@@ -56,6 +56,8 @@ class AppliesAPI(ApiViewHandler):
         'manager_cred_type',
         'manager_cred_file',
         'manager_cred_no',
+        'manager_bank_card_no',
+        'manager_bank_short_name',
         'legal_person',
         'lp_cred_type',
         'lp_cred_file',
@@ -79,6 +81,8 @@ class AppliesAPI(ApiViewHandler):
         obj.lp_cred_type = self.input.lp_cred_type
         obj.lp_cred_file = self.input.lp_cred_file
         obj.lp_cred_no = self.input.lp_cred_no
+        obj.lp_bank_card_no = self.input.lp_bank_card_no
+        obj.lp_bank_short_name = self.input.lp_bank_short_name
         obj.authorization_file = self.input.authorization_file
         obj.service_file = self.input.service_file
         obj.admin_name = self.input.admin_name
