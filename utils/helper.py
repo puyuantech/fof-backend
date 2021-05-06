@@ -108,8 +108,8 @@ def validate_date(date_text):
 
 
 def json_str_to_dict(data):
-    if not data:
-        return None
+    if data is None:
+        return
     return json.loads(data)
 
 
@@ -135,6 +135,9 @@ def replace_nan(obj):
 
     if isinstance(obj, Iterable):
         return list(map(lambda x: replace_nan(x), obj))
+
+    if isinstance(obj, datetime.datetime):
+        return obj.strftime('%Y-%m-%d %H:%M:%S')
 
     if isinstance(obj, datetime.date):
         return obj.strftime('%Y-%m-%d')

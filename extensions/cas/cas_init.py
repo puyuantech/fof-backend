@@ -1,13 +1,16 @@
 from extensions.cas.cas_models.example import CasExample
+from extensions.cas.cas_models.production import ProductionInfoCas
 from cassandra.cqlengine.management import sync_table, drop_table, create_keyspace_simple, create_keyspace_network_topology
 
 
 def sync_cas_table():
     sync_table(CasExample)
+    sync_table(ProductionInfoCas)
 
 
 def drop_cas_table():
     drop_table(CasExample)
+    drop_table(ProductionInfoCas)
 
 
 if __name__ == '__main__':
