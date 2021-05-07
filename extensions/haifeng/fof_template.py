@@ -25,7 +25,7 @@ class FOFTemplate:
 
     def _request(self, endpoint, params=None):
         headers = HaiFengToken().get_headers()
-        response = requests.post(self.host + endpoint, json=params, timeout=5, headers=headers)
+        response = requests.post(self.host + endpoint, json=params, timeout=10, headers=headers)
 
         data = response.json()
         current_app.logger.info(f'[FOFTemplate] (endpoint){endpoint} (data){data} (params){params}')
