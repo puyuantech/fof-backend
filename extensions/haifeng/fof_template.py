@@ -56,13 +56,13 @@ class FOFTemplate:
             return
         return template_detail['downloadUrl']
 
-    def get_contract_detail(self, contract_id) -> 'dict | None':
+    def get_contract_detail(self, manager_id, contract_id) -> 'dict | None':
         endpoint = '/v2/contract/getContractInfo'
-        params = {'contractId': contract_id}
+        params = {'extId': manager_id, 'contractId': contract_id}
         return self._parse_data(self._request(endpoint, params))
 
-    def get_contract_download_url(self, contract_id) -> str:
-        contract_detail = self.get_contract_detail(contract_id)
+    def get_contract_download_url(self, manager_id, contract_id) -> str:
+        contract_detail = self.get_contract_detail(manager_id, contract_id)
         if not contract_detail:
             raise LogicError('获取合同文件失败!')
         return contract_detail['contractFileUrl']
@@ -164,7 +164,7 @@ class FOFTemplate:
             contract_id = self.generate_contract(manager_id, template_id, investor_id)
             if not contract_id:
                 raise LogicError('生成投资者产品合同失败！')
-            contract_detail = self.get_contract_detail(contract_id)
+            contract_detail = self.get_contract_detail(manager_id, contract_id)
             if not contract_detail:
                 raise LogicError('获取产品合同详情失败！')
             contract_url_key = PdfStore().store_contract_pdf(investor_id, contract_detail['contractFileUrl'], contract_id)
