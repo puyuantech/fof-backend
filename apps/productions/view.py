@@ -242,7 +242,7 @@ class ProductionStructureAPI(ApiViewHandler, ProMixin):
 
         FOFNav.create(
             manager_id=manager_id,
-            fof_id=request.json.get('fof_id'),
+            fof_id=obj.fof_id,
             datetime=request.json.get('established_date'),
             nav=1,
             acc_net_value=1,
